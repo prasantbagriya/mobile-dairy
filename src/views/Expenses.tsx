@@ -197,16 +197,16 @@ export default function Expenses() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <p className="text-sm font-bold text-slate-900">₹{exp.amount.toLocaleString()}</p>
-                      <span className="text-[9px] uppercase tracking-widest text-slate-500 bg-slate-100 px-1.5 py-0.5">{exp.category}</span>
-                      <span className="text-[9px] text-slate-400">{(exp as any).method || 'Cash'}</span>
+                      <p className="text-xs font-bold text-black">₹{exp.amount.toLocaleString()}</p>
+                      <span className="text-[8px] uppercase tracking-widest text-black bg-slate-100 px-1.5 py-0.5">{exp.category}</span>
+                      <span className="text-[8px] text-black">{(exp as any).method || 'Cash'}</span>
                     </div>
                     {exp.description && (
-                      <p className="text-xs text-slate-500 truncate mt-0.5">{exp.description}</p>
+                      <p className="text-[10px] text-black truncate mt-0.5">{exp.description}</p>
                     )}
                   </div>
                   <div className="text-right shrink-0 ml-2">
-                    <p className="text-[10px] text-slate-400 whitespace-nowrap">{exp.date}</p>
+                    <p className="text-[9px] text-black whitespace-nowrap">{exp.date}</p>
                     <button
                       onClick={async () => {
                         if (confirm('Delete this expense?')) {

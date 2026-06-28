@@ -257,7 +257,7 @@ export default function Customers() {
       <div className="-m-4 md:-m-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
         <div className="bg-white w-full min-h-screen overflow-hidden">
           <div className="bg-emerald-600 p-4 text-white flex items-center justify-between">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <div className="w-8 h-8 bg-white/20 flex items-center justify-center">
                 <Plus className="w-4 h-4" />
               </div>
@@ -271,21 +271,21 @@ export default function Customers() {
             </button>
           </div>
 
-          <div className="p-4 md:p-6 space-y-6 max-w-3xl mx-auto">
+          <div className="p-2 space-y-1.5 max-w-3xl mx-auto">
             {/* Contact Search Tool */}
-            <div className="p-4 bg-slate-50 border border-slate-200 space-y-2">
-              <p className="text-[10px] text-black uppercase tracking-widest leading-none">Import from Google Contacts</p>
+            <div className="p-2 bg-slate-50 border border-slate-200 space-y-2">
+              <p className="text-[10px] text-black font-medium leading-none">Import from Google Contacts</p>
               {!accessToken ? (
-                <div className="bg-amber-50 p-3 flex items-center justify-between border border-amber-200">
-                  <span className="text-[10px] text-amber-700">Google Contacts not connected</span>
-                  <button onClick={connectGoogle} className="px-3 py-1 bg-amber-600 text-white text-[10px] hover:bg-amber-700">Connect Google</button>
+                <div className="bg-amber-50 p-2 flex items-center justify-between border border-amber-200 overflow-x-auto custom-scrollbar">
+                  <span className="text-[10px] text-amber-700 whitespace-nowrap">Contacts not linked</span>
+                  <button onClick={connectGoogle} className="px-2 py-1 ml-1 bg-amber-600 text-white text-[10px] hover:bg-amber-700 whitespace-nowrap shrink-0">Connect Google</button>
                 </div>
               ) : (
                 <div className="flex gap-2">
                   <input 
                     type="text" 
                     placeholder="Search name or phone..." 
-                    className="flex-1 bg-white border border-slate-200 px-3 py-2 text-xs focus:outline-none"
+                    className="flex-1 bg-white border border-slate-200 px-2 py-1.5 text-xs focus:outline-none"
                     value={contactSearch}
                     onChange={e => setContactSearch(e.target.value)}
                   />
@@ -325,12 +325,12 @@ export default function Customers() {
               )}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
               <div className="md:col-span-2">
-                <label className="text-[10px] text-black uppercase tracking-widest block mb-1.5">Customer Name</label>
+                <label className="text-[10px] text-black font-medium block mb-1">Customer Name</label>
                 <input 
                   type="text" 
-                  className="w-full bg-slate-50 border border-slate-200 rounded-none px-4 py-3 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-black text-sm"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-none px-2 py-1.5 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-black text-sm"
                   value={currentCustomer?.name || ''}
                   onChange={(e) => setCurrentCustomer({...currentCustomer!, name: e.target.value})}
                   placeholder="Enter full name"
@@ -338,10 +338,10 @@ export default function Customers() {
               </div>
               
               <div>
-                <label className="text-[10px] text-black uppercase tracking-widest block mb-1.5">{t('mobile')}</label>
+                <label className="text-[10px] text-black font-medium block mb-1">{t('mobile')}</label>
                 <input 
                   type="tel" pattern="[0-9]*" inputMode="decimal" maxLength={10}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-none px-4 py-3 focus:ring-2 focus:ring-emerald-500 outline-none text-black text-sm"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-none px-2 py-1.5 focus:ring-2 focus:ring-emerald-500 outline-none text-black text-sm"
                   value={currentCustomer?.mobile || ''}
                   onChange={(e) => {
                     const val = e.target.value.replace(/[^0-9]/g, '');
@@ -350,39 +350,39 @@ export default function Customers() {
                 />
               </div>
               <div>
-                <label className="text-[10px] text-black uppercase tracking-widest block mb-1.5">Route Sequence</label>
+                <label className="text-[10px] text-black font-medium block mb-1">Route Sequence</label>
                 <input 
                   type="number" inputMode="decimal" pattern="[0-9]*" 
-                  className="w-full bg-slate-50 border border-slate-200 rounded-none px-4 py-3 focus:ring-2 focus:ring-emerald-500 outline-none text-black text-sm"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-none px-2 py-1.5 focus:ring-2 focus:ring-emerald-500 outline-none text-black text-sm"
                   value={currentCustomer?.sequence || ''}
                   onChange={(e) => setCurrentCustomer({...currentCustomer!, sequence: e.target.value as any})}
                 />
               </div>
 
               <div>
-                <label className="text-[10px] text-black uppercase tracking-widest block mb-1.5">Fixed Qty (Liters)</label>
+                <label className="text-[10px] text-black font-medium block mb-1">Fixed Qty (Liters)</label>
                 <input 
                   type="number" inputMode="decimal" pattern="[0-9]*" 
-                  className="w-full bg-emerald-50 border border-emerald-100 rounded-none px-4 py-3 focus:ring-2 focus:ring-emerald-500 outline-none text-emerald-800 text-sm"
+                  className="w-full bg-emerald-50 border border-emerald-100 rounded-none px-2 py-1.5 focus:ring-2 focus:ring-emerald-500 outline-none text-emerald-800 text-sm"
                   value={currentCustomer?.fixedQty || ''}
                   onChange={(e) => setCurrentCustomer({...currentCustomer!, fixedQty: parseFloat(e.target.value) || undefined})}
                 />
               </div>
               <div>
-                <label className="text-[10px] text-black uppercase tracking-widest block mb-1.5">Fixed Rate (₹/L)</label>
+                <label className="text-[10px] text-black font-medium block mb-1">Fixed Rate (₹/L)</label>
                 <input 
                   type="number" inputMode="decimal" pattern="[0-9]*" 
-                  className="w-full bg-slate-100 border border-slate-200 rounded-none px-4 py-3 focus:ring-2 focus:ring-emerald-500 outline-none text-black text-sm"
+                  className="w-full bg-slate-100 border border-slate-200 rounded-none px-2 py-1.5 focus:ring-2 focus:ring-emerald-500 outline-none text-black text-sm"
                   value={currentCustomer?.defaultRate || ''}
                   onChange={(e) => setCurrentCustomer({...currentCustomer!, defaultRate: e.target.value as any})}
                 />
               </div>
 
               <div className="md:col-span-2">
-                <label className="text-[10px] text-amber-600 uppercase tracking-widest block mb-1.5">Initial Dues (Opening Balance)</label>
+                <label className="text-[10px] text-amber-600 font-medium block mb-1">Initial Dues (Opening Balance)</label>
                 <input 
                   type="number" inputMode="decimal" pattern="[0-9]*" 
-                  className="w-full bg-amber-50 border border-amber-100 rounded-none px-4 py-3 focus:ring-2 focus:ring-amber-500 outline-none text-black text-sm"
+                  className="w-full bg-amber-50 border border-amber-100 rounded-none px-2 py-1.5 focus:ring-2 focus:ring-amber-500 outline-none text-black text-sm"
                   value={currentCustomer?.balance || ''}
                   onChange={(e) => setCurrentCustomer({...currentCustomer!, balance: parseFloat(e.target.value) || 0})}
                   disabled={!!currentCustomer?.id}
@@ -390,9 +390,9 @@ export default function Customers() {
               </div>
 
               <div className="md:col-span-2">
-                <label className="text-[10px] text-black uppercase tracking-widest block mb-1.5">{t('address')}</label>
+                <label className="text-[10px] text-black font-medium block mb-1">{t('address')}</label>
                 <textarea 
-                  className="w-full bg-slate-50 border border-slate-200 rounded-none px-4 py-3 focus:ring-2 focus:ring-emerald-500 outline-none text-black text-sm min-h-[80px]"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-none px-2 py-1.5 focus:ring-2 focus:ring-emerald-500 outline-none text-black text-sm min-h-[80px]"
                   value={currentCustomer?.address || ''}
                   onChange={(e) => setCurrentCustomer({...currentCustomer!, address: e.target.value})}
                   placeholder="Delivery address..."
@@ -400,15 +400,15 @@ export default function Customers() {
               </div>
             </div>
 
-            <div className="flex gap-4 pt-4 pb-12">
+            <div className="flex gap-2 pt-2 pb-4">
               <button 
                 onClick={() => { setShowForm(false); setCurrentCustomer(null); }}
-                className="flex-1 px-6 py-4 rounded-none bg-slate-100 text-black hover:bg-slate-200 transition-all text-xs tracking-wide font-medium"
+                className="flex-1 px-2 py-3 whitespace-nowrap rounded-none bg-slate-100 text-black hover:bg-slate-200 transition-all text-xs tracking-wide font-medium"
               >
                 Cancel
               </button>
-              <button onClick={handleSave} style={{ flex: 2 }} className="px-6 py-4 rounded-none bg-slate-900 text-white hover:bg-black transition-all flex items-center justify-center gap-2 text-xs tracking-wide font-medium">
-                <Save className="w-4 h-4" /> {currentCustomer?.id ? 'Update Customer' : 'Register Customer'}
+              <button onClick={handleSave} style={{ flex: 2 }} className="px-2 py-3 whitespace-nowrap rounded-none bg-slate-900 text-white hover:bg-black transition-all flex items-center justify-center gap-2 text-xs tracking-wide font-medium">
+                <Save className="w-4 h-4 shrink-0" /> {currentCustomer?.id ? 'Update Customer' : 'Register Customer'}
               </button>
             </div>
           </div>
@@ -422,7 +422,7 @@ export default function Customers() {
       <div className="flex items-center justify-between gap-2 md:gap-4">
         <div className="min-w-0">
           <h2 className="text-xl md:text-2xl text-slate-900 tracking-tight flex items-center gap-1.5 md:gap-2 truncate">{t('customers')} <InfoTooltip text="Manage your regular milk buyers and their accounts." /></h2>
-          <p className="text-black text-[9px] md:text-[10px] uppercase tracking-widest mt-0.5 truncate">{customers.length} retail customers</p>
+          <p className="text-black text-[9px] md:text-[10px] tracking-widest mt-0.5 truncate">{customers.length} retail customers</p>
         </div>
         <div className="flex items-center gap-1.5 md:gap-2 shrink-0">
           <button 
@@ -450,8 +450,8 @@ export default function Customers() {
         {/* Customer List Section */}
         <div className="space-y-4">
           {/* Search Bar */}
-          <div className="bg-white p-2 rounded-none border border-slate-100 flex items-center justify-between gap-3 px-4">
-            <div className="flex-1 flex items-center gap-3">
+          <div className="bg-white p-2 rounded-none border border-slate-100 flex items-center justify-between gap-2 px-4">
+            <div className="flex-1 flex items-center gap-2">
               <Search className="w-4 h-4 text-black" />
               <input 
                 type="text" 
@@ -489,13 +489,13 @@ export default function Customers() {
                   className={`bg-white p-2.5 md:p-4 rounded-none border border-slate-100 transition-shadow group relative overflow-hidden flex flex-col justify-between ${isDeactivated ? 'opacity-75 grayscale' : ''}`}
                 >
                   <div className="flex items-start justify-between mb-2 md:mb-3">
-                    <div className="flex items-center gap-1.5 md:gap-3 overflow-hidden">
+                    <div className="flex items-center gap-1.5 md:gap-2 overflow-hidden">
                       <div className={`w-8 h-8 md:w-10 md:h-10 shrink-0 rounded-none flex items-center justify-center text-xs md:text-sm font-bold ${isDeactivated ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600'}`}>
                         #{customer.sequence || '?'}
                       </div>
                       <div className="truncate">
                         <h3 className="text-slate-900 text-xs md:text-sm font-bold truncate">{customer.name}</h3>
-                        {isDeactivated && <span className="text-[8px] md:text-[10px] text-red-600 uppercase tracking-widest">Deactivated</span>}
+                        {isDeactivated && <span className="text-[8px] md:text-[10px] text-red-600 tracking-widest">Deactivated</span>}
                       </div>
                     </div>
                   </div>
@@ -535,7 +535,7 @@ export default function Customers() {
                       className="w-full py-1.5 bg-emerald-600 text-white hover:bg-emerald-700 rounded-none flex items-center justify-center gap-1.5 border border-emerald-700"
                     >
                       <FileText className="w-3 h-3" />
-                      <span className="text-[9px] uppercase tracking-widest font-bold">Full Detail</span>
+                      <span className="text-[9px] tracking-widest font-bold">Full Detail</span>
                     </button>
                   </div>
                 </div>
@@ -546,12 +546,12 @@ export default function Customers() {
               <table className="w-full text-left border-collapse min-w-[800px]">
                 <thead>
                   <tr className="bg-slate-50 border-b border-slate-100">
-                    <th className="px-4 py-3 text-[10px] text-black uppercase tracking-widest w-12 whitespace-nowrap">{t('seq_no')}</th>
-                    <th className="px-4 py-3 text-[10px]  text-black uppercase tracking-widest">{t('customer')}</th>
-                    <th className="px-4 py-3 text-[10px]  text-black uppercase tracking-widest">{t("contact")}</th>
-                    <th className="px-4 py-3 text-[10px]  text-black uppercase tracking-widest">{t('fixed_rate')}</th>
-                    <th className="px-4 py-3 text-[10px]  text-black uppercase tracking-widest text-right">{t('balance')}</th>
-                    <th className="px-4 py-3 text-[10px]  text-black uppercase tracking-widest text-center">{t("actions")}</th>
+                    <th className="px-2 py-1.5 text-[10px] text-black tracking-widest w-12 whitespace-nowrap">{t('seq_no')}</th>
+                    <th className="px-2 py-1.5 text-[10px]  text-black tracking-widest">{t('customer')}</th>
+                    <th className="px-2 py-1.5 text-[10px]  text-black tracking-widest">{t("contact")}</th>
+                    <th className="px-2 py-1.5 text-[10px]  text-black tracking-widest">{t('fixed_rate')}</th>
+                    <th className="px-2 py-1.5 text-[10px]  text-black tracking-widest text-right">{t('balance')}</th>
+                    <th className="px-2 py-1.5 text-[10px]  text-black tracking-widest text-center">{t("actions")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -559,35 +559,35 @@ export default function Customers() {
                     const isDeactivated = customer.isActive === false;
                     return (
                       <tr key={customer.id} className={`border-b border-slate-50 hover:bg-slate-50 transition-colors ${isDeactivated ? 'opacity-75 grayscale bg-slate-50/50' : ''}`}>
-                        <td className="px-4 py-3">
+                        <td className="px-2 py-1.5">
                           <span className="text-xs  text-black">#{customer.sequence || '?'}</span>
                         </td>
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-3">
+                        <td className="px-2 py-1.5">
+                          <div className="flex items-center gap-2">
                             <div className={`w-8 h-8 flex items-center justify-center  text-sm ${isDeactivated ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600'}`}>
                               {(customer.name || "?").charAt(0)}
                             </div>
                             <div className="flex flex-col">
                               <span className=" text-sm text-slate-900">{customer.name}</span>
-                              {isDeactivated && <span className="text-[8px]  text-red-600 uppercase tracking-widest">Deactivated</span>}
+                              {isDeactivated && <span className="text-[8px]  text-red-600 tracking-widest">Deactivated</span>}
                             </div>
                           </div>
                         </td>
-                        <td className="px-4 py-3">
+                        <td className="px-2 py-1.5">
                           <div className="flex flex-col">
                             <span className="text-xs  text-black">{customer.mobile}</span>
                             <span className="text-[10px] text-black line-clamp-1">{customer.address}</span>
                           </div>
                         </td>
-                        <td className="px-4 py-3">
+                        <td className="px-2 py-1.5">
                           <span className="text-xs  text-black">₹ {customer.defaultRate || 'NAV'}/L</span>
                         </td>
-                        <td className="px-4 py-3 text-right">
+                        <td className="px-2 py-1.5 text-right">
                           <span className={`text-xs  ${customer.balance > 0 ? 'text-red-500' : 'text-emerald-500'}`}>
                             ₹ {customer.balance}
                           </span>
                         </td>
-                        <td className="px-4 py-3">
+                        <td className="px-2 py-1.5">
                           <div className="flex items-center justify-center gap-2">
                             <button 
                               onClick={() => setSelectedCustomer(customer)}
@@ -638,7 +638,7 @@ export default function Customers() {
           {customers.length === 0 && (
             <div className="py-12 text-center bg-white border border-slate-100 rounded-none">
                <MapPin className="w-10 h-10 text-slate-200 mx-auto mb-3" />
-               <p className="text-black  text-xs uppercase tracking-widest">{t('no_records')}</p>
+               <p className="text-black  text-xs tracking-widest">{t('no_records')}</p>
             </div>
           )}
         </div>
@@ -654,7 +654,7 @@ export default function Customers() {
                   <X className="w-5 h-5" />
                 </button>
               </div>
-              <div className="p-6 space-y-6">
+              <div className="p-6 space-y-3">
                 <p className="text-sm  text-black">
                   Are you sure you want to delete <span className="text-black">{customerToDelete.name}</span>?
                   You can keep their data but hide their profile by deactivating them.
@@ -663,10 +663,10 @@ export default function Customers() {
                 <div className="space-y-3">
                   <button 
                     onClick={handleDeactivate}
-                    className="w-full flex items-center justify-between px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-900 border border-slate-300  transition-colors group"
+                    className="w-full flex items-center justify-between px-2 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-900 border border-slate-300  transition-colors group"
                   >
                     <div className="flex flex-col text-left">
-                       <span className="text-xs uppercase tracking-widest mb-0.5">Deactivate Profile</span>
+                       <span className="text-xs tracking-widest mb-0.5">Deactivate Profile</span>
                        <span className="text-[10px] text-black ">Keep data but hide from menus</span>
                     </div>
                     <Power className="w-4 h-4 text-black group-hover:text-black" />
@@ -674,10 +674,10 @@ export default function Customers() {
 
                   <button 
                     onClick={handleHardDelete}
-                    className="w-full flex items-center justify-between px-4 py-3 bg-red-50 hover:bg-red-100 text-red-900 border border-red-200  transition-colors group"
+                    className="w-full flex items-center justify-between px-2 py-1.5 bg-red-50 hover:bg-red-100 text-red-900 border border-red-200  transition-colors group"
                   >
                     <div className="flex flex-col text-left">
-                       <span className="text-xs uppercase tracking-widest mb-0.5">Permanently Delete</span>
+                       <span className="text-xs tracking-widest mb-0.5">Permanently Delete</span>
                        <span className="text-[10px] text-red-500 ">Wipe completely from database</span>
                     </div>
                     <Trash2 className="w-4 h-4 text-red-400 group-hover:text-red-600" />
@@ -686,7 +686,7 @@ export default function Customers() {
 
                 <button 
                   onClick={() => setCustomerToDelete(null)}
-                  className="w-full px-4 py-3 text-black  hover:bg-slate-50 uppercase tracking-widest text-xs"
+                  className="w-full px-2 py-1.5 text-black  hover:bg-slate-50 tracking-widest text-xs"
                 >
                   Cancel
                 </button>
@@ -697,3 +697,4 @@ export default function Customers() {
     </div>
   );
 }
+

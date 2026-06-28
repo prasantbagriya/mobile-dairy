@@ -259,7 +259,7 @@ export default function Deliveries() {
           {(viewMode === 'form' || viewMode === 'cash') && (
             <button 
               onClick={() => setShowForm(true)}
-              className="xl:hidden bg-slate-900 text-white px-3 py-2 text-[10px] uppercase tracking-widest flex items-center gap-1 shrink-0"
+              className="xl:hidden bg-slate-900 text-white px-3 py-2 text-[10px] tracking-widest flex items-center gap-1 shrink-0"
             >
               <Plus className="w-3.5 h-3.5" /> {t('add_item')}
             </button>
@@ -408,43 +408,43 @@ export default function Deliveries() {
             </div>
             <div className="max-h-[350px] md:max-h-[600px] overflow-y-auto overflow-x-auto custom-scrollbar">
               <table className="w-full text-left border-collapse">
-                <thead className="bg-slate-50/50 text-black uppercase text-[9px] tracking-widest  sticky top-0 z-10 backdrop-blur-sm">
+                <thead className="bg-slate-50/50 text-black text-[9px] tracking-widest  sticky top-0 z-10 backdrop-blur-sm">
                   <tr>
-                    <th className="px-6 py-4">{t('date')}</th>
-                    <th className="px-6 py-4">{t('customer')}</th>
-                    <th className="px-6 py-4 text-center">{t('session_qty')}</th>
-                    <th className="px-6 py-4 text-right">{t('amount')}</th>
-                    {user?.role === 'admin' && <th className="px-6 py-4 text-center">{t('action')}</th>}
+                    <th className="px-6 py-4 whitespace-nowrap">{t('date')}</th>
+                    <th className="px-6 py-4 whitespace-nowrap">{t('customer')}</th>
+                    <th className="px-6 py-4 text-center whitespace-nowrap">{t('session_qty')}</th>
+                    <th className="px-6 py-4 text-right whitespace-nowrap">{t('amount')}</th>
+                    {user?.role === 'admin' && <th className="px-6 py-4 text-center whitespace-nowrap">{t('action')}</th>}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50 text-black">
                   {recentDeliveries.map(del => (
                     <tr key={del.id} className={del.customerId === 'CASH_SALE' ? 'bg-amber-50/30' : ''}>
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4 whitespace-nowrap">
                         <span className="">{del.date}</span>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4 whitespace-nowrap">
                         <span className=" text-slate-900 flex items-center gap-2">
                           {del.customerName}
                           {del.customerId === 'CASH_SALE' && (
-                            <span className="bg-amber-100 text-amber-700 text-[8px] px-1.5 py-0.5 uppercase tracking-widest ">{t('cash', 'Cash')}</span>
+                            <span className="bg-amber-100 text-amber-700 text-[8px] px-1.5 py-0.5 tracking-widest ">{t('cash', 'Cash')}</span>
                           )}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-center">
+                      <td className="px-6 py-4 text-center whitespace-nowrap">
                         <div className="flex flex-col items-center">
                           <span className={`text-[9px]  mb-0.5 ${del.session === 'morning' ? 'text-amber-500' : 'text-indigo-500'}`}>{del.session === 'morning' ? t('morning') : t('evening')}</span>
                           <span className=" text-slate-900">{del.quantity} L</span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-right">
+                      <td className="px-6 py-4 text-right whitespace-nowrap">
                         <div className="flex flex-col">
                           <span className=" text-slate-900 font-mono">₹{del.amount}</span>
                           <span className="text-[9px]  text-black tracking-wider">@ ₹{del.rate}/L</span>
                         </div>
                       </td>
                       {user?.role === 'admin' && (
-                        <td className="px-6 py-4 text-center">
+                        <td className="px-6 py-4 text-center whitespace-nowrap">
                           {(() => {
                              const c = customers.find(cus => cus.id === del.customerId);
                              const isSettled = c?.lastSettledDate && del.date <= c.lastSettledDate;
@@ -472,7 +472,7 @@ export default function Deliveries() {
                 </tbody>
               </table>
               {recentDeliveries.length === 0 && (
-                <div className="p-12 text-center text-black  text-[10px] uppercase tracking-widest">{t('no_recent_deliveries')}</div>
+                <div className="p-12 text-center text-black  text-[10px] tracking-widest">{t('no_recent_deliveries')}</div>
               )}
             </div>
           </div>
@@ -544,8 +544,8 @@ export default function Deliveries() {
                            </span>
                         </td>
                         <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
-                          <p className={` uppercase tracking-tight text-sm ${isSaved ? 'text-emerald-700' : 'text-slate-900'}`}>{c.name}</p>
-                          <p className="text-[10px] text-black  uppercase tracking-widest">{c.mobile}</p>
+                          <p className={` tracking-tight text-sm ${isSaved ? 'text-emerald-700' : 'text-slate-900'}`}>{c.name}</p>
+                          <p className="text-[10px] text-black  tracking-widest">{c.mobile}</p>
                         </td>
                         <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
                           <input 
@@ -624,3 +624,4 @@ export default function Deliveries() {
     </div>
   );
 }
+

@@ -255,7 +255,7 @@ export default function Layout({ children, activeView, setActiveView }: LayoutPr
       )}
 
       {/* Main Content */}
-      <main className="flex-1 overflow-auto bg-slate-50 pb-24 md:pb-0">
+      <main className="flex-1 overflow-auto bg-slate-50 pb-16 md:pb-0">
         <div className="p-4 md:p-6">
           {children}
         </div>

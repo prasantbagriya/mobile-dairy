@@ -187,20 +187,20 @@ export default function FarmerLedger({ farmer, allFarmers = [], onClose, onRefre
 
   if (showPaymentModal) {
     return (
-      <div className="animate-in fade-in slide-in-from-bottom-4 duration-300 bg-white w-full border border-slate-200 min-h-[500px]">
-        <div className="bg-blue-600 p-4 text-white flex items-center justify-between border-b border-blue-700">
-          <div className="flex items-center gap-3">
+      <div className="animate-in fade-in slide-in-from-bottom-4 duration-300 bg-white w-full border border-slate-200">
+        <div className="bg-blue-600 p-3 text-white flex items-center justify-between border-b border-blue-700">
+          <div className="flex items-center gap-2">
             <button onClick={() => setShowPaymentModal(false)} className="p-1 hover:bg-blue-700 transition-colors">
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="w-4 h-4" />
             </button>
-            <h3 className="text-lg tracking-tight font-bold">Record Payment - {farmer.name}</h3>
+            <h3 className="text-base tracking-tight font-bold">Record Payment - {farmer.name}</h3>
           </div>
         </div>
-        <div className="p-4 md:p-6 space-y-4 max-w-xl mx-auto mt-2">
-          <div className="flex justify-between items-center p-3 md:p-4 bg-slate-50 border border-slate-200">
+        <div className="p-3 md:p-4 space-y-3 max-w-xl mx-auto">
+          <div className="flex justify-between items-center p-2.5 bg-slate-50 border border-slate-200">
             <span className="text-black text-[10px] md:text-xs uppercase tracking-tight font-bold">Current Balance</span>
-            <div className="flex items-center gap-2 md:gap-4">
-              <span className={`text-lg md:text-xl font-bold ${localBalance >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+            <div className="flex items-center gap-2">
+              <span className={`text-base font-bold ${localBalance >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                 ₹ {Math.abs(localBalance).toLocaleString()} {localBalance >= 0 ? '(Dr)' : '(Cr)'}
               </span>
               {localBalance !== 0 && (
@@ -214,7 +214,7 @@ export default function FarmerLedger({ farmer, allFarmers = [], onClose, onRefre
                       description: 'Full Balance Settlement'
                     });
                   }}
-                  className="px-3 py-1.5 md:px-4 md:py-2 bg-blue-100 text-blue-700 hover:bg-blue-200 text-[10px] md:text-xs uppercase tracking-widest border border-blue-200 font-bold"
+                  className="px-2 py-1 bg-blue-100 text-blue-700 hover:bg-blue-200 text-[10px] uppercase tracking-widest border border-blue-200 font-bold"
                 >
                   Settle All
                 </button>
@@ -223,52 +223,52 @@ export default function FarmerLedger({ farmer, allFarmers = [], onClose, onRefre
           </div>
 
           <div className="flex bg-slate-100 p-1">
-            <button onClick={() => setPaymentData({...paymentData, type: 'credit'})} className={`flex-1 py-2.5 md:py-3 text-[11px] md:text-xs uppercase tracking-widest font-bold border ${paymentData.type === 'credit' ? 'bg-emerald-600 text-white border-emerald-600' : 'text-black bg-transparent border-transparent hover:bg-slate-200'}`}>Received (+)</button>
-            <button onClick={() => setPaymentData({...paymentData, type: 'debit'})} className={`flex-1 py-2.5 md:py-3 text-[11px] md:text-xs uppercase tracking-widest font-bold border ${paymentData.type === 'debit' ? 'bg-red-600 text-white border-red-600' : 'text-black bg-transparent border-transparent hover:bg-slate-200'}`}>Paid (-)</button>
+            <button onClick={() => setPaymentData({...paymentData, type: 'credit'})} className={`flex-1 py-2 text-[10px] md:text-xs uppercase tracking-widest font-bold border ${paymentData.type === 'credit' ? 'bg-emerald-600 text-white border-emerald-600' : 'text-black bg-transparent border-transparent hover:bg-slate-200'}`}>Received (+)</button>
+            <button onClick={() => setPaymentData({...paymentData, type: 'debit'})} className={`flex-1 py-2 text-[10px] md:text-xs uppercase tracking-widest font-bold border ${paymentData.type === 'debit' ? 'bg-red-600 text-white border-red-600' : 'text-black bg-transparent border-transparent hover:bg-slate-200'}`}>Paid (-)</button>
           </div>
 
-          <div className="space-y-4 mt-4">
-            <div className="space-y-1.5">
+          <div className="space-y-3 mt-2">
+            <div className="space-y-1">
               <label className="text-[10px] text-black uppercase tracking-widest font-bold block">Amount (₹)</label>
               <input 
                 type="number" inputMode="decimal" pattern="[0-9]*" 
-                className="w-full text-xl md:text-2xl text-blue-600 border border-slate-300 p-3 md:p-4 outline-none focus:border-blue-500 font-bold" 
+                className="w-full text-lg text-blue-600 border border-slate-300 px-3 py-2 outline-none focus:border-blue-500 font-bold" 
                 value={paymentData.amount}
                 onChange={(e) => setPaymentData({...paymentData, amount: e.target.value})}
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-3 md:gap-4">
-              <div className="space-y-1.5">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
                 <label className="text-[10px] text-black uppercase tracking-widest font-bold block">Method</label>
-                <select className="w-full border border-slate-300 p-3 md:p-4 outline-none focus:border-blue-500 text-sm font-bold h-[56px] md:h-[68px]" value={paymentData.method} onChange={e => setPaymentData({...paymentData, method: e.target.value})}>
+                <select className="w-full border border-slate-300 px-3 py-2 outline-none focus:border-blue-500 text-sm font-bold" value={paymentData.method} onChange={e => setPaymentData({...paymentData, method: e.target.value})}>
                   <option value="Cash">Cash</option>
                   <option value="Bank Transfer">Bank Transfer</option>
                   <option value="UPI">UPI</option>
                   <option value="Settlement">Settlement</option>
                 </select>
               </div>
-              <div className="space-y-1.5">
+              <div className="space-y-1">
                 <label className="text-[10px] text-black uppercase tracking-widest font-bold block">Date</label>
-                <input type="date" className="w-full border border-slate-300 p-3 md:p-4 outline-none focus:border-blue-500 text-sm h-[56px] md:h-[68px]" value={paymentData.date} onChange={e => setPaymentData({...paymentData, date: e.target.value})} />
+                <input type="date" className="w-full border border-slate-300 px-3 py-2 outline-none focus:border-blue-500 text-sm" value={paymentData.date} onChange={e => setPaymentData({...paymentData, date: e.target.value})} />
               </div>
             </div>
 
-            <div className="space-y-1.5">
+            <div className="space-y-1">
               <label className="text-[10px] text-black uppercase tracking-widest font-bold block">Description</label>
-              <input type="text" className="w-full border border-slate-300 p-3 md:p-4 outline-none focus:border-blue-500 text-sm" value={paymentData.description} onChange={e => setPaymentData({...paymentData, description: e.target.value})} placeholder="Optional" />
+              <input type="text" className="w-full border border-slate-300 px-3 py-2 outline-none focus:border-blue-500 text-sm" value={paymentData.description} onChange={e => setPaymentData({...paymentData, description: e.target.value})} placeholder="Optional" />
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-2 pt-2 md:pt-4">
-            <button disabled={isSaving} onClick={() => setShowPaymentModal(false)} className="flex-1 min-w-[100px] px-3 py-3 md:px-4 md:py-4 bg-slate-100 text-black hover:bg-slate-200 border border-slate-300 text-xs md:text-sm tracking-wide font-bold">
+          <div className="flex flex-wrap gap-2 pt-2">
+            <button disabled={isSaving} onClick={() => setShowPaymentModal(false)} className="flex-1 min-w-[80px] px-3 py-2.5 bg-slate-100 text-black hover:bg-slate-200 border border-slate-300 text-xs tracking-wide font-bold">
               Cancel
             </button>
-            <button onClick={() => handleSavePayment(false)} disabled={!paymentData.amount || isSaving} className="flex-1 min-w-[120px] px-3 py-3 md:px-4 md:py-4 bg-blue-600 text-white hover:bg-blue-700 border border-blue-700 disabled:opacity-50 text-xs md:text-sm tracking-wide font-bold">
+            <button onClick={() => handleSavePayment(false)} disabled={!paymentData.amount || isSaving} className="flex-1 min-w-[100px] px-3 py-2.5 bg-blue-600 text-white hover:bg-blue-700 border border-blue-700 disabled:opacity-50 text-xs tracking-wide font-bold">
               {isSaving ? 'Saving...' : 'Save'}
             </button>
             {allFarmers && allFarmers.length > 0 && onNavigateToFarmer && (
-              <button onClick={() => handleSavePayment(true)} disabled={!paymentData.amount || isSaving} className="w-full md:flex-1 md:w-auto px-3 py-3 md:px-4 md:py-4 bg-emerald-600 text-white hover:bg-emerald-700 border border-emerald-700 disabled:opacity-50 text-xs md:text-sm tracking-wide font-bold whitespace-nowrap">
+              <button onClick={() => handleSavePayment(true)} disabled={!paymentData.amount || isSaving} className="w-full md:flex-1 md:w-auto px-3 py-2.5 bg-emerald-600 text-white hover:bg-emerald-700 border border-emerald-700 disabled:opacity-50 text-xs tracking-wide font-bold whitespace-nowrap">
                 {isSaving ? 'Saving...' : 'Save & Next'}
               </button>
             )}
@@ -364,34 +364,34 @@ export default function FarmerLedger({ farmer, allFarmers = [], onClose, onRefre
           <div className="p-12 text-center text-black  uppercase tracking-widest text-[10px]">Loading Records...</div>
         ) : viewMode === 'list' ? (
           <>
-            {/* Desktop Table */}
-            <div className="hidden md:block max-h-[600px] overflow-y-auto overflow-x-auto">
+            {/* Responsive Table */}
+            <div className="block max-h-[600px] overflow-y-auto overflow-x-auto">
               <table className="w-full text-left border-collapse border border-slate-200">
                 <thead className="bg-slate-50 sticky top-0 text-black text-sm font-semibold border-b border-slate-200 z-10">
                   <tr>
-                    <th className="px-6 py-4 border-b border-slate-200">Date</th>
-                    <th className="px-6 py-4 border-b border-slate-200">Entry Details</th>
-                    <th className="px-6 py-4 border-b border-slate-200 text-center">Quality (Fat/SNF)</th>
-                    <th className="px-6 py-4 border-b border-slate-200 text-right">Procurement (+)</th>
-                    <th className="px-6 py-4 border-b border-slate-200 text-right">Payment (-)</th>
-                    <th className="px-6 py-4 border-b border-slate-200 text-center w-24">Actions</th>
+                    <th className="px-4 py-3 border-b border-slate-200 whitespace-nowrap">Date</th>
+                    <th className="px-4 py-3 border-b border-slate-200 whitespace-nowrap">Entry Details</th>
+                    <th className="px-4 py-3 border-b border-slate-200 text-center whitespace-nowrap">Quality (Fat/SNF)</th>
+                    <th className="px-4 py-3 border-b border-slate-200 text-right whitespace-nowrap">Procurement (+)</th>
+                    <th className="px-4 py-3 border-b border-slate-200 text-right whitespace-nowrap">Payment (-)</th>
+                    <th className="px-4 py-3 border-b border-slate-200 text-center w-24 whitespace-nowrap">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200 bg-white">
                   {combinedHistory.map((item, idx) => (
                     <tr key={idx} className="hover:bg-slate-50">
-                      <td className="px-6 py-4 border-b border-slate-200">
+                      <td className="px-4 py-3 border-b border-slate-200 whitespace-nowrap">
                         <div className="flex flex-col">
                             <span className="text-sm text-black">{item.date}</span>
                             <span className="text-xs text-slate-500 capitalize mt-1">{item.entryType === 'collection' ? (item as any).session : ((item as any).method || 'Entry')}</span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 border-b border-slate-200">
+                      <td className="px-4 py-3 border-b border-slate-200 whitespace-nowrap">
                         <span className={`text-xs capitalize ${(item as any).method === 'Settlement' ? 'text-amber-600 bg-amber-50 border border-amber-200 inline-block px-3 py-1' : 'text-black'}`}>
                           {item.entryType === 'collection' ? 'Milk Collection' : ((item as any).method === 'Settlement' ? 'Settlement / Clear' : ((item as any).description || 'Payment'))}
                         </span>
                       </td>
-                      <td className="px-6 py-4 border-b border-slate-200 text-center">
+                      <td className="px-4 py-3 border-b border-slate-200 text-center whitespace-nowrap">
                         {item.entryType === 'collection' ? (
                           <div className="flex flex-col items-center bg-emerald-50 py-1.5 px-3 w-fit mx-auto border border-emerald-200">
                              <span className="text-sm text-emerald-950 font-bold">{(item as any).quantity} L</span>
@@ -399,91 +399,38 @@ export default function FarmerLedger({ farmer, allFarmers = [], onClose, onRefre
                           </div>
                         ) : <span className="text-slate-300">-</span>}
                       </td>
-                      <td className="px-6 py-4 border-b border-slate-200 text-right font-mono text-sm text-emerald-600 font-bold">
+                      <td className="px-4 py-3 border-b border-slate-200 text-right font-mono text-sm text-emerald-600 font-bold whitespace-nowrap">
                         {item.entryType === 'collection' ? `+ ₹${item.amount || 0}` : (item.type === 'credit' ? `+ ₹${item.amount || 0}` : <span className="text-slate-300">-</span>)}
                       </td>
-                      <td className="px-6 py-4 border-b border-slate-200 text-right font-mono text-sm text-red-600 font-bold">
+                      <td className="px-4 py-3 border-b border-slate-200 text-right font-mono text-sm text-red-600 font-bold whitespace-nowrap">
                         {item.entryType === 'transaction' && item.type === 'debit' ? `- ₹${item.amount || 0}` : <span className="text-slate-300">-</span>}
                       </td>
-                      <td className="px-6 py-4 border-b border-slate-200 text-center flex justify-center gap-2">
-                        {item.entryType === 'collection' && ((item as any).editCount || 0) < 2 && (!farmer.lastSettledDate || item.date > farmer.lastSettledDate) && (
-                          <button 
-                            onClick={() => setEditingCollection(item as MilkCollection)}
-                            className="p-2 bg-slate-100 hover:bg-slate-200 text-black border border-slate-300"
-                            title="Edit Entry"
-                          >
-                            <Edit2 className="w-4 h-4" />
-                          </button>
-                        )}
-                        {item.entryType === 'transaction' && (!farmer.lastSettledDate || item.date > farmer.lastSettledDate || (item as any).method === 'Settlement') && (
-                          <button 
-                            onClick={() => handleDeleteTransaction(item as Transaction)}
-                            className="p-2 bg-slate-100 hover:bg-red-100 text-red-500 border border-slate-300"
-                            title="Delete Transaction"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        )}
+                      <td className="px-4 py-3 border-b border-slate-200 text-center whitespace-nowrap">
+                        <div className="flex justify-center gap-2">
+                          {item.entryType === 'collection' && ((item as any).editCount || 0) < 2 && (!farmer.lastSettledDate || item.date > farmer.lastSettledDate) && (
+                            <button 
+                              onClick={() => setEditingCollection(item as MilkCollection)}
+                              className="p-2 bg-slate-100 hover:bg-slate-200 text-black border border-slate-300"
+                              title="Edit Entry"
+                            >
+                              <Edit2 className="w-4 h-4" />
+                            </button>
+                          )}
+                          {item.entryType === 'transaction' && (!farmer.lastSettledDate || item.date > farmer.lastSettledDate || (item as any).method === 'Settlement') && (
+                            <button 
+                              onClick={() => handleDeleteTransaction(item as Transaction)}
+                              className="p-2 bg-slate-100 hover:bg-red-100 text-red-500 border border-slate-300"
+                              title="Delete Transaction"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
-            </div>            {/* Mobile List View */}
-            <div className="md:hidden space-y-2 p-0 bg-slate-100 max-h-[600px] overflow-y-auto">
-              {combinedHistory.map((item, idx) => (
-                <div key={idx} className="bg-white p-3 border border-slate-200 flex flex-col gap-2">
-                   <div className="flex justify-between items-start">
-                     <div>
-                       <span className="text-sm text-black font-medium block">{item.date}</span>
-                       <span className="text-xs text-slate-500 capitalize mt-0.5 block">{item.entryType === 'collection' ? (item as any).session : ((item as any).method || 'Entry')}</span>
-                     </div>
-                     <div className="text-right">
-                        {item.entryType === 'collection' ? (
-                          <span className="text-sm font-mono text-emerald-600 block font-bold">+ ₹{item.amount || 0}</span>
-                        ) : (
-                          <span className={`text-base block font-bold ${item.type === 'debit' ? 'text-red-500' : 'text-emerald-600'}`}>
-                            {item.type === 'debit' ? '-' : '+'} ₹{item.amount || 0}
-                          </span>
-                        )}
-                        <span className="text-xs text-slate-400 mt-0.5 block">Amount</span>
-                     </div>
-                   </div>
-                   
-                   <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-                     <div className="flex items-center gap-2 flex-1 min-w-0">
-                       <div className={`text-[11px] capitalize truncate ${(item as any).method === 'Settlement' ? 'text-amber-600 font-bold' : 'text-black'}`}>
-                          {item.entryType === 'collection' ? 'Milk Collection' : ((item as any).method === 'Settlement' ? 'Settlement' : ((item as any).description || 'Payment'))}
-                       </div>
-                       {item.entryType === 'collection' && (
-                         <div className="flex items-center gap-1 bg-emerald-50 px-2 py-1 border border-emerald-200 shrink-0">
-                            <span className="text-xs text-emerald-900 font-bold">{(item as any).quantity}L</span>
-                            <span className="text-[11px] text-emerald-700">F:{(item as any).fat}</span>
-                         </div>
-                       )}
-                     </div>
-                     
-                     <div className="flex gap-1 ml-2 shrink-0">
-                       {item.entryType === 'collection' && ((item as any).editCount || 0) < 2 && (!farmer.lastSettledDate || item.date > farmer.lastSettledDate) && (
-                         <button 
-                           onClick={() => setEditingCollection(item as MilkCollection)}
-                           className="p-1.5 bg-amber-50 text-amber-600 border border-amber-200 rounded"
-                         >
-                           <Edit2 className="w-3 h-3" />
-                         </button>
-                       )}
-                       {item.entryType === 'transaction' && (!farmer.lastSettledDate || item.date > farmer.lastSettledDate || (item as any).method === 'Settlement') && (
-                         <button 
-                           onClick={() => handleDeleteTransaction(item as Transaction)}
-                           className="p-1.5 bg-red-50 text-red-500 border border-red-200 rounded"
-                         >
-                           <Trash2 className="w-3 h-3" />
-                         </button>
-                       )}
-                     </div>
-                     </div>
-                </div>
-              ))}
             </div>
           </>
         ) : (

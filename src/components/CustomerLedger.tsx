@@ -269,29 +269,29 @@ export default function CustomerLedger({ customer, allCustomers = [], onClose, o
           <div className="p-12 text-center text-black uppercase tracking-widest text-[10px]">Loading Records...</div>
         ) : viewMode === 'list' ? (
           <>
-            <div className="hidden md:block">
-              <div className="max-h-[600px] overflow-y-auto overflow-x-auto">
-                <table className="w-full text-left border-collapse border border-slate-200">
+            {/* Responsive Table */}
+            <div className="block max-h-[600px] overflow-y-auto overflow-x-auto">
+              <table className="w-full text-left border-collapse border border-slate-200">
                 <thead className="bg-slate-50 sticky top-0 text-black text-sm font-semibold border-b border-slate-200">
                   <tr>
-                    <th className="px-6 py-4 border-b border-slate-200">Date</th>
-                    <th className="px-6 py-4 border-b border-slate-200">Entry Details</th>
-                    <th className="px-6 py-4 border-b border-slate-200 text-center">Qty / Rate</th>
-                    <th className="px-6 py-4 border-b border-slate-200 text-right">Debit (+)</th>
-                    <th className="px-6 py-4 border-b border-slate-200 text-right">Credit (-)</th>
-                    <th className="px-6 py-4 border-b border-slate-200 text-center w-24">Actions</th>
+                    <th className="px-4 py-3 border-b border-slate-200 whitespace-nowrap">Date</th>
+                    <th className="px-4 py-3 border-b border-slate-200 whitespace-nowrap">Entry Details</th>
+                    <th className="px-4 py-3 border-b border-slate-200 text-center whitespace-nowrap">Qty / Rate</th>
+                    <th className="px-4 py-3 border-b border-slate-200 text-right whitespace-nowrap">Debit (+)</th>
+                    <th className="px-4 py-3 border-b border-slate-200 text-right whitespace-nowrap">Credit (-)</th>
+                    <th className="px-4 py-3 border-b border-slate-200 text-center w-24 whitespace-nowrap">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200 bg-white">
                   {combinedHistory.map((item, idx) => (
                     <tr key={idx} className="hover:bg-slate-50">
-                      <td className="px-6 py-4 border-b border-slate-200">
+                      <td className="px-4 py-3 border-b border-slate-200 whitespace-nowrap">
                         <div className="flex flex-col">
                             <span className="text-sm text-black">{item.date}</span>
                             <span className="text-xs text-slate-500 capitalize mt-1">{item.entryType === 'delivery' ? (item as any).session : (item as any).method}</span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 border-b border-slate-200">
+                      <td className="px-4 py-3 border-b border-slate-200 whitespace-nowrap">
                          <div className="flex items-center gap-3">
                             {item.entryType === 'delivery' ? (
                               <div className="p-2 bg-orange-50 text-orange-600 border border-orange-200"><FileText className="w-4 h-4" /></div>
@@ -305,7 +305,7 @@ export default function CustomerLedger({ customer, allCustomers = [], onClose, o
                             </p>
                          </div>
                       </td>
-                      <td className="px-6 py-4 border-b border-slate-200 text-center">
+                      <td className="px-4 py-3 border-b border-slate-200 text-center whitespace-nowrap">
                         {item.entryType === 'delivery' ? (
                           <div className="flex flex-col items-center bg-orange-50 py-1.5 px-3 w-fit mx-auto border border-orange-200">
                              <span className="text-sm text-orange-950 font-bold">{(item as any).quantity} L</span>
@@ -313,13 +313,13 @@ export default function CustomerLedger({ customer, allCustomers = [], onClose, o
                           </div>
                         ) : <span className="text-slate-300">-</span>}
                       </td>
-                      <td className="px-6 py-4 border-b border-slate-200 text-right font-mono text-sm text-red-500 font-bold">
+                      <td className="px-4 py-3 border-b border-slate-200 text-right font-mono text-sm text-red-500 font-bold whitespace-nowrap">
                         {item.entryType === 'delivery' ? `+ ₹${item.amount || 0}` : (item.type === 'debit' ? `+ ₹${item.amount || 0}` : <span className="text-slate-300">-</span>)}
                       </td>
-                      <td className="px-6 py-4 border-b border-slate-200 text-right font-mono text-sm text-emerald-600 font-bold">
+                      <td className="px-4 py-3 border-b border-slate-200 text-right font-mono text-sm text-emerald-600 font-bold whitespace-nowrap">
                         {item.entryType === 'transaction' && item.type === 'credit' ? `- ₹${item.amount || 0}` : <span className="text-slate-300">-</span>}
                       </td>
-                      <td className="px-6 py-4 border-b border-slate-200 text-center flex justify-center gap-2">
+                      <td className="px-4 py-3 border-b border-slate-200 text-center flex justify-center gap-2 whitespace-nowrap">
                         {item.entryType === 'transaction' && (!customer.lastSettledDate || item.date > customer.lastSettledDate || (item as any).method === 'Settlement') && (
                           <button 
                             onClick={() => handleDeleteTransaction(item as Transaction)}
@@ -334,53 +334,6 @@ export default function CustomerLedger({ customer, allCustomers = [], onClose, o
                   ))}
                 </tbody>
               </table>
-            </div>
-            </div>
-
-            <div className="md:hidden space-y-2 p-0 bg-slate-100 max-h-[600px] overflow-y-auto">
-              {combinedHistory.map((item, idx) => (
-                <div key={idx} className="bg-white p-4 border-b border-slate-200 flex flex-col gap-3 relative">
-                   <div className="flex justify-between items-start">
-                     <div>
-                       <span className="text-sm text-black font-medium block">{item.date}</span>
-                       <span className="text-xs text-slate-500 capitalize mt-0.5 block">{item.entryType === 'delivery' ? (item as any).session : (item as any).method}</span>
-                     </div>
-                     <div className="text-right">
-                        {item.entryType === 'delivery' ? (
-                          <span className="text-base font-mono text-red-500 block font-bold">+ ₹{item.amount || 0}</span>
-                        ) : (
-                          <span className={`text-base font-mono block font-bold ${item.type === 'debit' ? 'text-red-500' : 'text-emerald-600'}`}>
-                            {item.type === 'debit' ? '+' : '-'} ₹{item.amount || 0}
-                          </span>
-                        )}
-                        <span className="text-xs text-slate-400 mt-0.5 block">Amount</span>
-                     </div>
-                   </div>
-                   
-                   <div className="flex items-center justify-between pt-3 border-t border-slate-200">
-                     <div className={`text-[11px] capitalize ${(item as any).method === 'Settlement' ? 'text-amber-600 font-bold' : 'text-black'}`}>
-                        {item.entryType === 'delivery' ? 'Milk Delivery' : ((item as any).method === 'Settlement' ? 'Settlement' : ((item as any).description || 'Payment'))}
-                     </div>
-                     
-                     {item.entryType === 'delivery' && (
-                       <div className="flex items-center gap-2 bg-orange-50 px-2 py-1 border border-orange-200">
-                          <span className="text-xs text-orange-900 font-bold">{(item as any).quantity} L</span>
-                          <div className="w-px h-3 bg-orange-300"></div>
-                          <span className="text-[9px] text-orange-700 font-bold">₹{(item as any).rate}/L</span>
-                       </div>
-                     )}
-                   </div>
-                   
-                   {item.entryType === 'transaction' && (!customer.lastSettledDate || item.date > customer.lastSettledDate || (item as any).method === 'Settlement') && (
-                     <button 
-                       onClick={() => handleDeleteTransaction(item as Transaction)}
-                       className="absolute top-2 right-2 p-2 bg-white text-red-500 border border-slate-300"
-                     >
-                       <Trash2 className="w-3.5 h-3.5" />
-                     </button>
-                   )}
-                </div>
-              ))}
             </div>
           </>
         ) : (
@@ -445,19 +398,19 @@ export default function CustomerLedger({ customer, allCustomers = [], onClose, o
       {showPaymentModal && (
         <div className="fixed inset-0 bg-slate-900/60 z-100 flex items-center justify-center p-0 md:p-4">
           <div className="bg-white w-full h-full md:h-auto md:max-w-md overflow-y-auto border-none md:border border-slate-400 flex flex-col">
-            <div className="bg-emerald-600 p-4 text-white flex items-center justify-between border-b border-emerald-700 sticky top-0 z-10">
-              <div className="flex items-center gap-3">
+            <div className="bg-emerald-600 p-3 text-white flex items-center justify-between border-b border-emerald-700 sticky top-0 z-10">
+              <div className="flex items-center gap-2">
                 <button onClick={() => setShowPaymentModal(false)} className="p-1 hover:bg-emerald-700 transition-colors">
-                  <ArrowLeft className="w-5 h-5" />
+                  <ArrowLeft className="w-4 h-4" />
                 </button>
-                <h3 className="text-lg tracking-tight font-bold">Record Payment - {customer.name}</h3>
+                <h3 className="text-base tracking-tight font-bold">Record Payment - {customer.name}</h3>
               </div>
             </div>
-            <div className="p-4 md:p-6 space-y-4 max-w-xl mx-auto mt-2 w-full">
-              <div className="flex justify-between items-center p-3 md:p-4 bg-slate-50 border border-slate-200">
+            <div className="p-3 md:p-4 space-y-3 max-w-xl mx-auto w-full">
+              <div className="flex justify-between items-center p-2.5 bg-slate-50 border border-slate-200">
                 <span className="text-black text-[10px] md:text-xs uppercase tracking-tight font-bold">Current Dues</span>
-                <div className="flex items-center gap-2 md:gap-4">
-                  <span className={`text-lg md:text-xl font-bold ${localBalance > 0 ? 'text-red-500' : 'text-emerald-500'}`}>
+                <div className="flex items-center gap-2">
+                  <span className={`text-base font-bold ${localBalance > 0 ? 'text-red-500' : 'text-emerald-500'}`}>
                     ₹ {Math.abs(localBalance).toLocaleString()} {localBalance > 0 ? '(Dr)' : '(Cr)'}
                   </span>
                   {localBalance !== 0 && (
@@ -471,7 +424,7 @@ export default function CustomerLedger({ customer, allCustomers = [], onClose, o
                           description: 'Full Balance Settlement'
                         });
                       }}
-                      className="px-3 py-1.5 md:px-4 md:py-2 bg-emerald-100 text-emerald-800 hover:bg-emerald-200 text-[10px] md:text-xs uppercase tracking-widest border border-emerald-200 font-bold"
+                      className="px-2 py-1 bg-emerald-100 text-emerald-800 hover:bg-emerald-200 text-[10px] uppercase tracking-widest border border-emerald-200 font-bold"
                     >
                       Settle All
                     </button>
@@ -480,52 +433,52 @@ export default function CustomerLedger({ customer, allCustomers = [], onClose, o
               </div>
 
               <div className="flex bg-slate-100 p-1">
-                <button onClick={() => setPaymentData({...paymentData, type: 'credit'})} className={`flex-1 py-2.5 md:py-3 text-[11px] md:text-xs uppercase tracking-widest font-bold border ${paymentData.type === 'credit' ? 'bg-emerald-600 text-white border-emerald-600' : 'text-black bg-transparent border-transparent hover:bg-slate-200'}`}>Received (+)</button>
-                <button onClick={() => setPaymentData({...paymentData, type: 'debit'})} className={`flex-1 py-2.5 md:py-3 text-[11px] md:text-xs uppercase tracking-widest font-bold border ${paymentData.type === 'debit' ? 'bg-red-600 text-white border-red-600' : 'text-black bg-transparent border-transparent hover:bg-slate-200'}`}>Paid (-)</button>
+                <button onClick={() => setPaymentData({...paymentData, type: 'credit'})} className={`flex-1 py-2 text-[10px] md:text-xs uppercase tracking-widest font-bold border ${paymentData.type === 'credit' ? 'bg-emerald-600 text-white border-emerald-600' : 'text-black bg-transparent border-transparent hover:bg-slate-200'}`}>Received (+)</button>
+                <button onClick={() => setPaymentData({...paymentData, type: 'debit'})} className={`flex-1 py-2 text-[10px] md:text-xs uppercase tracking-widest font-bold border ${paymentData.type === 'debit' ? 'bg-red-600 text-white border-red-600' : 'text-black bg-transparent border-transparent hover:bg-slate-200'}`}>Paid (-)</button>
               </div>
 
-              <div className="space-y-4 mt-4">
-                <div className="space-y-1.5">
+              <div className="space-y-3 mt-2">
+                <div className="space-y-1">
                   <label className="text-[10px] text-black uppercase tracking-widest font-bold block">Amount (₹)</label>
                   <input 
                     type="number" inputMode="decimal" pattern="[0-9]*" 
-                    className="w-full text-xl md:text-2xl text-blue-600 border border-slate-300 p-3 md:p-4 outline-none focus:border-blue-500 font-bold" 
+                    className="w-full text-lg text-blue-600 border border-slate-300 px-3 py-2 outline-none focus:border-blue-500 font-bold" 
                     value={paymentData.amount}
                     onChange={(e) => setPaymentData({...paymentData, amount: e.target.value})}
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-3 md:gap-4">
-                  <div className="space-y-1.5">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1">
                     <label className="text-[10px] text-black uppercase tracking-widest font-bold block">Method</label>
-                    <select className="w-full border border-slate-300 p-3 md:p-4 outline-none focus:border-blue-500 text-sm font-bold h-[56px] md:h-[68px]" value={paymentData.method} onChange={e => setPaymentData({...paymentData, method: e.target.value})}>
+                    <select className="w-full border border-slate-300 px-3 py-2 outline-none focus:border-blue-500 text-sm font-bold" value={paymentData.method} onChange={e => setPaymentData({...paymentData, method: e.target.value})}>
                       <option value="Cash">Cash</option>
                       <option value="Bank Transfer">Bank Transfer</option>
                       <option value="UPI">UPI</option>
                       <option value="Settlement">Settlement</option>
                     </select>
                   </div>
-                  <div className="space-y-1.5">
+                  <div className="space-y-1">
                     <label className="text-[10px] text-black uppercase tracking-widest font-bold block">Date</label>
-                    <input type="date" className="w-full border border-slate-300 p-3 md:p-4 outline-none focus:border-blue-500 text-sm h-[56px] md:h-[68px]" value={paymentData.date} onChange={e => setPaymentData({...paymentData, date: e.target.value})} />
+                    <input type="date" className="w-full border border-slate-300 px-3 py-2 outline-none focus:border-blue-500 text-sm" value={paymentData.date} onChange={e => setPaymentData({...paymentData, date: e.target.value})} />
                   </div>
                 </div>
 
-                <div className="space-y-1.5">
+                <div className="space-y-1">
                   <label className="text-[10px] text-black uppercase tracking-widest font-bold block">Description / Note</label>
-                  <input type="text" className="w-full border border-slate-300 p-3 md:p-4 outline-none focus:border-blue-500 text-sm" value={paymentData.description} onChange={e => setPaymentData({...paymentData, description: e.target.value})} placeholder="Optional" />
+                  <input type="text" className="w-full border border-slate-300 px-3 py-2 outline-none focus:border-blue-500 text-sm" value={paymentData.description} onChange={e => setPaymentData({...paymentData, description: e.target.value})} placeholder="Optional" />
                 </div>
               </div>
 
-              <div className="flex flex-wrap gap-2 pt-2 md:pt-4 pb-8 md:pb-0">
-                <button disabled={isSaving} onClick={() => setShowPaymentModal(false)} className="flex-1 min-w-[100px] px-3 py-3 md:px-4 md:py-4 bg-slate-100 text-black hover:bg-slate-200 border border-slate-300 text-xs md:text-sm tracking-wide font-bold">
+              <div className="flex flex-wrap gap-2 pt-2 pb-8 md:pb-0">
+                <button disabled={isSaving} onClick={() => setShowPaymentModal(false)} className="flex-1 min-w-[80px] px-3 py-2.5 bg-slate-100 text-black hover:bg-slate-200 border border-slate-300 text-xs tracking-wide font-bold">
                   Cancel
                 </button>
-                <button onClick={() => handleSavePayment(false)} disabled={!paymentData.amount || isSaving} className="flex-1 min-w-[120px] px-3 py-3 md:px-4 md:py-4 bg-blue-600 text-white hover:bg-blue-700 border border-blue-700 disabled:opacity-50 text-xs md:text-sm tracking-wide font-bold">
+                <button onClick={() => handleSavePayment(false)} disabled={!paymentData.amount || isSaving} className="flex-1 min-w-[100px] px-3 py-2.5 bg-blue-600 text-white hover:bg-blue-700 border border-blue-700 disabled:opacity-50 text-xs tracking-wide font-bold">
                   {isSaving ? 'Saving...' : 'Save'}
                 </button>
                 {allCustomers && allCustomers.length > 0 && onNavigateToCustomer && (
-                  <button onClick={() => handleSavePayment(true)} disabled={!paymentData.amount || isSaving} className="w-full md:flex-1 md:w-auto px-3 py-3 md:px-4 md:py-4 bg-emerald-600 text-white hover:bg-emerald-700 border border-emerald-700 disabled:opacity-50 text-xs md:text-sm tracking-wide font-bold whitespace-nowrap">
+                  <button onClick={() => handleSavePayment(true)} disabled={!paymentData.amount || isSaving} className="w-full md:flex-1 md:w-auto px-3 py-2.5 bg-emerald-600 text-white hover:bg-emerald-700 border border-emerald-700 disabled:opacity-50 text-xs tracking-wide font-bold whitespace-nowrap">
                     {isSaving ? 'Saving...' : 'Save & Next'}
                   </button>
                 )}

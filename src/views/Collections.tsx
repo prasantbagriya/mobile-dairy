@@ -324,21 +324,21 @@ export default function Collections() {
     <div className="space-y-4 animate-in fade-in duration-500">
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 items-start">
         {/* Entry Form - Left Section */}
-        <div className="xl:col-span-12 flex flex-row items-center justify-between mb-4 gap-2 md:gap-4">
+        <div className="xl:col-span-12 flex flex-col md:flex-row md:items-center justify-between mb-4 gap-4 md:gap-4">
           <h2 className="text-xl md:text-2xl text-slate-900 tracking-tight flex items-center gap-1 md:gap-2">
             {t('collections')}
             <InfoTooltip text="Record milk purchased from farmers with FAT/SNF testing." />
           </h2>
-          <div className="flex gap-1 md:gap-2 shrink-0">
+          <div className="flex gap-2 w-full md:w-auto shrink-0">
             <button 
               onClick={() => setViewMode('form')}
-              className={`px-2 py-2 md:px-6 md:py-3 text-[10px] md:text-xs tracking-wider transition-all ${viewMode === 'form' ? 'bg-blue-600 text-white' : 'bg-white text-black border border-slate-100'}`}
+              className={`flex-1 md:flex-none px-3 py-2.5 md:px-6 md:py-3 text-xs tracking-wider transition-all ${viewMode === 'form' ? 'bg-blue-600 text-white border border-blue-600' : 'bg-white text-black border border-slate-200'}`}
             >
               {t('single_entry')}
             </button>
             <button 
               onClick={() => setViewMode('sheet')}
-              className={`px-2 py-2 md:px-6 md:py-3 text-[10px] md:text-xs tracking-wider transition-all ${viewMode === 'sheet' ? 'bg-blue-600 text-white' : 'bg-white text-black border border-slate-100'}`}
+              className={`flex-1 md:flex-none px-3 py-2.5 md:px-6 md:py-3 text-xs tracking-wider transition-all ${viewMode === 'sheet' ? 'bg-blue-600 text-white border border-blue-600' : 'bg-white text-black border border-slate-200'}`}
             >
               {t('daily_sheet')}
             </button>
@@ -454,41 +454,41 @@ export default function Collections() {
             </div>
             <div className="max-h-[600px] overflow-y-auto overflow-x-auto">
               <table className="w-full text-left order-collapse">
-                <thead className="bg-slate-50/50 text-black uppercase text-[9px] tracking-widest  sticky top-0 z-10 backdrop-blur-sm">
+                <thead className="bg-slate-50/50 text-black text-[9px] tracking-widest  sticky top-0 z-10 backdrop-blur-sm">
                   <tr>
-                    <th className="px-6 py-4">{t('date_session')}</th>
-                    <th className="px-6 py-4">{t('farmer')}</th>
-                    <th className="px-6 py-4 text-center">{t('qty_quality')}</th>
-                    <th className="px-6 py-4 text-right">{t("settlement")}</th>
-                    {role === 'admin' && <th className="px-6 py-4 text-center">{t("action")}</th>}
+                    <th className="px-6 py-4 whitespace-nowrap">{t('date_session')}</th>
+                    <th className="px-6 py-4 whitespace-nowrap">{t('farmer')}</th>
+                    <th className="px-6 py-4 text-center whitespace-nowrap">{t('qty_quality')}</th>
+                    <th className="px-6 py-4 text-right whitespace-nowrap">{t("settlement")}</th>
+                    {role === 'admin' && <th className="px-6 py-4 text-center whitespace-nowrap">{t("action")}</th>}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50 text-black">
                   {recentCollections.map(col => (
                     <tr key={col.id} className="hover:bg-slate-50/50 transition-colors group">
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex flex-col">
                           <span className="">{col.date}</span>
                           <span className={`text-[9px]  mt-0.5 ${col.session === 'morning' ? 'text-amber-500' : 'text-indigo-500'}`}>{col.session === 'morning' ? t('morning') : t('evening')}</span>
                         </div>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4 whitespace-nowrap">
                         <span className=" text-slate-900">{col.farmerName}</span>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex flex-col items-center">
                           <span className=" text-slate-900">{col.quantity} L</span>
                           <span className="text-[9px]  text-black tracking-wider">FAT {col.fat} / SNF {col.snf}</span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-right">
+                      <td className="px-6 py-4 text-right whitespace-nowrap">
                         <div className="flex flex-col">
                           <span className=" text-slate-900 font-mono">₹{col.amount.toFixed(2)}</span>
                           <span className="text-[9px]  text-black tracking-wider">@ ₹{col.rate}/L</span>
                         </div>
                       </td>
                       {role === 'admin' && (
-                        <td className="px-6 py-4 text-center">
+                        <td className="px-6 py-4 text-center whitespace-nowrap">
                           {(() => {
                              const f = farmers.find(far => far.id === col.farmerId);
                              const isSettled = f?.lastSettledDate && col.date <= f.lastSettledDate;
@@ -585,8 +585,8 @@ export default function Collections() {
                            </span>
                         </td>
                         <td className="px-6 py-4">
-                          <p className={` uppercase tracking-tight text-sm ${isSaved ? 'text-emerald-700' : 'text-slate-900'}`}>{f.name}</p>
-                          <p className="text-[10px] text-black  uppercase tracking-widest">{f.village}</p>
+                          <p className={` tracking-tight text-sm ${isSaved ? 'text-emerald-700' : 'text-slate-900'}`}>{f.name}</p>
+                          <p className="text-[10px] text-black  tracking-widest">{f.village}</p>
                         </td>
                         <td className="px-6 py-4">
                           <input 
@@ -693,8 +693,8 @@ export default function Collections() {
                                  {f.sequence || idx + 1}
                                </span>
                                <div>
-                                 <p className={` uppercase tracking-tight text-sm ${isSaved ? 'text-emerald-700' : 'text-slate-900'}`}>{f.name}</p>
-                                 <p className="text-[10px] text-black  uppercase tracking-widest">{f.village}</p>
+                                 <p className={` tracking-tight text-sm ${isSaved ? 'text-emerald-700' : 'text-slate-900'}`}>{f.name}</p>
+                                 <p className="text-[10px] text-black  tracking-widest">{f.village}</p>
                                </div>
                              </div>
                              <div className="text-right">
@@ -705,7 +705,7 @@ export default function Collections() {
                           
                           <div className="grid grid-cols-3 gap-2 mb-3">
                              <div>
-                               <label className="text-[9px]  uppercase text-black block mb-1">Qty (L)</label>
+                               <label className="text-[9px]  text-black block mb-1">Qty (L)</label>
                                <input 
                                  type="number" inputMode="decimal" pattern="[0-9]*" 
                                  disabled={isSaved}
@@ -723,7 +723,7 @@ export default function Collections() {
                                />
                              </div>
                              <div>
-                               <label className="text-[9px]  uppercase text-black block mb-1">Fat (%)</label>
+                               <label className="text-[9px]  text-black block mb-1">Fat (%)</label>
                                <input 
                                  type="number" inputMode="decimal" pattern="[0-9]*" 
                                  disabled={isSaved}
@@ -741,7 +741,7 @@ export default function Collections() {
                                />
                              </div>
                              <div>
-                               <label className="text-[9px]  uppercase text-black block mb-1">SNF (%)</label>
+                               <label className="text-[9px]  text-black block mb-1">SNF (%)</label>
                                <input 
                                  type="number" inputMode="decimal" pattern="[0-9]*" 
                                  disabled={isSaved}
@@ -766,7 +766,7 @@ export default function Collections() {
                           <button 
                             disabled={isSaved || !rowData.quantity}
                             onClick={() => handleSaveSheetRow(f.id!)}
-                            className={`w-full py-3  text-xs tracking-wider uppercase ${isSaved ? 'bg-emerald-500 text-white cursor-not-allowed' : 'bg-slate-900 text-white hover:bg-blue-600'}`}
+                            className={`w-full py-3  text-xs tracking-wider ${isSaved ? 'bg-emerald-500 text-white cursor-not-allowed' : 'bg-slate-900 text-white hover:bg-blue-600'}`}
                           >
                             {isSaved ? 'Saved Successfully' : 'Save Record'}
                           </button>
@@ -775,7 +775,7 @@ export default function Collections() {
                  })}
               </div>
               {farmers.length === 0 && (
-                <div className="p-20 text-center text-slate-300  uppercase tracking-widest text-xs">No farmers available for batch entry.</div>
+                <div className="p-20 text-center text-slate-300  tracking-widest text-xs">No farmers available for batch entry.</div>
               )}
             </div>
           </div>
@@ -793,3 +793,4 @@ export default function Collections() {
     </div>
   );
 }
+
