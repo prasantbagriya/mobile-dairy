@@ -134,9 +134,8 @@ export default function Layout({ children, activeView, setActiveView }: LayoutPr
           })}
         <div className="mt-8 pt-6 border-t border-slate-800 space-y-2">
           <a
-            href={import.meta.env.VITE_APK_DOWNLOAD_URL || "#"}
-            download={import.meta.env.VITE_APK_DOWNLOAD_URL ? undefined : "milkmaster.apk"}
-            target={import.meta.env.VITE_APK_DOWNLOAD_URL ? "_blank" : undefined}
+            href={import.meta.env.VITE_APK_DOWNLOAD_URL || "/milkmaster.apk"}
+            download="milkmaster.apk"
             rel="noopener noreferrer"
             className={`w-full flex items-center gap-4 px-4 py-3.5 text-white hover:bg-emerald-500/10 hover:text-emerald-400 text-[13px] ${isCollapsed ? 'justify-center' : ''}`}
             title={isCollapsed ? "Download App" : ''}
@@ -189,11 +188,10 @@ export default function Layout({ children, activeView, setActiveView }: LayoutPr
           </div>
           <span className="text-lg tracking-tight font-semibold mr-1">MilkMaster</span>
           <a
-            href={import.meta.env.VITE_APK_DOWNLOAD_URL || "#"}
-            download={import.meta.env.VITE_APK_DOWNLOAD_URL ? undefined : "milkmaster.apk"}
-            target={import.meta.env.VITE_APK_DOWNLOAD_URL ? "_blank" : undefined}
+            href={import.meta.env.VITE_APK_DOWNLOAD_URL || "/milkmaster.apk"}
+            download="milkmaster.apk"
             rel="noopener noreferrer"
-            className="p-1.5 md:p-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-none flex items-center gap-1 text-[10px] md:text-xs font-bold uppercase tracking-widest"
+            className="p-1.5 md:p-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-none flex items-center gap-1 text-[10px] md:text-xs font-bold tracking-widest"
           >
             <Download className="w-3.5 h-3.5" /> App
           </a>

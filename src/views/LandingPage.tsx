@@ -27,7 +27,7 @@ export default function LandingPage() {
               </div>
               <div className="text-left">
                 <h3 className="text-lg font-bold text-slate-900">Dairy Admin</h3>
-                <p className="text-[10px] text-slate-500 uppercase tracking-widest font-semibold">Manage Dairy Business</p>
+                <p className="text-[10px] text-slate-500 tracking-widest font-semibold">Manage Dairy Business</p>
               </div>
             </button>
 
@@ -37,7 +37,7 @@ export default function LandingPage() {
               </div>
               <div className="text-left">
                 <h3 className="text-lg font-bold text-slate-900">Farmer</h3>
-                <p className="text-[10px] text-slate-500 uppercase tracking-widest font-semibold">Milk Supplier Portal</p>
+                <p className="text-[10px] text-slate-500 tracking-widest font-semibold">Milk Supplier Portal</p>
               </div>
             </button>
 
@@ -47,7 +47,7 @@ export default function LandingPage() {
               </div>
               <div className="text-left">
                 <h3 className="text-lg font-bold text-slate-900">Customer</h3>
-                <p className="text-[10px] text-slate-500 uppercase tracking-widest font-semibold">Milk Buyer Portal</p>
+                <p className="text-[10px] text-slate-500 tracking-widest font-semibold">Milk Buyer Portal</p>
               </div>
             </button>
           </div>
@@ -247,7 +247,7 @@ export default function LandingPage() {
             <p className="text-slate-500 text-sm">
               © {new Date().getFullYear()} MilkMaster. All rights reserved.
             </p>
-            <p className="text-slate-600 text-xs uppercase tracking-widest">
+            <p className="text-slate-600 text-xs tracking-widest">
               Install as App via Browser Menu
             </p>
           </div>

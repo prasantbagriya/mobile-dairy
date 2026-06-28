@@ -61,7 +61,7 @@ export default function FarmerLogin() {
 
             <form onSubmit={handleFarmerAuth} className="space-y-4">
               <div className="space-y-1">
-                <label className="text-[10px] uppercase tracking-widest text-black">Mobile Number</label>
+                <label className="text-[10px] tracking-widest text-black">Mobile Number</label>
                 <div className="relative">
                   <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-black" />
                   <input 
@@ -79,7 +79,7 @@ export default function FarmerLogin() {
                 </div>
               </div>
               <div className="space-y-1">
-                <label className="text-[10px] uppercase tracking-widest text-black">4-Digit PIN</label>
+                <label className="text-[10px] tracking-widest text-black">4-Digit PIN</label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-black" />
                   <input 
