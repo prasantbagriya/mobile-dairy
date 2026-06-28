@@ -5,7 +5,7 @@ import { db } from '../lib/db';
 import { collection, where, addDoc, onSnapshot, updateDoc, deleteDoc, doc, query, orderBy, writeBatch, getDocs } from 'firebase/firestore';
 import { Customer } from '../types';
 import { Plus, Search, Edit2, Phone, MapPin, FileText, Save, Trash2, X, Power, LayoutGrid, List as ListIcon } from 'lucide-react';
-import CustomerLedger from '../components/CustomerLedger';
+import SharedLedger from '../components/SharedLedger';
 import { useAuth } from '../lib/auth';
 import InfoTooltip from '../components/InfoTooltip';
 
@@ -112,11 +112,12 @@ export default function Customers() {
   if (selectedCustomer) {
     return (
       <div className="-m-4 md:-m-6">
-        <CustomerLedger 
-          customer={selectedCustomer} 
-          allCustomers={customers}
+        <SharedLedger 
+          person={selectedCustomer} 
+          type="customer"
+          allPersons={customers}
           onClose={() => setSelectedCustomer(null)} 
-          onNavigateToCustomer={(c) => setSelectedCustomer(c)}
+          onNavigateToPerson={(c) => setSelectedCustomer(c as Customer)}
           onRefresh={() => {
             const updated = customers.find(curr => curr.id === selectedCustomer.id);
             if (updated) setSelectedCustomer(updated);

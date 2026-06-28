@@ -5,7 +5,7 @@ import { db } from '../lib/db';
 import { collection, where, addDoc, onSnapshot, updateDoc, deleteDoc, doc, query, orderBy, writeBatch, getDocs } from 'firebase/firestore';
 import { Farmer } from '../types';
 import { Plus, Search, Edit2, Trash2, X, Save, Phone, MapPin, Building, FileText, TrendingUp, Power, LayoutGrid, List as ListIcon } from 'lucide-react';
-import FarmerLedger from '../components/FarmerLedger';
+import SharedLedger from '../components/SharedLedger';
 
 import { useAuth } from '../lib/auth';
 import InfoTooltip from '../components/InfoTooltip';
@@ -298,11 +298,12 @@ export default function Farmers() {
   if (selectedFarmer) {
     return (
       <div className="-m-4 md:-m-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-        <FarmerLedger 
-          farmer={selectedFarmer} 
-          allFarmers={farmers}
+        <SharedLedger 
+          person={selectedFarmer} 
+          type="farmer"
+          allPersons={farmers}
           onClose={() => setSelectedFarmer(null)} 
-          onNavigateToFarmer={(f) => setSelectedFarmer(f)}
+          onNavigateToPerson={(f) => setSelectedFarmer(f as Farmer)}
           onRefresh={() => {
             const updated = farmers.find(curr => curr.id === selectedFarmer.id);
             if (updated) setSelectedFarmer(updated);
