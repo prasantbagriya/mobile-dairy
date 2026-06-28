@@ -176,7 +176,7 @@ export default function Expenses() {
 
         {/* Expense History List */}
         <div className="xl:col-span-8">
-          <div className="bg-white border border-slate-200 divide-y divide-slate-100 max-h-[350px] md:max-h-[600px] overflow-y-auto custom-scrollbar">
+          <div className="bg-white border border-slate-200 divide-y divide-slate-100 max-h-[calc(100vh-220px)] md:max-h-[600px] overflow-y-auto custom-scrollbar">
             <div className="px-4 py-2.5 bg-slate-50 flex items-center justify-between sticky top-0 z-10">
               <span className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">{t('expense_history')}</span>
               <span className="text-[10px] text-slate-400">{expenses.length} {t('records')}</span>

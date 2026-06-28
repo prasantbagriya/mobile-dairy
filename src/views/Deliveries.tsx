@@ -406,7 +406,7 @@ export default function Deliveries() {
                 {t('latest_deliveries')}
               </h3>
             </div>
-            <div className="max-h-[350px] md:max-h-[600px] overflow-y-auto overflow-x-auto no-scrollbar">
+            <div className="max-h-[calc(100vh-220px)] md:max-h-[600px] overflow-y-auto overflow-x-auto no-scrollbar">
               <table className="w-full text-left border-collapse">
                 <thead className="bg-slate-50/50 text-black text-[9px] tracking-widest  sticky top-0 z-10 backdrop-blur-sm">
                   <tr>

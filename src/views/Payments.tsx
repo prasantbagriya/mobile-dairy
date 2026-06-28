@@ -381,7 +381,7 @@ export default function Payments() {
               </table>
 
               {/* Mobile View */}
-              <div className="md:hidden divide-y divide-slate-100 max-h-[350px] overflow-y-auto custom-scrollbar">
+              <div className="md:hidden divide-y divide-slate-100 max-h-[calc(100vh-220px)] overflow-y-auto custom-scrollbar">
                 {filteredTransactions.map(tr => {
                   const personName = tr.personType === 'farmer' ? farmers.find(f => f.id === tr.personId)?.name : customers.find(c => c.id === tr.personId)?.name;
                   return (
