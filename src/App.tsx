@@ -1,30 +1,29 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense, lazy } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { useAuth } from './lib/auth';
 import { useMessaging } from './lib/useMessaging';
 import { useI18n } from './lib/i18n';
 import Layout from './components/Layout';
-import Dashboard from './views/Dashboard';
-import Farmers from './views/Farmers';
-import Customers from './views/Customers';
-import Collections from './views/Collections';
-import Deliveries from './views/Deliveries';
-import Expenses from './views/Expenses';
-import Payments from './views/Payments';
-import Reports from './views/Reports';
-import ProfitLoss from './views/ProfitLoss';
-import DairySales from './views/DairySales';
-import Inventory from './views/Inventory';
-import Admin from './views/Admin';
-import FarmerDashboard from './views/FarmerDashboard';
-import PinLock from './components/PinLock';
-import AdminLogin from './components/AdminLogin';
-import FarmerLogin from './components/FarmerLogin';
-import CustomerLogin from './components/CustomerLogin';
-import CustomerDashboard from './views/CustomerDashboard';
-import LandingPage from './views/LandingPage';
-import PrivacyPolicy from './views/PrivacyPolicy';
-import TermsOfService from './views/TermsOfService';
+const Dashboard = lazy(() => import('./views/Dashboard'));
+const Farmers = lazy(() => import('./views/Farmers'));
+const Customers = lazy(() => import('./views/Customers'));
+const Collections = lazy(() => import('./views/Collections'));
+const Deliveries = lazy(() => import('./views/Deliveries'));
+const Expenses = lazy(() => import('./views/Expenses'));
+const Payments = lazy(() => import('./views/Payments'));
+const Reports = lazy(() => import('./views/Reports'));
+const ProfitLoss = lazy(() => import('./views/ProfitLoss'));
+const DairySales = lazy(() => import('./views/DairySales'));
+const Inventory = lazy(() => import('./views/Inventory'));
+const Admin = lazy(() => import('./views/Admin'));
+const FarmerDashboard = lazy(() => import('./views/FarmerDashboard'));
+const CustomerDashboard = lazy(() => import('./views/CustomerDashboard'));
+const PinLock = lazy(() => import('./components/PinLock'));
+const AdminLogin = lazy(() => import('./components/AdminLogin'));
+const PortalLogin = lazy(() => import('./components/PortalLogin'));
+const LandingPage = lazy(() => import('./views/LandingPage'));
+const PrivacyPolicy = lazy(() => import('./views/PrivacyPolicy'));
+const TermsOfService = lazy(() => import('./views/TermsOfService'));
 import { Milk } from 'lucide-react';
 
 export default function App() {
@@ -46,29 +45,56 @@ export default function App() {
 
   if (!user) {
     const path = window.location.pathname.toLowerCase();
-    if (path.includes('/farmer')) return <FarmerLogin />;
-    if (path.includes('/customer')) return <CustomerLogin />;
-    if (path.includes('/admin')) return <AdminLogin />;
-    if (path.includes('/privacy-policy')) return <PrivacyPolicy />;
-    if (path.includes('/terms-of-service')) return <TermsOfService />;
-    return <LandingPage />;
+    
+    if (path.includes('/farmer')) return (
+      <Suspense fallback={<div className="min-h-screen bg-slate-50 flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div></div>}>
+        <PortalLogin role="farmer" />
+      </Suspense>
+    );
+    
+    if (path.includes('/customer')) return (
+      <Suspense fallback={<div className="min-h-screen bg-slate-50 flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div></div>}>
+        <PortalLogin role="customer" />
+      </Suspense>
+    );
+
+    let Component = LandingPage;
+    if (path.includes('/admin')) Component = AdminLogin;
+    else if (path.includes('/privacy-policy')) Component = PrivacyPolicy;
+    else if (path.includes('/terms-of-service')) Component = TermsOfService;
+
+    return (
+      <Suspense fallback={<div className="min-h-screen bg-slate-50 flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div></div>}>
+        <Component />
+      </Suspense>
+    );
   }
 
   if (role === 'farmer') {
-    return <FarmerDashboard />;
+    return (
+      <Suspense fallback={<div className="min-h-screen bg-slate-50 flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div></div>}>
+        <FarmerDashboard />
+      </Suspense>
+    );
   }
 
   if (role === 'customer') {
-    return <CustomerDashboard />;
+    return (
+      <Suspense fallback={<div className="min-h-screen bg-slate-50 flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div></div>}>
+        <CustomerDashboard />
+      </Suspense>
+    );
   }
 
   if (user && !pinVerified) {
     return (
-      <PinLock 
-        user={user} 
-        onSuccess={() => setPinVerified(true)} 
-        onLogout={logout} 
-      />
+      <Suspense fallback={<div className="min-h-screen bg-slate-50 flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div></div>}>
+        <PinLock 
+          user={user} 
+          onSuccess={() => setPinVerified(true)} 
+          onLogout={logout} 
+        />
+      </Suspense>
     );
   }
 
@@ -94,7 +120,9 @@ export default function App() {
     <>
       <Toaster position="top-right" toastOptions={{ duration: 1000 }} />
       <Layout activeView={activeView} setActiveView={setActiveView}>
-        {renderView()}
+        <Suspense fallback={<div className="flex h-full items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div></div>}>
+          {renderView()}
+        </Suspense>
       </Layout>
     </>
   );

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { InventoryItem, Farmer, Customer } from '../types';
-import { db } from '../lib/firebase';
+import { db } from '../lib/db';
 import { collection, query, where, getDocs, doc, writeBatch, increment } from 'firebase/firestore';
 import { X, Save, User, UserCircle, ShoppingCart } from 'lucide-react';
 import { useAuth } from '../lib/auth';

@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { db } from '../lib/firebase';
+import { db } from '../lib/db';
 import { collection, query, where, getDocs, orderBy, writeBatch, doc, onSnapshot } from 'firebase/firestore';
 import { MilkCollection, Transaction, Farmer } from '../types';
 import { ArrowLeft, Calendar, FileText, IndianRupee, Printer, ChevronLeft, ChevronRight, X, Info, Edit2, Trash2 } from 'lucide-react';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, addMonths, subMonths, isSameMonth, isToday } from 'date-fns';
+import dayjs from 'dayjs';
+import { eachDayOfInterval, addMonths, isSameMonth, isToday } from '../lib/dateUtils';
 import EditMilkModal from './EditMilkModal';
 import toast from 'react-hot-toast';
 
@@ -29,7 +30,7 @@ export default function FarmerLedger({ farmer, allFarmers = [], onClose, onRefre
   const [paymentData, setPaymentData] = useState({
     type: 'debit' as 'credit' | 'debit',
     amount: '',
-    date: format(new Date(), 'yyyy-MM-dd'),
+    date: dayjs().format('YYYY-MM-DD'),
     method: 'Cash',
     description: ''
   });
@@ -41,8 +42,8 @@ export default function FarmerLedger({ farmer, allFarmers = [], onClose, onRefre
   }, [farmer.balance]);
 
   const dateRange = {
-    start: format(startOfMonth(currentMonth), 'yyyy-MM-dd'),
-    end: format(endOfMonth(currentMonth), 'yyyy-MM-dd')
+    start: dayjs(dayjs(currentMonth).startOf('month').toDate()).format('YYYY-MM-DD'),
+    end: dayjs(dayjs(currentMonth).endOf('month').toDate()).format('YYYY-MM-DD')
   };
 
   useEffect(() => {
@@ -178,8 +179,8 @@ export default function FarmerLedger({ farmer, allFarmers = [], onClose, onRefre
   let daysInMonth: Date[] = [];
   try {
     daysInMonth = eachDayOfInterval({
-      start: startOfMonth(currentMonth),
-      end: endOfMonth(currentMonth)
+      start: dayjs(currentMonth).startOf('month').toDate(),
+      end: dayjs(currentMonth).endOf('month').toDate()
     });
   } catch (e) {
     console.error("Farmer Calendar Error:", e);
@@ -342,8 +343,8 @@ export default function FarmerLedger({ farmer, allFarmers = [], onClose, onRefre
       <div className="p-4 md:p-6 border-b border-slate-200 flex flex-col md:flex-row md:items-center justify-between bg-slate-50 gap-4">
         <div className="flex items-center gap-4 w-full md:w-auto justify-between md:justify-start">
           <div className="flex items-center gap-2 bg-white border border-slate-200 p-1.5 px-4 w-full md:w-auto justify-between">
-             <button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="p-1 hover:bg-slate-100 border border-slate-200"><ChevronLeft className="w-5 h-5 text-black" /></button>
-             <span className="text-sm uppercase tracking-widest min-w-[140px] text-center text-black font-semibold">{format(currentMonth, 'MMMM yyyy')}</span>
+             <button onClick={() => setCurrentMonth(dayjs(currentMonth).subtract(1, 'month').toDate())} className="p-1 hover:bg-slate-100 border border-slate-200"><ChevronLeft className="w-5 h-5 text-black" /></button>
+             <span className="text-sm uppercase tracking-widest min-w-[140px] text-center text-black font-semibold">{dayjs(currentMonth).format('MMMM yyyy')}</span>
              <button onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="p-1 hover:bg-slate-100 border border-slate-200"><ChevronRight className="w-5 h-5 text-black" /></button>
           </div>
         </div>
@@ -441,7 +442,7 @@ export default function FarmerLedger({ farmer, allFarmers = [], onClose, onRefre
                  <div key={i} className="bg-slate-50 p-1 md:p-2 text-center text-[8px] md:text-[10px] uppercase tracking-widest text-black border-b border-slate-200">{d}</div>
                ))}
                {daysInMonth.map((day, i) => {
-                 const dateStr = format(day, 'yyyy-MM-dd');
+                 const dateStr = dayjs(day).format('YYYY-MM-DD');
                  const dayCollections = collections.filter(c => c.date === dateStr);
                  const colVol = dayCollections.reduce((sum, c) => sum + (c.quantity || 0), 0);
                  const colAmt = dayCollections.reduce((sum, c) => sum + (c.amount || 0), 0);
@@ -450,7 +451,7 @@ export default function FarmerLedger({ farmer, allFarmers = [], onClose, onRefre
                  
                  return (
                     <div key={i} className={`bg-white min-h-[60px] md:min-h-[80px] p-0.5 md:p-1 overflow-hidden ${!isSameMonth(day, currentMonth) ? 'bg-slate-50 opacity-50' : ''} ${isToday(day) ? 'bg-blue-50/30' : ''}`}>
-                     <div className="text-[8px] md:text-[10px] text-slate-400 mb-0.5">{format(day, 'd')}</div>
+                     <div className="text-[8px] md:text-[10px] text-slate-400 mb-0.5">{dayjs(day).format('d')}</div>
                      <div className="space-y-0.5">
                          {colVol > 0 && (
                            <div className="text-[7px] md:text-[9px] leading-tight mb-0.5 bg-emerald-50 p-0.5 truncate border border-emerald-100" title={`Milk: ${colVol}L, ₹${colAmt.toLocaleString()}`}>

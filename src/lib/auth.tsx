@@ -2,8 +2,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import { User, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, signOut, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, updateProfile, signInWithCredential } from 'firebase/auth';
 import { Capacitor } from '@capacitor/core';
 import { FirebaseAuthentication } from '@capacitor-firebase/authentication';
-import { auth, secondaryAuth, db } from './firebase';
-import { doc, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
+import { auth, secondaryAuth } from './firebase';
 import { Role, AdminConfig } from '../types';
 
 interface AuthContextType {
@@ -62,83 +61,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       setUser(u);
       if (u) {
-        try {
-          // Fetch role
-          const docRef = doc(db, 'admin_configs', u.uid);
-          let docSnap = await getDoc(docRef);
-
-          if (docSnap.exists()) {
-            const data = docSnap.data() as any;
-
-            // Override role if it's the primary admin
-            const isSuperAdmin = u.email?.toLowerCase().trim() === 'prashantbagriya7877@gmail.com';
-            if (isSuperAdmin && data.role !== 'admin') {
-              await setDoc(docRef, { ...data, role: 'admin' });
-              setRole('admin');
-            } else {
-              setRole(data.role);
-            }
-
-            setTenantId(data.tenantId || u.uid);
-            if (data.role === 'farmer') {
-              setFarmerId(data.farmerId);
-            } else if (data.role === 'customer') {
-              setCustomerId(data.customerId);
-            }
-          } else {
-            // Check if user email was pre-registered in admin_configs (using email as doc ID)
-            const emailId = u.email ? u.email.trim().toLowerCase() : '';
-            const emailRef = doc(db, 'admin_configs', emailId);
-            const emailSnap = await getDoc(emailRef);
-
-            if (emailSnap.exists()) {
-              const preRegData = emailSnap.data();
-              // Link Google login UID to pre-registered email role
-              await setDoc(docRef, {
-                email: u.email!,
-                role: preRegData.role,
-                displayName: u.displayName || preRegData.displayName || '',
-                createdAt: preRegData.createdAt || new Date().toISOString(),
-                linkedAt: new Date().toISOString(),
-                tenantId: preRegData.tenantId || u.uid
-              });
-              // Cleanup the email-keyed placeholder
-              await deleteDoc(emailRef);
-              setRole(preRegData.role);
-              setTenantId(preRegData.tenantId || u.uid);
-            } else {
-              if (u.email && u.email.endsWith('@milkmaster.local')) {
-                // This is a farmer or customer whose config document was deleted (e.g. they were removed)
-                // They should NOT become an admin.
-                await signOut(auth);
-                setRole(null);
-                setUser(null);
-                setLoading(false);
-                return;
-              }
-
-              // Any new user signing up without an invitation is creating a NEW Dairy.
-              // So they become the admin of their own tenant.
-              const newAdmin = {
-                email: u.email || 'unknown',
-                role: 'admin' as Role,
-                displayName: u.displayName || 'Dairy Owner',
-                createdAt: new Date().toISOString(),
-                tenantId: u.uid
-              };
-              await setDoc(docRef, newAdmin);
-              setRole('admin');
-              setTenantId(u.uid);
-            }
-          }
-        } catch (e: any) {
-          console.error("Auth error:", e);
-          if (u.email && u.email.endsWith('@milkmaster.local')) {
-            alert("Error loading profile: " + e.message + "\n\n(If it says Permission Denied, please make sure the rules were published correctly in Firebase Console!)");
-          }
-          setRole('operator'); // Fallback
-          setTenantId(u.uid);
-        }
+        const { fetchAndSetRole } = await import('./auth-role');
+        await fetchAndSetRole(u, setRole, setTenantId, setFarmerId, setCustomerId, signOut, auth, setUser, setLoading);
       } else {
         setRole(null);
         setAccessToken(null);
@@ -271,6 +195,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const userCredential = await createUserWithEmailAndPassword(secondaryAuth, email, firebasePassword);
 
       // Add admin_configs record to grant farmer access
+      const { doc, setDoc } = await import('firebase/firestore');
+      const { db } = await import('./db');
       await setDoc(doc(db, 'admin_configs', userCredential.user.uid), {
         email: email,
         role: 'farmer',
@@ -306,6 +232,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const userCredential = await createUserWithEmailAndPassword(secondaryAuth, email, firebasePassword);
 
+      const { doc, setDoc } = await import('firebase/firestore');
+      const { db } = await import('./db');
       await setDoc(doc(db, 'admin_configs', userCredential.user.uid), {
         email: email,
         role: 'customer',

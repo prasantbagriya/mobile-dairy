@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../lib/auth';
-import { db } from '../lib/firebase';
+import { db } from '../lib/db';
 import { doc, getDoc, setDoc, collection, getDocs, query, where } from 'firebase/firestore';
 import { ShieldCheck, RefreshCw, AlertCircle, CheckCircle2, FileSpreadsheet, Lock } from 'lucide-react';
 import { AdminConfig } from '../types';

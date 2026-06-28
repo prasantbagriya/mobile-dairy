@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useI18n } from '../lib/i18n';
 import { useAuth } from '../lib/auth';
-import { db } from '../lib/firebase';
+import { db } from '../lib/db';
 import { collection, where, addDoc, getDocs, query, orderBy, limit, onSnapshot, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { ShoppingBag, Plus, Save, Edit2, Trash2 } from 'lucide-react';
-import { format } from 'date-fns';
+import dayjs from 'dayjs';
 import InfoTooltip from '../components/InfoTooltip';
 
 export default function DairySales() {
@@ -16,7 +16,7 @@ export default function DairySales() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     dairyName: '',
-    date: format(new Date(), 'yyyy-MM-dd'),
+    date: dayjs().format('YYYY-MM-DD'),
     quantity: '',
     fat: '',
     rate: '',
@@ -80,7 +80,7 @@ export default function DairySales() {
   function handleEditClick(sale: any) {
     setFormData({
       dairyName: sale.dairyName || '',
-      date: sale.date || format(new Date(), 'yyyy-MM-dd'),
+      date: sale.date || dayjs().format('YYYY-MM-DD'),
       quantity: sale.quantity?.toString() || '',
       fat: sale.fat?.toString() || '',
       rate: sale.rate?.toString() || '',
@@ -132,7 +132,7 @@ export default function DairySales() {
           setEditingId(null);
           setFormData({
             dairyName: '',
-            date: format(new Date(), 'yyyy-MM-dd'),
+            date: dayjs().format('YYYY-MM-DD'),
             quantity: '',
             fat: '',
             rate: '',

@@ -2,11 +2,11 @@ import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useI18n } from '../lib/i18n';
 import { useAuth } from '../lib/auth';
-import { db } from '../lib/firebase';
+import { db } from '../lib/db';
 import { collection, where, addDoc, onSnapshot, query, deleteDoc, doc } from 'firebase/firestore';
 import { Expense } from '../types';
 import { Trash2, Wallet, Fuel, Lightbulb, Users, Settings, Save, Plus, X } from 'lucide-react';
-import { format } from 'date-fns';
+import dayjs from 'dayjs';
 import InfoTooltip from '../components/InfoTooltip';
 
 export default function Expenses() {
@@ -18,7 +18,7 @@ export default function Expenses() {
   const [formData, setFormData] = useState({
     category: 'Fuel',
     amount: '',
-    date: format(new Date(), 'yyyy-MM-dd'),
+    date: dayjs().format('YYYY-MM-DD'),
     description: '',
     method: 'Cash'
   });

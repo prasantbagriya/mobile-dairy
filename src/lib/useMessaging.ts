@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getToken, onMessage } from 'firebase/messaging';
-import { messaging, db } from './firebase';
-import { doc, setDoc } from 'firebase/firestore';
+import { messaging } from './firebase';
 import { useAuth } from './auth';
 
 // Optional: Provide your VAPID Key here from Firebase Console -> Cloud Messaging -> Web Configuration
@@ -18,16 +16,14 @@ export function useMessaging() {
       try {
         const permission = await Notification.requestPermission();
         if (permission === 'granted') {
-          const msg = messaging();
+          const msg = await messaging();
           if (msg) {
+            const { getToken } = await import('firebase/messaging');
             const token = await getToken(msg, { vapidKey: VAPID_KEY || undefined });
             if (token) {
               setFcmToken(token);
-              // Save token to Firestore so admin can push notifications to this specific user
-              await setDoc(doc(db, 'user_tokens', user.uid), {
-                token,
-                updatedAt: new Date().toISOString()
-              }, { merge: true });
+              const { saveMessagingToken } = await import('./messaging-db');
+              await saveMessagingToken(user.uid, token);
             } else {
               console.log('No registration token available. Request permission to generate one.');
             }
@@ -43,23 +39,29 @@ export function useMessaging() {
     requestPermissionAndGetToken();
 
     // Listen for foreground messages
-    const msg = messaging();
-    if (msg) {
-      const unsubscribe = onMessage(msg, (payload) => {
-        console.log('Foreground message received: ', payload);
-        // You could use a toast notification library here to show a popup
-        // alert(`New Notification: ${payload.notification?.title} - ${payload.notification?.body}`);
-        
-        // Native notification fallback if the tab is visible
-        if (Notification.permission === 'granted') {
-            new Notification(payload.notification?.title || 'Notification', {
-                body: payload.notification?.body || '',
-                icon: '/favicon.ico'
-            });
-        }
-      });
-      return () => unsubscribe();
-    }
+    let unsubscribe: any;
+    
+    const setupListener = async () => {
+      const msg = await messaging();
+      if (msg) {
+        const { onMessage } = await import('firebase/messaging');
+        unsubscribe = onMessage(msg, (payload) => {
+          console.log('Foreground message received: ', payload);
+          if (Notification.permission === 'granted') {
+              new Notification(payload.notification?.title || 'Notification', {
+                  body: payload.notification?.body || '',
+                  icon: '/favicon.ico'
+              });
+          }
+        });
+      }
+    };
+    
+    setupListener();
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
   }, [user]);
 
   return { fcmToken };

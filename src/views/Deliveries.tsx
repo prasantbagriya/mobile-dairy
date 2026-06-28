@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useI18n } from '../lib/i18n';
-import { db } from '../lib/firebase';
+import { db } from '../lib/db';
 import { useAuth } from '../lib/auth';
 import { collection, addDoc, getDocs, onSnapshot, query, orderBy, limit, deleteDoc, doc, where, increment, updateDoc, writeBatch } from 'firebase/firestore';
 import { Customer, MilkDelivery } from '../types';
 import { Plus, History, Sun, Moon, Save, Search, Edit2, X, Filter } from 'lucide-react';
-import { format } from 'date-fns';
+import dayjs from 'dayjs';
 import InfoTooltip from '../components/InfoTooltip';
 import EditDeliveryModal from '../components/EditDeliveryModal';
 
@@ -19,7 +19,7 @@ export default function Deliveries() {
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
     customerId: '',
-    date: format(new Date(), 'yyyy-MM-dd'),
+    date: dayjs().format('YYYY-MM-DD'),
     session: 'morning' as 'morning' | 'evening',
     quantity: '',
     rate: '',

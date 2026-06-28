@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../lib/auth';
-import { db } from '../lib/firebase';
+import { db } from '../lib/db';
 import { collection, getDocs, query, where } from 'firebase/firestore';
-import { format, startOfMonth, endOfMonth, subMonths } from 'date-fns';
+import dayjs from 'dayjs';
 import { Filter, TrendingUp, TrendingDown, DollarSign, Wallet, Package, Activity } from 'lucide-react';
 import InfoTooltip from '../components/InfoTooltip';
 import { useI18n } from '../lib/i18n';
@@ -13,8 +13,8 @@ export default function ProfitLoss() {
 
   const [showFilters, setShowFilters] = useState(false);
   const [dateRange, setDateRange] = useState({
-    start: format(startOfMonth(new Date()), 'yyyy-MM-dd'),
-    end: format(new Date(), 'yyyy-MM-dd')
+    start: dayjs().startOf('month').format('YYYY-MM-DD'),
+    end: dayjs().format('YYYY-MM-DD')
   });
 
   const [loading, setLoading] = useState(false);
@@ -121,19 +121,19 @@ export default function ProfitLoss() {
     const now = new Date();
     if (type === 'thisMonth') {
       setDateRange({
-        start: format(startOfMonth(now), 'yyyy-MM-dd'),
-        end: format(now, 'yyyy-MM-dd')
+        start: dayjs(now).startOf('month').format('YYYY-MM-DD'),
+        end: dayjs(now).format('YYYY-MM-DD')
       });
     } else if (type === 'lastMonth') {
-      const lm = subMonths(now, 1);
+      const lm = dayjs(now).subtract(1, 'month').toDate();
       setDateRange({
-        start: format(startOfMonth(lm), 'yyyy-MM-dd'),
-        end: format(endOfMonth(lm), 'yyyy-MM-dd')
+        start: dayjs(lm).startOf('month').format('YYYY-MM-DD'),
+        end: dayjs(lm).endOf('month').format('YYYY-MM-DD')
       });
     } else {
       setDateRange({
-        start: format(new Date(now.getFullYear(), 0, 1), 'yyyy-MM-dd'),
-        end: format(now, 'yyyy-MM-dd')
+        start: dayjs(new Date(now.getFullYear(), 0, 1)).format('YYYY-MM-DD'),
+        end: dayjs(now).format('YYYY-MM-DD')
       });
     }
   }

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
-import { db } from '../lib/firebase';
+import { db } from '../lib/db';
 import { collection, setDoc, getDocs, deleteDoc, doc, query, where, getDoc } from 'firebase/firestore';
 import { useI18n } from '../lib/i18n';
 import { useAuth } from '../lib/auth';

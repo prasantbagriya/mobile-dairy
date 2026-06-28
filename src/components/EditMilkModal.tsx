@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { MilkCollection, AppSettings } from '../types';
-import { db } from '../lib/firebase';
+import { db } from '../lib/db';
 import { doc, getDoc, updateDoc, increment, writeBatch } from 'firebase/firestore';
 import { X, Save, Calculator } from 'lucide-react';
 import { useAuth } from '../lib/auth';

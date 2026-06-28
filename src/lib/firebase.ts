@@ -1,14 +1,8 @@
 import { initializeApp } from 'firebase/app';
-import { Capacitor } from '@capacitor/core';
 import { getAuth } from 'firebase/auth';
-import { getMessaging, isSupported } from 'firebase/messaging';
-import { getFirestore, enableMultiTabIndexedDbPersistence } from 'firebase/firestore';
 import firebaseConfig from '../../firebase-applet-config.json';
 
-import { FirebaseAppCheck } from '@capacitor-firebase/app-check';
-import { initializeAppCheck, ReCaptchaEnterpriseProvider, CustomProvider } from 'firebase/app-check';
-
-const app = initializeApp(firebaseConfig);
+export const app = initializeApp(firebaseConfig);
 
 if (typeof window !== 'undefined') {
   // Force App Check to work on all domains for now
@@ -42,15 +36,6 @@ if (typeof window !== 'undefined') {
 */
 }
 
-export const db = getFirestore(app);
-
-enableMultiTabIndexedDbPersistence(db).catch((err) => {
-  if (err.code === 'failed-precondition') {
-    console.warn("Multiple tabs open, persistence can only be enabled in one tab at a a time.");
-  } else if (err.code === 'unimplemented') {
-    console.warn("The current browser does not support all of the features required to enable persistence");
-  }
-});
 
 export const auth = getAuth(app);
 
@@ -74,10 +59,21 @@ export const secondaryAuth = getAuth(secondaryApp);
 
 // Initialize Messaging (Push Notifications) safely
 let messagingInstance: any = null;
-isSupported().then((supported) => {
-  if (supported) {
-    messagingInstance = getMessaging(app);
-  }
-}).catch(console.error);
+let messagingInitialized = false;
 
-export const messaging = () => messagingInstance;
+export const messaging = async () => {
+  if (messagingInitialized) return messagingInstance;
+  
+  try {
+    const { getMessaging, isSupported } = await import('firebase/messaging');
+    const supported = await isSupported();
+    if (supported) {
+      messagingInstance = getMessaging(app);
+    }
+  } catch (e) {
+    console.error("Error initializing messaging:", e);
+  }
+  
+  messagingInitialized = true;
+  return messagingInstance;
+};

@@ -113,14 +113,14 @@ service cloud.firestore {
     }
 
     match /farmers/{document} {
-      allow read: if true;
+      allow read: if isAuthenticated();
       allow delete: if isOwner();
       allow create: if isAssigningOwnId() && (request.resource.data.userId == request.auth.uid || isOperator()) && isValidFarmer(request.resource.data);
       allow update: if isOwner() && isAssigningOwnId() && isValidFarmer(request.resource.data);
     }
 
     match /customers/{document} {
-      allow read: if true;
+      allow read: if isAuthenticated();
       allow delete: if isOwner();
       allow create: if isAssigningOwnId() && isValidCustomer(request.resource.data);
       allow update: if isOwner() && isAssigningOwnId() && isValidCustomer(request.resource.data);
@@ -364,8 +364,8 @@ service cloud.firestore {
     // ===============================================================
 
     match /admin_configs/{docId} {
-      allow read: if true;
-      allow write: if true;
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
     }
 
     match /user_tokens/{docId} {

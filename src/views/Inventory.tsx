@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useI18n } from '../lib/i18n';
 import { useAuth } from '../lib/auth';
-import { db } from '../lib/firebase';
+import { db } from '../lib/db';
 import { collection, where, addDoc, onSnapshot, query, doc, updateDoc, deleteDoc, writeBatch } from 'firebase/firestore';
 import { Package, Plus, Save, X, Edit2, Trash2, AlertTriangle, TrendingUp, ShoppingCart, LayoutGrid, List } from 'lucide-react';
 import InfoTooltip from '../components/InfoTooltip';

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../lib/auth';
-import { db } from '../lib/firebase';
+import { db } from '../lib/db';
 import { collection, query, where, orderBy, getDocs, doc, getDoc, addDoc, limit } from 'firebase/firestore';
 import { Milk, IndianRupee, MapPin, Phone, ArrowRight, CheckCircle2, History, CreditCard, X, Plus, RefreshCw, Copy, Download, QrCode, ArrowDownRight, ArrowUpRight, Home, FileText, User, LogOut, Printer, Info } from 'lucide-react';
 import { Customer, Transaction, MilkDelivery } from '../types';

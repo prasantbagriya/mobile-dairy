@@ -2,11 +2,11 @@ import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 
 import { useI18n } from '../lib/i18n';
-import { db } from '../lib/firebase';
+import { db } from '../lib/db';
 import { collection, addDoc, getDocs, query, orderBy, limit, doc, increment, updateDoc, writeBatch, where, deleteDoc } from 'firebase/firestore';
 import { Farmer, Customer, Transaction } from '../types';
 import { Plus, IndianRupee, ArrowDownCircle, ArrowUpCircle, History, Filter, Check, X, Search } from 'lucide-react';
-import { format } from 'date-fns';
+import dayjs from 'dayjs';
 import InfoTooltip from '../components/InfoTooltip';
 import { useAuth } from '../lib/auth';
 
@@ -27,7 +27,7 @@ export default function Payments() {
     personType: 'farmer' as 'farmer' | 'customer',
     type: 'debit' as 'credit' | 'debit',
     amount: '',
-    date: format(new Date(), 'yyyy-MM-dd'),
+    date: dayjs().format('YYYY-MM-DD'),
     description: '',
     method: 'Cash'
   });
@@ -69,7 +69,7 @@ export default function Payments() {
         personType: isFarmer ? 'farmer' : 'customer',
         type: isFarmer ? 'debit' : 'credit', // farmer gets paid (debit), customer pays us (credit)
         amount: req.amount,
-        date: format(new Date(), 'yyyy-MM-dd'),
+        date: dayjs().format('YYYY-MM-DD'),
         description: 'Payment via Portal',
         method: req.method,
         createdAt: new Date().toISOString(),

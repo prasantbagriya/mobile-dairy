@@ -2,13 +2,10 @@ import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useI18n } from '../lib/i18n';
 import { useAuth } from '../lib/auth';
-import { db } from '../lib/firebase';
+import { db } from '../lib/db';
 import { collection, getDocs, query, orderBy, where } from 'firebase/firestore';
-import { FileText, Download, Table as TableIcon, Sparkles, Filter } from 'lucide-react';
-import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
-import * as XLSX from 'xlsx';
-import { format, startOfMonth, endOfMonth } from 'date-fns';
+import { Sparkles, Filter, FileText, Download, Table as TableIcon } from 'lucide-react';
+import dayjs from 'dayjs';
 import InfoTooltip from '../components/InfoTooltip';
 
 export default function Reports() {
@@ -16,8 +13,8 @@ export default function Reports() {
   const { user , tenantId } = useAuth();
   const [reportType, setReportType] = useState('collections');
   const [dateRange, setDateRange] = useState({
-    start: format(startOfMonth(new Date()), 'yyyy-MM-dd'),
-    end: format(new Date(), 'yyyy-MM-dd')
+    start: dayjs().startOf('month').format('YYYY-MM-DD'),
+    end: dayjs().format('YYYY-MM-DD')
   });
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -85,54 +82,47 @@ export default function Reports() {
   }, [reportType, dateRange, tenantId]);
 
   const exportPDF = () => {
-    const doc = new jsPDF() as any;
-    doc.text(`Milk Master - ${reportType.toUpperCase()} REPORT`, 14, 15);
-    doc.text(`Range: ${dateRange.start} to ${dateRange.end}`, 14, 22);
-
-    const headers = reportType === 'collections' 
-      ? [['Date', 'Farmer', 'Session', 'Qty (L)', 'Fat/SNF', 'Rate', 'Amount']]
-      : reportType === 'deliveries'
-        ? [['Date', 'Customer', 'Session', 'Qty (L)', 'Rate', 'Amount']]
-        : reportType === 'transactions'
-          ? [['Date', 'Person', 'Role', 'Method', 'Type', 'Amount']]
-          : reportType === 'inventory'
-            ? [['Item Name', 'Category', 'Quantity', 'Unit', 'Rate', 'Value']]
-            : [['Date', 'Dairy Name', 'Fat', 'Qty (L)', 'Rate', 'Amount']];
-
-    const rows = data.map(item => reportType === 'collections'
-      ? [item.date, item.farmerName, item.session, item.quantity, `${item.fat}/${item.snf}`, item.rate, `₹${item.amount}`]
-      : reportType === 'deliveries'
-        ? [item.date, item.customerName, item.session, item.quantity, item.rate, `₹${item.amount}`]
-        : reportType === 'transactions'
-          ? [item.date, item.personName, item.personType === 'farmer' ? 'Farmer' : 'Customer', item.method, item.type === 'debit' ? 'Debit' : 'Credit', `₹${item.amount}`]
-          : reportType === 'inventory'
-            ? [item.itemName, item.category, item.quantity, item.unit, `₹${item.rate || 0}`, `₹${((item.quantity || 0) * (item.rate || 0)).toFixed(2)}`]
-            : [item.date, item.dairyName, item.fat, item.quantity, item.rate, `₹${item.amount}`]
-    );
-
-    doc.autoTable({
-      head: headers,
-      body: rows,
-      startY: 30,
-      theme: 'grid',
-      headStyles: { fillColor: [59, 130, 246] }
-    });
-
-    doc.save(`${reportType}_report_${dateRange.start}_to_${dateRange.end}.pdf`);
+    window.print();
   };
 
   const exportExcel = () => {
-    const exportData = data.map(item => {
-      if (reportType === 'collections') return { Date: item.date, Farmer: item.farmerName, Session: item.session, 'Qty (L)': item.quantity, Fat: item.fat, SNF: item.snf, Rate: item.rate, Amount: item.amount };
-      if (reportType === 'deliveries') return { Date: item.date, Customer: item.customerName, Session: item.session, 'Qty (L)': item.quantity, Rate: item.rate, Amount: item.amount };
-      if (reportType === 'transactions') return { Date: item.date, Person: item.personName, Role: item.personType, Method: item.method, Type: item.type, Amount: item.amount };
-      if (reportType === 'inventory') return { Item: item.itemName, Category: item.category, Quantity: item.quantity, Unit: item.unit, Rate: item.rate, Value: (item.quantity || 0) * (item.rate || 0) };
-      return { Date: item.date, 'Dairy Name': item.dairyName, Fat: item.fat, 'Qty (L)': item.quantity, Rate: item.rate, Amount: item.amount };
+    if (data.length === 0) {
+      toast.error("No data to export");
+      return;
+    }
+
+    const headers = reportType === 'collections'
+      ? ['Date', 'Farmer', 'Session', 'Qty (L)', 'Fat', 'SNF', 'Rate', 'Amount']
+      : reportType === 'deliveries'
+        ? ['Date', 'Customer', 'Session', 'Qty (L)', 'Rate', 'Amount']
+        : reportType === 'transactions'
+          ? ['Date', 'Person', 'Role', 'Method', 'Type', 'Amount']
+          : reportType === 'inventory'
+            ? ['Item Name', 'Category', 'Quantity', 'Unit', 'Rate', 'Value']
+            : ['Date', 'Dairy Name', 'Fat', 'Qty (L)', 'Rate', 'Amount'];
+
+    const rows = data.map(item => {
+      if (reportType === 'collections') return [item.date, item.farmerName || '', item.session || '', item.quantity || 0, item.fat || 0, item.snf || 0, item.rate || 0, item.amount || 0];
+      if (reportType === 'deliveries') return [item.date, item.customerName || '', item.session || '', item.quantity || 0, item.rate || 0, item.amount || 0];
+      if (reportType === 'transactions') return [item.date, item.personName || '', item.personType || '', item.method || '', item.type || '', item.amount || 0];
+      if (reportType === 'inventory') return [item.itemName || '', item.category || '', item.quantity || 0, item.unit || '', item.rate || 0, (item.quantity || 0) * (item.rate || 0)];
+      return [item.date, item.dairyName || '', item.fat || 0, item.quantity || 0, item.rate || 0, item.amount || 0];
     });
-    const ws = XLSX.utils.json_to_sheet(exportData);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Report");
-    XLSX.writeFile(wb, `${reportType}_report.xlsx`);
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+    ].join('\\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `${reportType}_report_${dateRange.start}_to_${dateRange.end}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   async function runAIAnalysis() {

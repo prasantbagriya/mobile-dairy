@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useI18n } from '../lib/i18n';
-import { db } from '../lib/firebase';
+import { db } from '../lib/db';
 import { collection, addDoc, getDocs, onSnapshot, query, orderBy, limit, doc, increment, updateDoc, getDoc, setDoc, where, writeBatch } from 'firebase/firestore';
 import { Farmer, MilkCollection, AppSettings } from '../types';
 import { Plus, Search, Calendar, Moon, Sun, Calculator, Save, X, Milk, History, Edit, TrendingUp, Clock, Edit2, Filter } from 'lucide-react';
-import { format } from 'date-fns';
+import dayjs from 'dayjs';
 import InfoTooltip from '../components/InfoTooltip';
 import { useAuth } from '../lib/auth';
 import EditMilkModal from '../components/EditMilkModal';
@@ -27,7 +27,7 @@ export default function Collections() {
   // Form State
   const [formData, setFormData] = useState({
     farmerId: '',
-    date: format(new Date(), 'yyyy-MM-dd'),
+    date: dayjs().format('YYYY-MM-DD'),
     session: 'morning' as 'morning' | 'evening',
     quantity: '',
     fat: '',

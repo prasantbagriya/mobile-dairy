@@ -89,7 +89,9 @@ app.post("/api/reports/analyze", async (req, res) => {
 async function setupServer() {
   if (process.env.NODE_ENV !== "production") {
     try {
-      const { createServer: createViteServer } = eval('require("vite")');
+      const viteModule = "vite";
+      const vitePkg = await import(viteModule);
+      const createViteServer = vitePkg.createServer;
       const vite = await createViteServer({
         server: { middlewareMode: true },
         appType: "spa",

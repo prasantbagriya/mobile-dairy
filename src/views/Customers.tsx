@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useI18n } from '../lib/i18n';
-import { db } from '../lib/firebase';
+import { db } from '../lib/db';
 import { collection, where, addDoc, onSnapshot, updateDoc, deleteDoc, doc, query, orderBy, writeBatch, getDocs } from 'firebase/firestore';
 import { Customer } from '../types';
 import { Plus, Search, Edit2, Phone, MapPin, FileText, Save, Trash2, X, Power, LayoutGrid, List as ListIcon } from 'lucide-react';

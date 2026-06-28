@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../lib/auth';
-import { db } from '../lib/firebase';
-import { collection, query, where, orderBy, onSnapshot, doc } from 'firebase/firestore';
+import { db } from '../lib/db';
+import { collection, query, where, orderBy, onSnapshot, doc, addDoc } from 'firebase/firestore';
 import { Farmer, MilkCollection, Transaction } from '../types';
 import { Milk, IndianRupee, MapPin, Phone, ArrowUpRight, ArrowDownRight, Clock, Home, FileText, User, LogOut, Printer, Plus, X, Info } from 'lucide-react';
 
@@ -92,10 +92,6 @@ export default function FarmerDashboard() {
     }
     
     try {
-      // Import addDoc if not already imported (it's not imported at the top, but we'll use addDoc directly)
-      // Actually we need to ensure addDoc is imported, let's just use it, we have it in firebase/firestore? No, let's just make sure.
-      // Wait, addDoc is not imported in FarmerDashboard.tsx! We should import it. Let me fix the import first.
-      const { addDoc } = await import('firebase/firestore');
       await addDoc(collection(db, 'payment_requests'), {
         farmerId: farmerId,
         farmerName: farmerData?.name,
