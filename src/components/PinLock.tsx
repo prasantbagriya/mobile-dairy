@@ -96,7 +96,7 @@ export default function PinLock({ user, onSuccess, onLogout }: PinLockProps) {
             <Lock className="w-7 h-7" />
           </div>
           <h2 className="text-2xl text-slate-900 tracking-tight">Enter App PIN</h2>
-          <p className="text-xs text-black uppercase tracking-widest">Verify identity on this device</p>
+          <p className="text-xs text-black tracking-widest">Verify identity on this device</p>
         </div>
       );
     } else if (mode === 'set') {
@@ -106,7 +106,7 @@ export default function PinLock({ user, onSuccess, onLogout }: PinLockProps) {
             <Unlock className="w-7 h-7" />
           </div>
           <h2 className="text-2xl text-slate-900 tracking-tight">Create Device PIN</h2>
-          <p className="text-xs text-black uppercase tracking-widest font-mono">Step 1 of 2: Set 4-digit PIN</p>
+          <p className="text-xs text-black tracking-widest font-mono">Step 1 of 2: Set 4-digit PIN</p>
         </div>
       );
     } else {
@@ -116,7 +116,7 @@ export default function PinLock({ user, onSuccess, onLogout }: PinLockProps) {
             <Unlock className="w-7 h-7" />
           </div>
           <h2 className="text-2xl text-slate-900 tracking-tight">Confirm PIN</h2>
-          <p className="text-xs text-black uppercase tracking-widest font-mono">Step 2 of 2: Re-enter PIN to confirm</p>
+          <p className="text-xs text-black tracking-widest font-mono">Step 2 of 2: Re-enter PIN to confirm</p>
         </div>
       );
     }
@@ -129,7 +129,7 @@ export default function PinLock({ user, onSuccess, onLogout }: PinLockProps) {
         <div className="flex items-center gap-3 bg-slate-50 p-2.5 px-4 rounded-none border border-slate-100 w-full shrink-0">
           <UserCircle className="w-5 h-5 text-black" />
           <div className="text-left flex-1 min-w-0">
-            <p className="text-[10px] text-black uppercase tracking-widest">LOGGED IN AS</p>
+            <p className="text-[10px] text-black tracking-widest">Logged in as</p>
             <p className="text-xs text-black truncate">{user.displayName || user.email}</p>
           </div>
           <button 
@@ -161,7 +161,7 @@ export default function PinLock({ user, onSuccess, onLogout }: PinLockProps) {
 
         {/* Error Message */}
         <div className="h-6 text-center shrink-0 w-full">
-          {error && <p className="text-xs text-red-500 font-semibold uppercase tracking-widest">{error}</p>}
+          {error && <p className="text-xs text-red-500 font-semibold tracking-widest">{error}</p>}
         </div>
 
         {/* Numeric Numpad */}
@@ -177,7 +177,7 @@ export default function PinLock({ user, onSuccess, onLogout }: PinLockProps) {
           ))}
           <button 
             onClick={() => setPin('')}
-            className="h-14 w-full text-xs font-semibold uppercase tracking-wider text-slate-500 hover:text-black hover:bg-slate-50 active:bg-slate-100 transition-colors flex items-center justify-center"
+            className="h-14 w-full text-xs font-semibold tracking-wider text-slate-500 hover:text-black hover:bg-slate-50 active:bg-slate-100 transition-colors flex items-center justify-center"
           >
             Clear
           </button>
@@ -189,7 +189,7 @@ export default function PinLock({ user, onSuccess, onLogout }: PinLockProps) {
           </button>
           <button 
             onClick={handleBackspace}
-            className="h-14 w-full text-xs font-semibold uppercase tracking-wider text-slate-500 hover:text-black hover:bg-slate-50 active:bg-slate-100 transition-colors flex items-center justify-center"
+            className="h-14 w-full text-xs font-semibold tracking-wider text-slate-500 hover:text-black hover:bg-slate-50 active:bg-slate-100 transition-colors flex items-center justify-center"
           >
             Del
           </button>
@@ -197,7 +197,7 @@ export default function PinLock({ user, onSuccess, onLogout }: PinLockProps) {
 
         <button 
           onClick={onLogout}
-          className="text-[10px] uppercase tracking-widest text-black hover:text-black hover:underline pt-2"
+          className="text-[10px] tracking-widest text-black hover:text-black hover:underline pt-2"
         >
           Switch Account / Logout
         </button>
