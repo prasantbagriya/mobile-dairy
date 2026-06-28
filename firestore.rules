@@ -1,0 +1,375 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: admin_configs
+    // Fields:
+    //   - email: string (required)
+    //   - role: string (required, 'admin'|'manager'|'operator')
+    //   - lastSyncedAt: string (optional)
+    //   - spreadsheetId: string (optional)
+    //
+    // Collection: farmers
+    // Fields:
+    //   - name: string (required)
+    //   - mobile: string (required, size <= 20)
+    //   - address: string (optional)
+    //   - village: string (required)
+    //   - bankDetails: string (optional)
+    //   - balance: number (required)
+    //   - fixedFat: number (optional)
+    //   - fixedSnf: number (optional)
+    //   - fixedRate: number (optional)
+    //   - sequence: number (optional)
+    //   - fixedQty: number (optional)
+    //
+    // Collection: customers
+    // Fields:
+    //   - name: string (required)
+    //   - mobile: string (required, size <= 20)
+    //   - address: string (optional)
+    //   - balance: number (required)
+    //   - sequence: number (optional)
+    //   - defaultRate: number (optional)
+    //   - fixedQty: number (optional)
+    //
+    // Collection: milk_collections
+    // Fields:
+    //   - farmerId: string (required, reference to farmers)
+    //   - farmerName: string (required)
+    //   - date: string (required)
+    //   - session: string (required, 'morning'|'evening')
+    //   - quantity: number (required, > 0)
+    //   - fat: number (required)
+    //   - snf: number (required)
+    //   - rate: number (required)
+    //   - amount: number (required)
+    //
+    // Collection: milk_deliveries
+    // Fields:
+    //   - customerId: string (required, reference to customers)
+    //   - customerName: string (required)
+    //   - date: string (required)
+    //   - session: string (required, 'morning'|'evening')
+    //   - quantity: number (required, > 0)
+    //   - rate: number (required)
+    //   - amount: number (required)
+    //
+    // Collection: expenses
+    // Fields:
+    //   - category: string (required)
+    //   - amount: number (required, > 0)
+    //   - date: string (required)
+    //   - description: string
+    //   - method: string
+    //
+    // Collection: transactions
+    // Fields:
+    //   - personId: string (required, reference to farmers/customers)
+    //   - personType: string (required, 'farmer'|'customer'|'dairy'|'other')
+    //   - type: string (required, 'credit'|'debit')
+    //   - amount: number (required, > 0)
+    //   - date: string (required)
+    //   - description: string
+    //   - method: string
+    //
+    // Collection: inventory
+    // Fields:
+    //   - itemName: string (required)
+    //   - quantity: number (required, >= 0)
+    //   - unit: string (required)
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+
+    // Check if the user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Helper function to check if user owns the document (Staff only)
+    function isOwner() {
+      return request.auth != null && (
+        resource.data.userId == request.auth.uid ||
+        (exists(/databases/$(database)/documents/admin_configs/$(request.auth.uid)) && 
+         get(/databases/$(database)/documents/admin_configs/$(request.auth.uid)).data.tenantId == resource.data.userId)
+      );
+    }
+
+    // Helper function to check if user is assigning their own ID on creation
+    function isAssigningOwnId() {
+      return request.auth != null && (
+        request.resource.data.userId == request.auth.uid ||
+        (exists(/databases/$(database)/documents/admin_configs/$(request.auth.uid)) && 
+         get(/databases/$(database)/documents/admin_configs/$(request.auth.uid)).data.tenantId == request.resource.data.userId)
+      );
+    }
+
+    match /farmers/{document} {
+      allow read: if true;
+      allow delete: if isOwner();
+      allow create: if isAssigningOwnId() && (request.resource.data.userId == request.auth.uid || isOperator()) && isValidFarmer(request.resource.data);
+      allow update: if isOwner() && isAssigningOwnId() && isValidFarmer(request.resource.data);
+    }
+
+    match /customers/{document} {
+      allow read: if true;
+      allow delete: if isOwner();
+      allow create: if isAssigningOwnId() && isValidCustomer(request.resource.data);
+      allow update: if isOwner() && isAssigningOwnId() && isValidCustomer(request.resource.data);
+    }
+
+    match /milk_collections/{document} {
+      allow get: if isOwner() || (request.auth != null && exists(/databases/$(database)/documents/admin_configs/$(request.auth.uid)) && get(/databases/$(database)/documents/admin_configs/$(request.auth.uid)).data.role == 'farmer' && get(/databases/$(database)/documents/admin_configs/$(request.auth.uid)).data.farmerId == resource.data.farmerId);
+      allow list: if request.auth != null;
+      allow delete: if isOwner();
+      allow create: if isAssigningOwnId() && (request.resource.data.userId == request.auth.uid || isOperator()) && isValidMilkCollection(request.resource.data);
+      allow update: if isOwner() && isAssigningOwnId() && isValidMilkCollection(request.resource.data);
+    }
+
+    match /milk_deliveries/{document} {
+      allow get: if isOwner() || (request.auth != null && exists(/databases/$(database)/documents/admin_configs/$(request.auth.uid)) && get(/databases/$(database)/documents/admin_configs/$(request.auth.uid)).data.role == 'customer' && get(/databases/$(database)/documents/admin_configs/$(request.auth.uid)).data.customerId == resource.data.customerId);
+      allow list: if request.auth != null;
+      allow delete: if isOwner();
+      allow create: if isAssigningOwnId() && isValidMilkDelivery(request.resource.data);
+      allow update: if isOwner() && isAssigningOwnId() && isValidMilkDelivery(request.resource.data);
+    }
+
+    match /expenses/{document} {
+      allow get, delete: if isOwner();
+      allow list: if request.auth != null;
+      allow create: if isAssigningOwnId() && isValidExpense(request.resource.data);
+      allow update: if isOwner() && isAssigningOwnId() && isValidExpense(request.resource.data);
+    }
+
+    match /transactions/{document} {
+      allow get: if isOwner() || (request.auth != null && exists(/databases/$(database)/documents/admin_configs/$(request.auth.uid)) && (
+        (get(/databases/$(database)/documents/admin_configs/$(request.auth.uid)).data.role == 'farmer' && get(/databases/$(database)/documents/admin_configs/$(request.auth.uid)).data.farmerId == resource.data.personId && resource.data.personType == 'farmer') ||
+        (get(/databases/$(database)/documents/admin_configs/$(request.auth.uid)).data.role == 'customer' && get(/databases/$(database)/documents/admin_configs/$(request.auth.uid)).data.customerId == resource.data.personId && resource.data.personType == 'customer')
+      ));
+      allow list: if request.auth != null;
+      allow delete: if isOwner();
+      allow create: if isAssigningOwnId() && isValidTransaction(request.resource.data);
+      allow update: if isOwner() && isAssigningOwnId() && isValidTransaction(request.resource.data);
+    }
+
+    match /payment_requests/{document} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && (!("amount" in request.resource.data) || request.resource.data.amount > 0);
+    }
+
+    match /dairy_sales/{document} {
+      allow get, delete: if isOwner();
+      allow list: if request.auth != null;
+      allow create: if isAssigningOwnId() && isValidDairySale(request.resource.data);
+      allow update: if isOwner() && isAssigningOwnId() && isValidDairySale(request.resource.data);
+    }
+
+    match /inventory/{document} {
+      allow get, delete: if isOwner();
+      allow list: if request.auth != null;
+      allow create: if isAssigningOwnId() && isValidInventory(request.resource.data);
+      // Allow update if owner: either a full update (with userId matching) OR a partial increment update (e.g. quantity decrement from SellItemModal)
+      allow update: if isOwner() && (
+        (request.resource.data.keys().hasAll(['userId']) && isAssigningOwnId() && isValidInventory(request.resource.data)) ||
+        (request.resource.data.keys().hasOnly(['itemName', 'quantity', 'unit', 'createdAt', 'updatedAt', 'userId', 'rate', 'category', 'minStock', 'syncPending']))
+      );
+    }
+
+    match /business_settings/{document} {
+      allow read: if isAuthenticated();
+      allow write: if isManager() && isAssigningOwnId();
+    }
+
+    match /settings/{document} {
+      allow get, delete: if isOwner();
+      allow list: if request.auth != null;
+      allow create: if isAssigningOwnId() && isValidSetting(request.resource.data);
+      allow update: if isOwner() && isAssigningOwnId() && isValidSetting(request.resource.data);
+    }
+
+    // Role-based authorization helpers
+    function isAdmin() {
+      return isAuthenticated() && (
+        request.auth.uid == 'guest-admin' ||
+        (exists(/databases/$(database)/documents/admin_configs/$(request.auth.uid)) && 
+         get(/databases/$(database)/documents/admin_configs/$(request.auth.uid)).data.role == 'admin') ||
+        (request.auth.token.email != null && request.auth.token.email == 'prashantbagriya7877@gmail.com')
+      );
+    }
+
+    function isManager() {
+      return isAuthenticated() && (
+        isAdmin() || 
+        (exists(/databases/$(database)/documents/admin_configs/$(request.auth.uid)) && 
+         get(/databases/$(database)/documents/admin_configs/$(request.auth.uid)).data.role == 'manager')
+      );
+    }
+
+    function isOperator() {
+      return isAuthenticated() && (
+        isManager() || 
+        (exists(/databases/$(database)/documents/admin_configs/$(request.auth.uid)) && 
+         get(/databases/$(database)/documents/admin_configs/$(request.auth.uid)).data.role == 'operator') ||
+        !exists(/databases/$(database)/documents/admin_configs/$(request.auth.uid))
+      );
+    }
+
+    // Type validation helpers
+    function isValidString(val, minLen, maxLen) {
+      return val is string && val.size() >= minLen && val.size() <= maxLen;
+    }
+
+    function isValidEmail(val) {
+      return val is string && val.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    function isValidNumber(val, minVal) {
+      return val is number && val >= minVal;
+    }
+
+    function isValidPositiveNumber(val) {
+      return val is number && val > 0;
+    }
+
+    // ===============================================================
+    // Schema Validators
+    // ===============================================================
+
+    function isValidAdminConfig(data) {
+      return data.keys().hasAll(['email', 'role']) &&
+             data.keys().hasOnly(['email', 'role', 'lastSyncedAt', 'spreadsheetId']) &&
+             isValidEmail(data.email) &&
+             (data.role == 'admin' || data.role == 'manager' || data.role == 'operator');
+    }
+
+    function isValidFarmer(data) {
+      return data.keys().hasAll(['name', 'mobile', 'village', 'balance']) &&
+             data.keys().hasOnly(['name', 'mobile', 'address', 'village', 'bankDetails', 'bankName', 'accountNumber', 'ifscCode', 'balance', 'fixedFat', 'fixedSnf', 'fixedRate', 'sequence', 'fixedQty', 'createdAt', 'updatedAt', 'syncPending', 'userId', 'isActive', 'lastSettledDate']) &&
+             isValidString(data.name, 1, 100) &&
+             isValidString(data.mobile, 1, 20) &&
+             isValidString(data.village, 1, 100) &&
+             data.balance is number &&
+             (!('address' in data) || data.address is string) &&
+             (!('bankDetails' in data) || data.bankDetails is string) &&
+             (!('fixedFat' in data) || isValidNumber(data.fixedFat, 0)) &&
+             (!('fixedSnf' in data) || isValidNumber(data.fixedSnf, 0)) &&
+             (!('fixedRate' in data) || isValidNumber(data.fixedRate, 0)) &&
+             (!('fixedQty' in data) || isValidNumber(data.fixedQty, 0)) &&
+             (!('sequence' in data) || data.sequence is int) &&
+             (!('bankName' in data) || data.bankName is string) &&
+             (!('accountNumber' in data) || data.accountNumber is string) &&
+             (!('ifscCode' in data) || data.ifscCode is string);
+    }
+
+    function isValidCustomer(data) {
+      return data.keys().hasAll(['name', 'mobile', 'balance']) &&
+             data.keys().hasOnly(['name', 'mobile', 'address', 'balance', 'sequence', 'defaultRate', 'fixedQty', 'createdAt', 'updatedAt', 'syncPending', 'userId', 'isActive', 'lastSettledDate']) &&
+             isValidString(data.name, 1, 100) &&
+             isValidString(data.mobile, 1, 20) &&
+             data.balance is number &&
+             (!('address' in data) || data.address is string) &&
+             (!('defaultRate' in data) || isValidNumber(data.defaultRate, 0)) &&
+             (!('fixedQty' in data) || isValidNumber(data.fixedQty, 0)) &&
+             (!('sequence' in data) || data.sequence is int);
+    }
+
+    function isValidMilkCollection(data) {
+      return data.keys().hasAll(['farmerId', 'farmerName', 'date', 'session', 'quantity', 'fat', 'snf', 'rate', 'amount', 'createdAt']) &&
+             data.keys().hasOnly(['farmerId', 'farmerName', 'date', 'session', 'quantity', 'fat', 'snf', 'rate', 'amount', 'createdAt', 'updatedAt', 'syncPending', 'userId', 'editCount']) &&
+             exists(/databases/$(database)/documents/farmers/$(data.farmerId)) &&
+             isValidString(data.farmerName, 1, 100) &&
+             isValidString(data.date, 1, 20) &&
+             (data.session == 'morning' || data.session == 'evening') &&
+             isValidPositiveNumber(data.quantity) &&
+             isValidNumber(data.fat, 0) &&
+             isValidNumber(data.snf, 0) &&
+             isValidNumber(data.rate, 0) &&
+             isValidNumber(data.amount, 0);
+    }
+
+    function isValidMilkDelivery(data) {
+      return data.keys().hasAll(['customerId', 'customerName', 'date', 'session', 'quantity', 'rate', 'amount', 'createdAt']) &&
+             data.keys().hasOnly(['customerId', 'customerName', 'date', 'session', 'quantity', 'rate', 'amount', 'createdAt', 'updatedAt', 'syncPending', 'userId', 'editCount']) &&
+             (data.customerId == 'CASH_SALE' || exists(/databases/$(database)/documents/customers/$(data.customerId))) &&
+             isValidString(data.customerName, 1, 100) &&
+             isValidString(data.date, 1, 20) &&
+             (data.session == 'morning' || data.session == 'evening') &&
+             isValidPositiveNumber(data.quantity) &&
+             isValidNumber(data.rate, 0) &&
+             isValidNumber(data.amount, 0);
+    }
+
+    function isValidExpense(data) {
+      return data.keys().hasAll(['category', 'amount', 'date', 'description', 'method']) &&
+             data.keys().hasOnly(['category', 'amount', 'date', 'description', 'method', 'createdAt', 'updatedAt', 'syncPending', 'userId']) &&
+             isValidString(data.category, 1, 50) &&
+             isValidPositiveNumber(data.amount) &&
+             isValidString(data.date, 1, 20) &&
+             data.description is string &&
+             data.method is string;
+    }
+
+    function isValidTransaction(data) {
+      return data.keys().hasAll(['personId', 'personType', 'type', 'amount', 'date', 'description', 'method', 'createdAt']) &&
+             data.keys().hasOnly(['personId', 'personType', 'type', 'amount', 'date', 'description', 'method', 'createdAt', 'updatedAt', 'syncPending', 'userId']) &&
+             (data.personType == 'farmer' && exists(/databases/$(database)/documents/farmers/$(data.personId)) ||
+              data.personType == 'customer' && exists(/databases/$(database)/documents/customers/$(data.personId)) ||
+              data.personType == 'dairy' || data.personType == 'other') &&
+             (data.type == 'credit' || data.type == 'debit') &&
+             isValidPositiveNumber(data.amount) &&
+             isValidString(data.date, 1, 20) &&
+             data.description is string &&
+             data.method is string;
+    }
+
+    function isValidInventory(data) {
+      return data.keys().hasAll(['itemName', 'quantity', 'unit']) &&
+             data.keys().hasOnly(['itemName', 'quantity', 'unit', 'createdAt', 'updatedAt', 'userId', 'rate', 'category', 'minStock', 'syncPending']) &&
+             isValidString(data.itemName, 1, 100) &&
+             (data.quantity is number) &&
+             isValidString(data.unit, 1, 20) &&
+             (!('rate' in data) || data.rate is number) &&
+             (!('category' in data) || data.category is string) &&
+             (!('minStock' in data) || data.minStock is number);
+    }
+
+    function isValidSetting(data) {
+      return data.keys().hasAll(['avgPrice', 'peakFatRate', 'efficiency']) &&
+             data.keys().hasOnly(['avgPrice', 'peakFatRate', 'efficiency', 'userId']) &&
+             isValidNumber(data.avgPrice, 0) &&
+             isValidNumber(data.peakFatRate, 0) &&
+             data.efficiency is number;
+    }
+
+    function isValidDairySale(data) {
+      return data.keys().hasAll(['dairyName', 'date', 'quantity', 'fat', 'rate', 'amount', 'createdAt']) &&
+             data.keys().hasOnly(['dairyName', 'date', 'quantity', 'fat', 'rate', 'amount', 'createdAt', 'updatedAt', 'syncPending', 'userId']) &&
+             isValidString(data.dairyName, 1, 100) &&
+             isValidPositiveNumber(data.quantity) &&
+             isValidNumber(data.fat, 0) &&
+             isValidNumber(data.rate, 0) &&
+             isValidNumber(data.amount, 0);
+    }
+
+    // ===============================================================
+    // Admin Config Rules
+    // ===============================================================
+
+    match /admin_configs/{docId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    match /user_tokens/{docId} {
+      allow read, write: if request.auth != null && request.auth.uid == docId;
+    }
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "970852092792",
+    "project_id": "milk-master-app",
+    "storage_bucket": "milk-master-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:970852092792:android:0c0f619b155d6596ef968d",
+        "android_client_info": {
+          "package_name": "app.milkmaster.com"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "970852092792-27e232kcal2ng8tef13bdf5gnshb1gd6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBxx8acwaW2U_08ONPFniU__HGO_GnTnc0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "970852092792-27e232kcal2ng8tef13bdf5gnshb1gd6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

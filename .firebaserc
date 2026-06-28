@@ -1,0 +1,8 @@
+{
+  "projects": {
+    "default": "milk-master-app",
+    "firebase deploy": "milk-master-app"
+  },
+  "targets": {},
+  "etags": {}
+}

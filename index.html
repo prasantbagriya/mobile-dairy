@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MilkMaster</title>
+    <meta name="theme-color" content="#0f172a">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="manifest" id="app-manifest" href="/manifest-admin.json">
+    <script>
+      (function() {
+        var path = window.location.pathname.toLowerCase();
+        var manifestFile = '/manifest-admin.json';
+        if (path.includes('/farmer')) manifestFile = '/manifest-farmer.json';
+        else if (path.includes('/customer')) manifestFile = '/manifest-customer.json';
+        
+        document.getElementById('app-manifest').href = manifestFile;
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script>
+      window.onerror = function(msg, url, line, col, error) {
+        console.log('UNCAUGHT ERROR:', msg, 'at', url, ':', line, ':', col);
+        if (msg.includes('fetch')) {
+          console.log('DEBUG: window.fetch property descriptor:', Object.getOwnPropertyDescriptor(window, 'fetch'));
+        }
+      };
+    </script>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+
+

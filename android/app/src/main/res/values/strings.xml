@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Mobile Dairy</string>
+    <string name="title_activity_main">Mobile Dairy</string>
+    <string name="package_name">app.milkmaster.com</string>
+    <string name="custom_url_scheme">app.milkmaster.com</string>
+    <string name="default_web_client_id">970852092792-27e232kcal2ng8tef13bdf5gnshb1gd6.apps.googleusercontent.com</string>
+</resources>

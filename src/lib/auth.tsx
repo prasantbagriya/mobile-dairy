@@ -1,0 +1,344 @@
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { User, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, signOut, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, updateProfile, signInWithCredential } from 'firebase/auth';
+import { Capacitor } from '@capacitor/core';
+import { FirebaseAuthentication } from '@capacitor-firebase/authentication';
+import { auth, secondaryAuth, db } from './firebase';
+import { doc, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
+import { Role, AdminConfig } from '../types';
+
+interface AuthContextType {
+  user: User | null | { uid: string; email: string; displayName: string };
+  role: Role | 'farmer' | 'customer' | null;
+  loading: boolean;
+  accessToken: string | null;
+  tenantId: string | null;
+  farmerId: string | null;
+  customerId: string | null;
+  login: () => Promise<void>;
+  logout: () => Promise<void>;
+  loginWithEmail: (e: string, p: string) => Promise<void>;
+  signupWithEmail: (e: string, p: string) => Promise<void>;
+  resetPassword: (e: string) => Promise<void>;
+  connectGoogle: () => Promise<void>;
+  registerFarmerLogin: (mobile: string, farmerId: string, farmerName: string) => Promise<void>;
+  loginAsFarmer: (mobile: string, pin: string) => Promise<void>;
+  registerCustomerLogin: (mobile: string, customerId: string, customerName: string) => Promise<void>;
+  loginAsCustomer: (mobile: string, pin: string) => Promise<void>;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<any>(null);
+  const [role, setRole] = useState<Role | 'farmer' | 'customer' | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [tenantId, setTenantId] = useState<string | null>(null);
+  const [farmerId, setFarmerId] = useState<string | null>(null);
+  const [customerId, setCustomerId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const savedToken = localStorage.getItem('g_token');
+    const savedTime = localStorage.getItem('g_token_time');
+    if (savedToken && savedTime && (Date.now() - parseInt(savedTime) < 3500000)) {
+      setAccessToken(savedToken);
+    } else {
+      localStorage.removeItem('g_token');
+      localStorage.removeItem('g_token_time');
+    }
+
+    getRedirectResult(auth).then(result => {
+      if (result) {
+        const credential = GoogleAuthProvider.credentialFromResult(result);
+        if (credential?.accessToken) {
+          setAccessToken(credential.accessToken);
+          localStorage.setItem('g_token', credential.accessToken);
+          localStorage.setItem('g_token_time', Date.now().toString());
+        }
+      }
+    }).catch(console.error);
+
+    const unsubscribe = onAuthStateChanged(auth, async (u) => {
+
+      setUser(u);
+      if (u) {
+        try {
+          // Fetch role
+          const docRef = doc(db, 'admin_configs', u.uid);
+          let docSnap = await getDoc(docRef);
+
+          if (docSnap.exists()) {
+            const data = docSnap.data() as any;
+
+            // Override role if it's the primary admin
+            const isSuperAdmin = u.email?.toLowerCase().trim() === 'prashantbagriya7877@gmail.com';
+            if (isSuperAdmin && data.role !== 'admin') {
+              await setDoc(docRef, { ...data, role: 'admin' });
+              setRole('admin');
+            } else {
+              setRole(data.role);
+            }
+
+            setTenantId(data.tenantId || u.uid);
+            if (data.role === 'farmer') {
+              setFarmerId(data.farmerId);
+            } else if (data.role === 'customer') {
+              setCustomerId(data.customerId);
+            }
+          } else {
+            // Check if user email was pre-registered in admin_configs (using email as doc ID)
+            const emailId = u.email ? u.email.trim().toLowerCase() : '';
+            const emailRef = doc(db, 'admin_configs', emailId);
+            const emailSnap = await getDoc(emailRef);
+
+            if (emailSnap.exists()) {
+              const preRegData = emailSnap.data();
+              // Link Google login UID to pre-registered email role
+              await setDoc(docRef, {
+                email: u.email!,
+                role: preRegData.role,
+                displayName: u.displayName || preRegData.displayName || '',
+                createdAt: preRegData.createdAt || new Date().toISOString(),
+                linkedAt: new Date().toISOString(),
+                tenantId: preRegData.tenantId || u.uid
+              });
+              // Cleanup the email-keyed placeholder
+              await deleteDoc(emailRef);
+              setRole(preRegData.role);
+              setTenantId(preRegData.tenantId || u.uid);
+            } else {
+              if (u.email && u.email.endsWith('@milkmaster.local')) {
+                // This is a farmer or customer whose config document was deleted (e.g. they were removed)
+                // They should NOT become an admin.
+                await signOut(auth);
+                setRole(null);
+                setUser(null);
+                setLoading(false);
+                return;
+              }
+
+              // Any new user signing up without an invitation is creating a NEW Dairy.
+              // So they become the admin of their own tenant.
+              const newAdmin = {
+                email: u.email || 'unknown',
+                role: 'admin' as Role,
+                displayName: u.displayName || 'Dairy Owner',
+                createdAt: new Date().toISOString(),
+                tenantId: u.uid
+              };
+              await setDoc(docRef, newAdmin);
+              setRole('admin');
+              setTenantId(u.uid);
+            }
+          }
+        } catch (e: any) {
+          console.error("Auth error:", e);
+          if (u.email && u.email.endsWith('@milkmaster.local')) {
+            alert("Error loading profile: " + e.message + "\n\n(If it says Permission Denied, please make sure the rules were published correctly in Firebase Console!)");
+          }
+          setRole('operator'); // Fallback
+          setTenantId(u.uid);
+        }
+      } else {
+        setRole(null);
+        setAccessToken(null);
+        setTenantId(null);
+        setFarmerId(null);
+        setCustomerId(null);
+      }
+      setLoading(false);
+    });
+
+    // Removed bypass on mount
+
+    return unsubscribe;
+  }, []);
+
+  const login = async () => {
+    try {
+      if (Capacitor.isNativePlatform()) {
+        const nativeResult = await FirebaseAuthentication.signInWithGoogle();
+        if (!nativeResult.credential?.idToken) throw new Error("No ID token returned from Native Google Sign In");
+        const credential = GoogleAuthProvider.credential(nativeResult.credential.idToken);
+        await signInWithCredential(auth, credential);
+        if (nativeResult.credential?.accessToken) {
+          setAccessToken(nativeResult.credential.accessToken);
+          localStorage.setItem('g_token', nativeResult.credential.accessToken);
+          localStorage.setItem('g_token_time', Date.now().toString());
+        }
+        window.location.href = '/dashboard';
+      } else {
+        const provider = new GoogleAuthProvider();
+        try {
+          const result = await signInWithPopup(auth, provider);
+          const credential = GoogleAuthProvider.credentialFromResult(result);
+          if (credential?.accessToken) {
+            setAccessToken(credential.accessToken);
+            localStorage.setItem('g_token', credential.accessToken);
+            localStorage.setItem('g_token_time', Date.now().toString());
+          }
+          window.location.href = '/dashboard';
+        } catch (popupErr: any) {
+          if (popupErr.code === 'auth/cancelled-popup-request' || popupErr.code === 'auth/popup-blocked') {
+            await signInWithRedirect(auth, provider);
+          } else {
+            throw popupErr;
+          }
+        }
+      }
+    } catch (err: any) {
+      console.error("Full Google Login Error:", err);
+      if (err.code !== 'auth/popup-closed-by-user' && err.code !== 'auth/cancelled-popup-request') {
+        alert(`Google Login Failed:\nCode: ${err.code || 'UNKNOWN'}\nMessage: ${err.message || err}`);
+      }
+    }
+  };
+
+  const connectGoogle = async () => {
+    try {
+      if (Capacitor.isNativePlatform()) {
+        const nativeResult = await FirebaseAuthentication.signInWithGoogle({
+          scopes: ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/contacts'],
+          customParameters: [{ key: 'prompt', value: 'consent' }]
+        } as any);
+        if (!nativeResult.credential?.idToken) throw new Error("No ID token returned from Native Google Sign In");
+        const credential = GoogleAuthProvider.credential(nativeResult.credential.idToken);
+        await signInWithCredential(auth, credential);
+        if (nativeResult.credential?.accessToken) {
+          setAccessToken(nativeResult.credential.accessToken);
+          localStorage.setItem('g_token', nativeResult.credential.accessToken);
+          localStorage.setItem('g_token_time', Date.now().toString());
+        }
+      } else {
+        const provider = new GoogleAuthProvider();
+        provider.addScope('https://www.googleapis.com/auth/spreadsheets');
+        provider.addScope('https://www.googleapis.com/auth/contacts');
+        provider.setCustomParameters({ prompt: 'consent' });
+        try {
+          const result = await signInWithPopup(auth, provider);
+          const credential = GoogleAuthProvider.credentialFromResult(result);
+          if (credential?.accessToken) {
+            setAccessToken(credential.accessToken);
+            localStorage.setItem('g_token', credential.accessToken);
+            localStorage.setItem('g_token_time', Date.now().toString());
+          }
+        } catch (popupErr: any) {
+          if (popupErr.code === 'auth/cancelled-popup-request' || popupErr.code === 'auth/popup-blocked') {
+            await signInWithRedirect(auth, provider);
+          } else {
+            throw popupErr;
+          }
+        }
+      }
+    } catch (e: any) {
+      console.error("Error connecting to Google:", e);
+      if (e.code !== 'auth/popup-closed-by-user' && e.code !== 'auth/cancelled-popup-request') {
+        alert("Google Connection Failed:\n" + (e.message || e));
+      }
+    }
+  };
+
+  const logout = async () => {
+    localStorage.removeItem('bypass_admin');
+    await signOut(auth);
+    setUser(null);
+    setRole(null);
+    setTenantId(null);
+    setFarmerId(null);
+    setCustomerId(null);
+    window.location.href = '/';
+  };
+
+  const loginWithEmail = async (e: string, p: string) => {
+    await signInWithEmailAndPassword(auth, e, p);
+  };
+
+  const signupWithEmail = async (e: string, p: string) => {
+    await createUserWithEmailAndPassword(auth, e, p);
+  };
+
+  const resetPassword = async (e: string) => {
+    await sendPasswordResetEmail(auth, e);
+  };
+
+  const registerFarmerLogin = async (mobile: string, farmerRecordId: string, farmerName: string) => {
+    if (!tenantId) return;
+    const pin = mobile.substring(0, 4);
+    const firebasePassword = pin + "MM2024";
+    const email = `${mobile}@milkmaster.local`;
+
+    try {
+      // Create user silently using secondary auth
+      const userCredential = await createUserWithEmailAndPassword(secondaryAuth, email, firebasePassword);
+
+      // Add admin_configs record to grant farmer access
+      await setDoc(doc(db, 'admin_configs', userCredential.user.uid), {
+        email: email,
+        role: 'farmer',
+        tenantId: tenantId,
+        farmerId: farmerRecordId,
+        displayName: farmerName,
+        createdAt: new Date().toISOString()
+      });
+    } catch (err: any) {
+      if (err.code === 'auth/email-already-in-use') {
+        // Farmer auth already exists, update config just in case
+        // Note: we don't have the UID easily if they already exist, 
+        // but typically they are created exactly once during registration.
+        console.log("Farmer login already registered for this mobile.");
+      } else {
+        console.error("Failed to register farmer login:", err);
+      }
+    }
+  };
+
+  const loginAsFarmer = async (mobile: string, pin: string) => {
+    const email = `${mobile}@milkmaster.local`;
+    const firebasePassword = pin + "MM2024";
+    await signInWithEmailAndPassword(auth, email, firebasePassword);
+  };
+
+  const registerCustomerLogin = async (mobile: string, customerRecordId: string, customerName: string) => {
+    if (!tenantId) return;
+    const pin = mobile.substring(0, 4);
+    const firebasePassword = pin + "MM2024";
+    const email = `c_${mobile}@milkmaster.local`; // prefix to avoid conflict with farmer
+
+    try {
+      const userCredential = await createUserWithEmailAndPassword(secondaryAuth, email, firebasePassword);
+
+      await setDoc(doc(db, 'admin_configs', userCredential.user.uid), {
+        email: email,
+        role: 'customer',
+        tenantId: tenantId,
+        customerId: customerRecordId,
+        displayName: customerName,
+        createdAt: new Date().toISOString()
+      });
+    } catch (err: any) {
+      if (err.code === 'auth/email-already-in-use') {
+        console.log("Customer login already registered for this mobile.");
+      } else {
+        console.error("Failed to register customer login:", err);
+      }
+    }
+  };
+
+  const loginAsCustomer = async (mobile: string, pin: string) => {
+    const email = `c_${mobile}@milkmaster.local`;
+    const firebasePassword = pin + "MM2024";
+    await signInWithEmailAndPassword(auth, email, firebasePassword);
+  };
+
+  return (
+    <AuthContext.Provider value={{ user, role, loading, accessToken, tenantId, farmerId, customerId, login, logout, loginWithEmail, signupWithEmail, resetPassword, connectGoogle, registerFarmerLogin, loginAsFarmer, registerCustomerLogin, loginAsCustomer }}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (!context) throw new Error("useAuth must be used within AuthProvider");
+  return context;
+}

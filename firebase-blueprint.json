@@ -1,0 +1,135 @@
+{
+  "entities": {
+    "Farmer": {
+      "title": "Farmer",
+      "description": "Milk supplier profile",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "mobile": { "type": "string" },
+        "address": { "type": "string" },
+        "village": { "type": "string" },
+        "bankDetails": { "type": "string" },
+        "balance": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "mobile", "balance"]
+    },
+    "Customer": {
+      "title": "Customer",
+      "description": "Milk consumer profile",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "mobile": { "type": "string" },
+        "address": { "type": "string" },
+        "balance": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "mobile", "balance"]
+    },
+    "MilkCollection": {
+      "title": "Milk Collection",
+      "description": "Daily record of milk purchased from farmers",
+      "type": "object",
+      "properties": {
+        "farmerId": { "type": "string" },
+        "date": { "type": "string", "format": "date" },
+        "session": { "type": "string", "enum": ["morning", "evening"] },
+        "quantity": { "type": "number" },
+        "fat": { "type": "number" },
+        "snf": { "type": "number" },
+        "rate": { "type": "number" },
+        "amount": { "type": "number" }
+      },
+      "required": ["farmerId", "date", "session", "quantity", "amount"]
+    },
+    "MilkDelivery": {
+      "title": "Milk Delivery",
+      "description": "Daily record of milk sold to customers",
+      "type": "object",
+      "properties": {
+        "customerId": { "type": "string" },
+        "date": { "type": "string", "format": "date" },
+        "session": { "type": "string", "enum": ["morning", "evening"] },
+        "quantity": { "type": "number" },
+        "rate": { "type": "number" },
+        "amount": { "type": "number" }
+      },
+      "required": ["customerId", "date", "session", "quantity", "amount"]
+    },
+    "DairySale": {
+      "title": "Dairy Sale",
+      "description": "Record of milk supplied to a larger dairy",
+      "type": "object",
+      "properties": {
+        "dairyName": { "type": "string" },
+        "date": { "type": "string", "format": "date" },
+        "quantity": { "type": "number" },
+        "fat": { "type": "number" },
+        "rate": { "type": "number" },
+        "amount": { "type": "number" }
+      },
+      "required": ["dairyName", "date", "quantity", "amount"]
+    },
+    "Expense": {
+      "title": "Expense",
+      "description": "Operational expenses record",
+      "type": "object",
+      "properties": {
+        "category": { "type": "string" },
+        "amount": { "type": "number" },
+        "date": { "type": "string", "format": "date" },
+        "description": { "type": "string" }
+      },
+      "required": ["category", "amount", "date"]
+    },
+    "Transaction": {
+      "title": "Transaction",
+      "description": "General ledger entry for payments and collections",
+      "type": "object",
+      "properties": {
+        "personId": { "type": "string" },
+        "personType": { "type": "string", "enum": ["farmer", "customer", "dairy", "other"] },
+        "type": { "type": "string", "enum": ["credit", "debit"] },
+        "amount": { "type": "number" },
+        "date": { "type": "string", "format": "date" },
+        "description": { "type": "string" },
+        "method": { "type": "string" }
+      },
+      "required": ["personId", "personType", "type", "amount", "date"]
+    },
+    "Inventory": {
+      "title": "Inventory",
+      "description": "Stock of equipment and supplies",
+      "type": "object",
+      "properties": {
+        "itemName": { "type": "string" },
+        "quantity": { "type": "number" },
+        "unit": { "type": "string" },
+        "price": { "type": "number" }
+      },
+      "required": ["itemName", "quantity"]
+    },
+    "AdminConfig": {
+      "title": "Admin Config",
+      "description": "Store user roles and permissions",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "role": { "type": "string", "enum": ["admin", "manager", "operator"] }
+      }
+    }
+  },
+  "firestore": {
+    "/farmers/{farmerId}": { "schema": "Farmer", "description": "Farmers list" },
+    "/customers/{customerId}": { "schema": "Customer", "description": "Customers list" },
+    "/milk_collections/{collectionId}": { "schema": "MilkCollection", "description": "Milk collection records" },
+    "/milk_deliveries/{deliveryId}": { "schema": "MilkDelivery", "description": "Milk delivery records" },
+    "/dairy_sales/{saleId}": { "schema": "DairySale", "description": "Large dairy sales" },
+    "/expenses/{expenseId}": { "schema": "Expense", "description": "Business expenses" },
+    "/transactions/{transactionId}": { "schema": "Transaction", "description": "Financial ledger" },
+    "/inventory/{itemId}": { "schema": "Inventory", "description": "Inventory items" },
+    "/admin_configs/{userId}": { "schema": "AdminConfig", "description": "User role management" }
+  }
+}
