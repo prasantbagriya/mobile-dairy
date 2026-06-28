@@ -414,7 +414,7 @@ export default function Inventory() {
           })}
         </div>
       ) : (
-        <div className="bg-white border border-slate-200 overflow-x-auto">
+        <div className="bg-white border border-slate-200 overflow-x-auto no-scrollbar">
           <table className="w-full text-left border-collapse min-w-[600px]">
             <thead className="bg-slate-50 text-black text-[9px] tracking-widest">
               <tr>
@@ -483,5 +483,6 @@ export default function Inventory() {
     </div>
   );
 }
+
 
 

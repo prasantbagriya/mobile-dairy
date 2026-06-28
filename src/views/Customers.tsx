@@ -276,7 +276,7 @@ export default function Customers() {
             <div className="p-2 bg-slate-50 border border-slate-200 space-y-2">
               <p className="text-[10px] text-black font-medium leading-none">Import from Google Contacts</p>
               {!accessToken ? (
-                <div className="bg-amber-50 p-2 flex items-center justify-between border border-amber-200 overflow-x-auto custom-scrollbar">
+                <div className="bg-amber-50 p-2 flex items-center justify-between border border-amber-200 overflow-x-auto no-scrollbar">
                   <span className="text-[10px] text-amber-700 whitespace-nowrap">Contacts not linked</span>
                   <button onClick={connectGoogle} className="px-2 py-1 ml-1 bg-amber-600 text-white text-[10px] hover:bg-amber-700 whitespace-nowrap shrink-0">Connect Google</button>
                 </div>
@@ -542,7 +542,7 @@ export default function Customers() {
               )})}
             </div>
           ) : (
-            <div className="bg-white border border-slate-100 overflow-x-auto">
+            <div className="bg-white border border-slate-100 overflow-x-auto no-scrollbar">
               <table className="w-full text-left border-collapse min-w-[800px]">
                 <thead>
                   <tr className="bg-slate-50 border-b border-slate-100">
@@ -697,4 +697,5 @@ export default function Customers() {
     </div>
   );
 }
+
 

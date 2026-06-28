@@ -452,7 +452,7 @@ export default function Collections() {
                 </div>
               </div>
             </div>
-            <div className="max-h-[600px] overflow-y-auto overflow-x-auto">
+            <div className="max-h-[600px] overflow-y-auto overflow-x-auto no-scrollbar">
               <table className="w-full text-left order-collapse">
                 <thead className="bg-slate-50/50 text-black text-[9px] tracking-widest  sticky top-0 z-10 backdrop-blur-sm">
                   <tr>
@@ -793,4 +793,5 @@ export default function Collections() {
     </div>
   );
 }
+
 

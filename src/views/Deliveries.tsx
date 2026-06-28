@@ -406,7 +406,7 @@ export default function Deliveries() {
                 {t('latest_deliveries')}
               </h3>
             </div>
-            <div className="max-h-[350px] md:max-h-[600px] overflow-y-auto overflow-x-auto custom-scrollbar">
+            <div className="max-h-[350px] md:max-h-[600px] overflow-y-auto overflow-x-auto no-scrollbar">
               <table className="w-full text-left border-collapse">
                 <thead className="bg-slate-50/50 text-black text-[9px] tracking-widest  sticky top-0 z-10 backdrop-blur-sm">
                   <tr>
@@ -516,7 +516,7 @@ export default function Deliveries() {
                   </div>
                </div>
             </div>
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto no-scrollbar">
               <table className="w-full text-left">
                 <thead className="bg-slate-100 text-black text-[10px] md:text-[11px] border-b border-slate-200">
                   <tr>
@@ -624,4 +624,5 @@ export default function Deliveries() {
     </div>
   );
 }
+
 
