@@ -333,7 +333,7 @@ export default function Farmers() {
             </button>
           </div>
 
-          <div className="p-2 space-y-1.5 max-w-3xl mx-auto">
+          <div className="p-4 space-y-4 w-full">
             {/* Contact Search Tool */}
             <div className="p-2 bg-slate-50 border border-slate-200 space-y-2">
               <p className="text-[10px] text-black font-medium leading-none">Import from Google Contacts</p>
