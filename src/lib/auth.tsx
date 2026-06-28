@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode, useMemo } from 'react';
 import { User, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, signOut, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, updateProfile, signInWithCredential } from 'firebase/auth';
 import { Capacitor } from '@capacitor/core';
 import { FirebaseAuthentication } from '@capacitor-firebase/authentication';
@@ -257,8 +257,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await signInWithEmailAndPassword(auth, email, firebasePassword);
   };
 
+  const value = useMemo(() => ({ 
+    user, role, loading, accessToken, tenantId, farmerId, customerId, 
+    login, logout, loginWithEmail, signupWithEmail, resetPassword, 
+    connectGoogle, registerFarmerLogin, loginAsFarmer, registerCustomerLogin, loginAsCustomer 
+  }), [user, role, loading, accessToken, tenantId, farmerId, customerId]);
+
   return (
-    <AuthContext.Provider value={{ user, role, loading, accessToken, tenantId, farmerId, customerId, login, logout, loginWithEmail, signupWithEmail, resetPassword, connectGoogle, registerFarmerLogin, loginAsFarmer, registerCustomerLogin, loginAsCustomer }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

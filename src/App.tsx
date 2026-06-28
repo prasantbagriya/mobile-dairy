@@ -4,6 +4,8 @@ import { useAuth } from './lib/auth';
 import { useMessaging } from './lib/useMessaging';
 import { useI18n } from './lib/i18n';
 import Layout from './components/Layout';
+import { Milk } from 'lucide-react';
+
 const Dashboard = lazy(() => import('./views/Dashboard'));
 const Farmers = lazy(() => import('./views/Farmers'));
 const Customers = lazy(() => import('./views/Customers'));
@@ -24,7 +26,12 @@ const PortalLogin = lazy(() => import('./components/PortalLogin'));
 const LandingPage = lazy(() => import('./views/LandingPage'));
 const PrivacyPolicy = lazy(() => import('./views/PrivacyPolicy'));
 const TermsOfService = lazy(() => import('./views/TermsOfService'));
-import { Milk } from 'lucide-react';
+
+const FullPageLoader = () => (
+  <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+  </div>
+);
 
 export default function App() {
   const { user, role, loading, logout } = useAuth();
@@ -39,91 +46,56 @@ export default function App() {
     }
   }, [user]);
 
-  if (loading) {
-    return <div className="min-h-screen bg-slate-50"></div>;
-  }
-
-  if (!user) {
-    const path = window.location.pathname.toLowerCase();
-    
-    if (path.includes('/farmer')) return (
-      <Suspense fallback={<div className="min-h-screen bg-slate-50 flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div></div>}>
-        <PortalLogin role="farmer" />
-      </Suspense>
-    );
-    
-    if (path.includes('/customer')) return (
-      <Suspense fallback={<div className="min-h-screen bg-slate-50 flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div></div>}>
-        <PortalLogin role="customer" />
-      </Suspense>
-    );
-
-    let Component = LandingPage;
-    if (path.includes('/admin')) Component = AdminLogin;
-    else if (path.includes('/privacy-policy')) Component = PrivacyPolicy;
-    else if (path.includes('/terms-of-service')) Component = TermsOfService;
-
-    return (
-      <Suspense fallback={<div className="min-h-screen bg-slate-50 flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div></div>}>
-        <Component />
-      </Suspense>
-    );
-  }
-
-  if (role === 'farmer') {
-    return (
-      <Suspense fallback={<div className="min-h-screen bg-slate-50 flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div></div>}>
-        <FarmerDashboard />
-      </Suspense>
-    );
-  }
-
-  if (role === 'customer') {
-    return (
-      <Suspense fallback={<div className="min-h-screen bg-slate-50 flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div></div>}>
-        <CustomerDashboard />
-      </Suspense>
-    );
-  }
-
-  if (user && !pinVerified) {
-    return (
-      <Suspense fallback={<div className="min-h-screen bg-slate-50 flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div></div>}>
-        <PinLock 
-          user={user} 
-          onSuccess={() => setPinVerified(true)} 
-          onLogout={logout} 
-        />
-      </Suspense>
-    );
-  }
-
-  const renderView = () => {
-    switch (activeView) {
-      case 'dashboard': return <Dashboard onNavigate={setActiveView} />;
-      case 'farmers': return <Farmers />;
-      case 'customers': return <Customers />;
-      case 'collections': return <Collections />;
-      case 'deliveries': return <Deliveries />;
-      case 'expenses': return <Expenses />;
-      case 'payments': return <Payments />;
-      case 'reports': return <Reports />;
-      case 'profitloss': return <ProfitLoss />;
-      case 'dairy_sales': return <DairySales />;
-      case 'inventory': return <Inventory />;
-      case 'admin': return <Admin />;
-      default: return <Dashboard onNavigate={setActiveView} />;
+  const renderContent = () => {
+    if (loading) {
+      return <FullPageLoader />;
     }
+
+    if (!user) {
+      const path = window.location.pathname.toLowerCase();
+      if (path.includes('/farmer')) return <PortalLogin role="farmer" />;
+      if (path.includes('/customer')) return <PortalLogin role="customer" />;
+      if (path.includes('/admin')) return <AdminLogin />;
+      if (path.includes('/privacy-policy')) return <PrivacyPolicy />;
+      if (path.includes('/terms-of-service')) return <TermsOfService />;
+      return <LandingPage />;
+    }
+
+    if (role === 'farmer') return <FarmerDashboard />;
+    if (role === 'customer') return <CustomerDashboard />;
+    if (user && !pinVerified) return <PinLock user={user} onSuccess={() => setPinVerified(true)} onLogout={logout} />;
+
+    const renderView = () => {
+      switch (activeView) {
+        case 'dashboard': return <Dashboard onNavigate={setActiveView} />;
+        case 'farmers': return <Farmers />;
+        case 'customers': return <Customers />;
+        case 'collections': return <Collections />;
+        case 'deliveries': return <Deliveries />;
+        case 'expenses': return <Expenses />;
+        case 'payments': return <Payments />;
+        case 'reports': return <Reports />;
+        case 'profitloss': return <ProfitLoss />;
+        case 'dairy_sales': return <DairySales />;
+        case 'inventory': return <Inventory />;
+        case 'admin': return <Admin />;
+        default: return <Dashboard onNavigate={setActiveView} />;
+      }
+    };
+
+    return (
+      <Layout activeView={activeView} setActiveView={setActiveView}>
+        {renderView()}
+      </Layout>
+    );
   };
 
   return (
     <>
       <Toaster position="top-right" toastOptions={{ duration: 1000 }} />
-      <Layout activeView={activeView} setActiveView={setActiveView}>
-        <Suspense fallback={<div className="flex h-full items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div></div>}>
-          {renderView()}
-        </Suspense>
-      </Layout>
+      <Suspense fallback={<FullPageLoader />}>
+        {renderContent()}
+      </Suspense>
     </>
   );
 }

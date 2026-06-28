@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import toast from 'react-hot-toast';
 import { useI18n } from '../lib/i18n';
 import { db } from '../lib/db';
@@ -25,6 +26,13 @@ export default function Farmers() {
   const [allContactsCache, setAllContactsCache] = useState<any[] | null>(null);
   const [searchingContacts, setSearchingContacts] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const tableContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search), 300);
+    return () => clearTimeout(timer);
+  }, [search]);
 
   useEffect(() => {
     if (!tenantId) return;
@@ -314,10 +322,17 @@ export default function Farmers() {
   }
 
   const filteredFarmers = farmers.filter(f => 
-    (f.name || "").toLowerCase().includes(search.toLowerCase()) || 
-    (f.mobile || "").includes(search) ||
-    (f.village || "").toLowerCase().includes(search.toLowerCase())
+    (f.name || "").toLowerCase().includes(debouncedSearch.toLowerCase()) || 
+    (f.mobile || "").includes(debouncedSearch) ||
+    (f.village || "").toLowerCase().includes(debouncedSearch.toLowerCase())
   );
+
+  const rowVirtualizer = useVirtualizer({
+    count: filteredFarmers.length,
+    getScrollElement: () => tableContainerRef.current,
+    estimateSize: () => 56, // estimated row height
+    overscan: 5
+  });
   if (showForm) {
     return (
       <div className="-m-4 md:-m-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
@@ -656,10 +671,10 @@ export default function Farmers() {
               )})}
             </div>
           ) : (
-            <div className="bg-white border border-slate-100 overflow-x-auto no-scrollbar">
-              <table className="w-full text-left border-collapse min-w-[800px]">
-                <thead>
-                  <tr className="bg-slate-50 border-b border-slate-100">
+            <div ref={tableContainerRef} className="bg-white border border-slate-100 overflow-auto no-scrollbar h-[calc(100vh-200px)] min-h-[400px]">
+              <table className="w-full text-left border-collapse min-w-[800px] relative">
+                <thead className="sticky top-0 z-10 bg-slate-50 border-b border-slate-100 shadow-sm">
+                  <tr>
                     <th className="px-2 py-1.5 text-[10px] text-black tracking-widest w-16 text-center whitespace-nowrap">{t("seq_no")}</th>
                     <th className="px-2 py-1.5 text-[10px]  text-black tracking-widest">{t('farmer')}</th>
                     <th className="px-2 py-1.5 text-[10px]  text-black tracking-widest">{t("contact")}</th>
@@ -668,13 +683,24 @@ export default function Farmers() {
                     <th className="px-2 py-1.5 text-[10px]  text-black tracking-widest text-center">{t("actions")}</th>
                   </tr>
                 </thead>
-                <tbody>
-                  {filteredFarmers.map((farmer, index) => {
+                <tbody style={{ height: `${rowVirtualizer.getTotalSize()}px`, position: 'relative' }}>
+                  {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                    const farmer = filteredFarmers[virtualRow.index];
                     const isDeactivated = farmer.isActive === false;
                     return (
-                      <tr key={farmer.id} className={`border-b border-slate-50 hover:bg-slate-50 transition-colors ${isDeactivated ? 'opacity-75 grayscale bg-slate-50/50' : ''}`}>
+                      <tr key={farmer.id} 
+                        style={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          width: '100%',
+                          height: `${virtualRow.size}px`,
+                          transform: `translateY(${virtualRow.start}px)`
+                        }}
+                        className={`border-b border-slate-50 hover:bg-slate-50 transition-colors ${isDeactivated ? 'opacity-75 grayscale bg-slate-50/50' : ''}`}
+                      >
                         <td className="px-2 py-1.5 text-center">
-                          <span className="text-xs font-mono font-medium bg-slate-100 px-2 py-1">{farmer.sequence || index + 1}</span>
+                          <span className="text-xs font-mono font-medium bg-slate-100 px-2 py-1">{farmer.sequence || virtualRow.index + 1}</span>
                         </td>
                         <td className="px-2 py-1.5">
                           <div className="flex items-center gap-2">

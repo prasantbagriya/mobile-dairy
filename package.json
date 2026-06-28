@@ -4,8 +4,8 @@
   "version": "0.0.0",
   "scripts": {
     "dev": "tsx server.ts",
-    "build": "vite build && esbuild server.ts --bundle --platform=node --format=cjs --sourcemap --outfile=server.cjs",
-    "start": "node server.js",
+    "build": "vite build && esbuild server.ts --bundle --platform=node --format=cjs --external:express --external:firebase-admin --external:@google/genai --external:dotenv --outfile=server.cjs",
+    "start": "node server.cjs",
     "preview": "vite preview",
     "clean": "rm -rf dist server.js server.cjs server.js.map server.cjs.map",
     "lint": "tsc --noEmit"
@@ -18,6 +18,7 @@
     "@google/genai": "^2.4.0",
     "@modelcontextprotocol/sdk": "^1.29.0",
     "@tailwindcss/vite": "^4.1.14",
+    "@tanstack/react-virtual": "^3.14.4",
     "@vitejs/plugin-react": "^5.0.4",
     "clsx": "^2.1.1",
     "dayjs": "^1.11.21",
@@ -32,8 +33,7 @@
     "react-is": "^19.0.0",
     "tailwind-merge": "^3.6.0",
     "uplot": "^1.6.32",
-    "uplot-react": "^1.2.4",
-    "vite": "^6.2.3"
+    "uplot-react": "^1.2.4"
   },
   "devDependencies": {
     "@capacitor/cli": "^8.4.0",

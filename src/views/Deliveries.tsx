@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import toast from 'react-hot-toast';
 import { useI18n } from '../lib/i18n';
 import { db } from '../lib/db';
@@ -32,6 +33,7 @@ export default function Deliveries() {
   const [showSheetFilters, setShowSheetFilters] = useState(false);
   const [sheetData, setSheetData] = useState<Record<string, { quantity: string, rate: string }>>({});
   const [existingSessions, setExistingSessions] = useState<Record<string, Set<'morning' | 'evening'>>>({});
+  const tableContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!tenantId) return;
@@ -516,32 +518,54 @@ export default function Deliveries() {
                   </div>
                </div>
             </div>
-            <div className="overflow-x-auto no-scrollbar">
-              <table className="w-full text-left">
-                <thead className="bg-slate-100 text-black text-[10px] md:text-[11px] border-b border-slate-200">
-                  <tr>
-                    <th className="px-3 md:px-6 py-4 md:py-5 whitespace-nowrap">{t('seq_no', '#Seq')}</th>
-                    <th className="px-3 md:px-6 py-4 md:py-5 whitespace-nowrap">{t('customer_name', 'Customer Name')}</th>
-                    <th className="px-3 md:px-6 py-4 md:py-5 whitespace-nowrap">{t('delivery_qty', 'Delivery Qty (L)')}</th>
-                    <th className="px-3 md:px-6 py-4 md:py-5 whitespace-nowrap">{t('current_rate', 'Current Rate (₹/L)')}</th>
-                    <th className="px-3 md:px-6 py-4 md:py-5 whitespace-nowrap">{t('total_amount')}</th>
-                    <th className="px-3 md:px-6 py-4 md:py-5 whitespace-nowrap text-center">{t('status_confirm', 'Status / Confirm')}</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {customers.filter(c => c.name.toLowerCase().includes(sheetSearch.toLowerCase())).map((c, idx) => {
-                    const rowData = sheetData[c.id!] || { quantity: '', rate: '' };
-                    const qty = parseFloat(rowData.quantity) || 0;
-                    const rate = parseFloat(rowData.rate) || 0;
-                    const amount = qty * rate;
-                    const isSaved = (rowData as any).saved;
+            
+            {(() => {
+              const filteredCustomers = customers.filter(c => c.name.toLowerCase().includes(sheetSearch.toLowerCase()));
+              const rowVirtualizer = useVirtualizer({
+                count: filteredCustomers.length,
+                getScrollElement: () => tableContainerRef.current,
+                estimateSize: () => 56, // estimated row height
+                overscan: 5
+              });
 
-                    return (
-                      <tr key={c.id} className={`${isSaved ? 'bg-emerald-50/30' : 'hover:bg-slate-50/80'}`}>
+              return (
+                <div ref={tableContainerRef} className="overflow-auto no-scrollbar h-[calc(100vh-250px)] min-h-[400px]">
+                  <table className="w-full text-left relative">
+                    <thead className="sticky top-0 z-10 bg-slate-100 text-black text-[10px] md:text-[11px] border-b border-slate-200 shadow-sm">
+                      <tr>
+                        <th className="px-3 md:px-6 py-4 md:py-5 whitespace-nowrap">{t('seq_no', '#Seq')}</th>
+                        <th className="px-3 md:px-6 py-4 md:py-5 whitespace-nowrap">{t('customer_name', 'Customer Name')}</th>
+                        <th className="px-3 md:px-6 py-4 md:py-5 whitespace-nowrap">{t('delivery_qty', 'Delivery Qty (L)')}</th>
+                        <th className="px-3 md:px-6 py-4 md:py-5 whitespace-nowrap">{t('current_rate', 'Current Rate (₹/L)')}</th>
+                        <th className="px-3 md:px-6 py-4 md:py-5 whitespace-nowrap">{t('total_amount')}</th>
+                        <th className="px-3 md:px-6 py-4 md:py-5 whitespace-nowrap text-center">{t('status_confirm', 'Status / Confirm')}</th>
+                      </tr>
+                    </thead>
+                    <tbody style={{ height: `${rowVirtualizer.getTotalSize()}px`, position: 'relative' }} className="divide-y divide-slate-100">
+                      {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                        const c = filteredCustomers[virtualRow.index];
+                        const rowData = sheetData[c.id!] || { quantity: '', rate: '' };
+                        const qty = parseFloat(rowData.quantity) || 0;
+                        const rate = parseFloat(rowData.rate) || 0;
+                        const amount = qty * rate;
+                        const isSaved = (rowData as any).saved;
+
+                        return (
+                          <tr key={c.id} 
+                            style={{
+                              position: 'absolute',
+                              top: 0,
+                              left: 0,
+                              width: '100%',
+                              height: `${virtualRow.size}px`,
+                              transform: `translateY(${virtualRow.start}px)`
+                            }}
+                            className={`${isSaved ? 'bg-emerald-50/30' : 'hover:bg-slate-50/80'}`}
+                          >
                         <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
-                           <span className={`w-6 h-6 flex items-center justify-center  rounded-none text-[10px] ${isSaved ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-black'}`}>
-                             {c.sequence || idx + 1}
-                           </span>
+                            <span className={`w-6 h-6 flex items-center justify-center  rounded-none text-[10px] ${isSaved ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-black'}`}>
+                              {c.sequence || virtualRow.index + 1}
+                            </span>
                         </td>
                         <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
                           <p className={` tracking-tight text-sm ${isSaved ? 'text-emerald-700' : 'text-slate-900'}`}>{c.name}</p>
@@ -552,18 +576,18 @@ export default function Deliveries() {
                             type="number" inputMode="decimal" pattern="[0-9]*" 
                             disabled={isSaved}
                             placeholder="0.0"
-                            id={`del-qty-${idx}`}
+                            id={`del-qty-${virtualRow.index}`}
                             className="w-20 md:w-24 bg-slate-50 border border-slate-200 px-2 md:px-3 py-2 md:py-2.5  text-black focus:bg-white focus:border-emerald-500 outline-none text-sm disabled:opacity-50"
                             value={rowData.quantity}
                             onKeyDown={(e) => {
                               if (e.key === ' ') {
                                 e.preventDefault();
-                                document.getElementById(`del-rate-${idx}`)?.focus();
+                                document.getElementById(`del-rate-${virtualRow.index}`)?.focus();
                               } else if (e.key === 'Enter') {
                                 e.preventDefault();
                                 handleSaveSheetRow(c.id!);
                                 setTimeout(() => {
-                                  document.getElementById(`del-qty-${idx + 1}`)?.focus();
+                                  document.getElementById(`del-qty-${virtualRow.index + 1}`)?.focus();
                                 }, 100);
                               }
                             }}
@@ -575,7 +599,7 @@ export default function Deliveries() {
                             type="number" inputMode="decimal" pattern="[0-9]*" 
                             disabled={isSaved}
                             placeholder="0.0"
-                            id={`del-rate-${idx}`}
+                            id={`del-rate-${virtualRow.index}`}
                             className="w-16 bg-slate-50 border border-slate-200 px-2 md:px-3 py-2 md:py-2.5  text-black focus:bg-white focus:border-emerald-500 outline-none text-sm disabled:opacity-50"
                             value={rowData.rate}
                             onKeyDown={(e) => {
@@ -583,7 +607,7 @@ export default function Deliveries() {
                                 e.preventDefault();
                                 handleSaveSheetRow(c.id!);
                                 setTimeout(() => {
-                                  document.getElementById(`del-qty-${idx + 1}`)?.focus();
+                                  document.getElementById(`del-qty-${virtualRow.index + 1}`)?.focus();
                                 }, 100);
                               }
                             }}
@@ -603,11 +627,13 @@ export default function Deliveries() {
                           </button>
                         </td>
                       </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              );
+            })()}
           </div>
         ) : null}
       </div>

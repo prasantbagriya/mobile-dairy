@@ -64,6 +64,10 @@ export default defineConfig(() => {
               if (id.includes('lucide-react')) return 'icons';
               if (id.includes('@firebase/firestore') || id.includes('firebase/firestore')) return 'firebase-firestore';
               if (id.includes('@firebase/app') || id.includes('@firebase/auth') || id.includes('firebase/app') || id.includes('firebase/auth')) return 'firebase-core';
+              if (id.includes('uplot')) return 'uplot';
+              if (id.includes('dayjs')) return 'dayjs';
+              if (id.includes('@tanstack/react-virtual')) return 'react-virtual';
+              if (id.includes('@capacitor')) return 'capacitor';
             }
           }
         }

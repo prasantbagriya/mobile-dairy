@@ -1,6 +1,11 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    // ===============================================================
+    // Firebase App Check Enforcement
+    // Uncomment the following line inside your match blocks to enforce App Check:
+    // allow read, write: if request.app != null;
+    // ===============================================================
 
     // ===============================================================
     // Assumed Data Model
