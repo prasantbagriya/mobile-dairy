@@ -198,8 +198,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       if (Capacitor.isNativePlatform()) {
         const nativeResult = await FirebaseAuthentication.signInWithGoogle({
-          scopes: ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/contacts'],
-          customParameters: [{ key: 'prompt', value: 'consent' }]
+          scopes: ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/contacts']
         } as any);
         if (!nativeResult.credential?.idToken) throw new Error("No ID token returned from Native Google Sign In");
         const credential = GoogleAuthProvider.credential(nativeResult.credential.idToken);
@@ -213,7 +212,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const provider = new GoogleAuthProvider();
         provider.addScope('https://www.googleapis.com/auth/spreadsheets');
         provider.addScope('https://www.googleapis.com/auth/contacts');
-        provider.setCustomParameters({ prompt: 'consent' });
+        // prompt consent removed to avoid repeated permission requests
         try {
           const result = await signInWithPopup(auth, provider);
           const credential = GoogleAuthProvider.credentialFromResult(result);

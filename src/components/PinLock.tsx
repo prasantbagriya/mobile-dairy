@@ -75,18 +75,7 @@ export default function PinLock({ user, onSuccess, onLogout }: PinLockProps) {
     setTimeout(() => setIsShaking(false), 500);
   };
 
-  // Keyboard support
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key >= '0' && e.key <= '9') {
-        handleKeyPress(e.key);
-      } else if (e.key === 'Backspace') {
-        handleBackspace();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [pin, mode, tempPin]);
+  // Keyboard support removed as native input handles it now
 
   const renderHeader = () => {
     if (mode === 'verify') {
@@ -145,54 +134,32 @@ export default function PinLock({ user, onSuccess, onLogout }: PinLockProps) {
           {renderHeader()}
         </div>
 
-        {/* Dots Representation */}
-        <div className="flex gap-4 justify-center">
-          {Array.from({ length: 4 }).map((_, idx) => (
-            <div 
-              key={idx} 
-              className={`w-4 h-4 rounded-full border-2 transition-colors duration-200 ${
-                pin.length > idx 
-                  ? 'bg-slate-900 border-slate-900' 
-                  : 'border-slate-300 bg-transparent'
-              }`}
-            />
-          ))}
-        </div>
-
         {/* Error Message */}
-        <div className="h-6 text-center shrink-0 w-full">
+        <div className="h-6 text-center shrink-0 w-full mb-4">
           {error && <p className="text-xs text-red-500 font-semibold tracking-widest">{error}</p>}
         </div>
 
-        {/* Numeric Numpad */}
-        <div className="grid grid-cols-3 gap-2 md:gap-3 w-full max-w-[260px] mx-auto pb-2">
-          {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(num => (
-            <button 
-              key={num}
-              onClick={() => handleKeyPress(num)}
-              className="h-14 w-full border border-slate-100 bg-slate-50 text-2xl font-medium text-black hover:bg-slate-100 active:bg-slate-200 transition-colors flex items-center justify-center"
-            >
-              {num}
-            </button>
-          ))}
-          <button 
-            onClick={() => setPin('')}
-            className="h-14 w-full text-xs font-semibold tracking-wider text-slate-500 hover:text-black hover:bg-slate-50 active:bg-slate-100 transition-colors flex items-center justify-center"
-          >
-            Clear
-          </button>
-          <button 
-            onClick={() => handleKeyPress('0')}
-            className="h-14 w-full border border-slate-100 bg-slate-50 text-2xl font-medium text-black hover:bg-slate-100 active:bg-slate-200 transition-colors flex items-center justify-center"
-          >
-            0
-          </button>
-          <button 
-            onClick={handleBackspace}
-            className="h-14 w-full text-xs font-semibold tracking-wider text-slate-500 hover:text-black hover:bg-slate-50 active:bg-slate-100 transition-colors flex items-center justify-center"
-          >
-            Del
-          </button>
+        {/* Standard Keyboard Input */}
+        <div className="w-full max-w-[260px] mx-auto pb-2">
+          <input 
+            type="password" 
+            inputMode="numeric" 
+            maxLength={4} 
+            value={pin}
+            onChange={(e) => {
+              const val = e.target.value.replace(/[^0-9]/g, '');
+              if (val.length <= 4) {
+                setPin(val);
+                setError(null);
+                if (val.length === 4) {
+                  setTimeout(() => handleSubmit(val), 150);
+                }
+              }
+            }}
+            autoFocus
+            className="w-full text-center text-3xl tracking-[0.5em] md:tracking-[1em] p-4 border border-slate-200 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-none text-black"
+            placeholder="••••"
+          />
         </div>
 
         <button 

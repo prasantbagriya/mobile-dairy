@@ -157,12 +157,10 @@ export default function Sync() {
                 )}
               </div>
             </div>
-            {!accessToken && (
-              <button onClick={connectGoogle} className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-none transition-colors border border-blue-100">
-                <Lock className="w-3.5 h-3.5" />
-                <span className="text-xs font-medium">{t('connect_google')}</span>
-              </button>
-            )}
+            <button onClick={connectGoogle} className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-none transition-colors border border-blue-100">
+              <Lock className="w-3.5 h-3.5" />
+              <span className="text-xs font-medium">{accessToken ? t('reconnect_google') : t('connect_google')}</span>
+            </button>
           </div>
         </div>
 

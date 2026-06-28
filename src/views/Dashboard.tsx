@@ -12,7 +12,8 @@ import {
   PlusCircle,
   Clock,
   ArrowUpCircle,
-  ArrowDownCircle
+  ArrowDownCircle,
+  Activity
 } from 'lucide-react';
 import {
   XAxis,
@@ -27,7 +28,9 @@ import {
   PieChart,
   Pie,
   Cell,
-  Legend
+  Legend,
+  LineChart,
+  Line
 } from 'recharts';
 import { format } from 'date-fns';
 import InfoTooltip from '../components/InfoTooltip';
@@ -44,9 +47,12 @@ export default function Dashboard({ onNavigate }: { onNavigate: (view: string) =
   const [chartData, setChartData] = useState<any[]>([]);
   const [expenseChartData, setExpenseChartData] = useState<any[]>([]);
   const [financialChartData, setFinancialChartData] = useState<any[]>([]);
+  const [qualityChartData, setQualityChartData] = useState<any[]>([]);
+  const [balanceChartData, setBalanceChartData] = useState<any[]>([]);
   const [chartFilter, setChartFilter] = useState<'daily' | 'weekly' | 'monthly'>('daily');
 
   const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6'];
+  const BALANCE_COLORS = ['#f43f5e', '#10b981']; // Red for payable, Green for receivable
   const [recentTransactions, setRecentTransactions] = useState<any[]>([]);
   const [settings, setSettings] = useState({ peakFatRate: 7.2, avgPrice: 52.4 });
   const [loading, setLoading] = useState(true);
@@ -55,6 +61,7 @@ export default function Dashboard({ onNavigate }: { onNavigate: (view: string) =
   const [collections, setCollections] = useState<any[]>([]);
   const [deliveries, setDeliveries] = useState<any[]>([]);
   const [farmers, setFarmers] = useState<any[]>([]);
+  const [customers, setCustomers] = useState<any[]>([]);
   const [expenses, setExpenses] = useState<any[]>([]);
 
   useEffect(() => {
@@ -83,6 +90,10 @@ export default function Dashboard({ onNavigate }: { onNavigate: (view: string) =
       setFarmers(snap.docs.map(d => d.data()));
     });
 
+    const unsubCus = onSnapshot(query(collection(db, 'customers'), where('userId', '==', tenantId)), (snap) => {
+      setCustomers(snap.docs.map(d => d.data()));
+    });
+
     const unsubExp = onSnapshot(query(collection(db, 'expenses'), where('userId', '==', tenantId), where('date', '>=', startDateStr)), (snap) => {
       setExpenses(snap.docs.map(d => d.data()));
     });
@@ -101,6 +112,7 @@ export default function Dashboard({ onNavigate }: { onNavigate: (view: string) =
       unsubCol();
       unsubDel();
       unsubFar();
+      unsubCus();
       unsubExp();
       unsubTrans();
     };
@@ -128,6 +140,16 @@ export default function Dashboard({ onNavigate }: { onNavigate: (view: string) =
       pendTotal += doc.balance || 0;
     });
 
+    let custTotal = 0;
+    customers.forEach(doc => {
+      custTotal += doc.balance || 0;
+    });
+
+    setBalanceChartData([
+      { name: 'Payables (Farmers)', value: pendTotal },
+      { name: 'Receivables (Customers)', value: custTotal }
+    ]);
+
     let expTotal = 0;
     expenses.forEach(doc => {
       expTotal += doc.amount || 0;
@@ -146,10 +168,12 @@ export default function Dashboard({ onNavigate }: { onNavigate: (view: string) =
       pendingPayments: pendTotal,
       totalProfit: delTodayAmt - (expTotal / 30) // Simplified
     });
-  }, [collections, deliveries, farmers, expenses]);
+  }, [collections, deliveries, farmers, customers, expenses]);
 
   useEffect(() => {
     let aggregated: any[] = [];
+    let finAggregated: any[] = [];
+    let qualityAggregated: any[] = [];
 
     if (chartFilter === 'daily') {
       const last7Days = Array.from({ length: 7 }, (_, i) => {
@@ -162,48 +186,21 @@ export default function Dashboard({ onNavigate }: { onNavigate: (view: string) =
         collection: collections.filter(c => c.date === date).reduce((acc, curr) => acc + (curr.quantity || 0), 0),
         sales: deliveries.filter(d => d.date === date).reduce((acc, curr) => acc + (curr.quantity || 0), 0)
       }));
-    } else if (chartFilter === 'weekly') {
-      for (let i = 3; i >= 0; i--) {
-        const weekEnd = new Date();
-        weekEnd.setDate(weekEnd.getDate() - (i * 7));
-        const weekStart = new Date(weekEnd);
-        weekStart.setDate(weekStart.getDate() - 6);
-
-        const startStr = format(weekStart, 'yyyy-MM-dd');
-        const endStr = format(weekEnd, 'yyyy-MM-dd');
-
-        aggregated.push({
-          name: `W${4 - i}`,
-          collection: collections.filter(c => c.date >= startStr && c.date <= endStr).reduce((acc, curr) => acc + (curr.quantity || 0), 0),
-          sales: deliveries.filter(d => d.date >= startStr && d.date <= endStr).reduce((acc, curr) => acc + (curr.quantity || 0), 0)
-        });
-      }
-    } else if (chartFilter === 'monthly') {
-      for (let i = 5; i >= 0; i--) {
-        const monthDate = new Date();
-        monthDate.setMonth(monthDate.getMonth() - i);
-        const monthStrPrefix = format(monthDate, 'yyyy-MM');
-
-        aggregated.push({
-          name: t(format(monthDate, 'MMM').toLowerCase() as any),
-          collection: collections.filter(c => c.date && c.date.startsWith(monthStrPrefix)).reduce((acc, curr) => acc + (curr.quantity || 0), 0),
-          sales: deliveries.filter(d => d.date && d.date.startsWith(monthStrPrefix)).reduce((acc, curr) => acc + (curr.quantity || 0), 0)
-        });
-      }
-    }
-
-    let finAggregated: any[] = [];
-    if (chartFilter === 'daily') {
-      const last7Days = Array.from({ length: 7 }, (_, i) => {
-        const d = new Date();
-        d.setDate(d.getDate() - (6 - i));
-        return format(d, 'yyyy-MM-dd');
-      });
       finAggregated = last7Days.map(date => ({
         name: t(format(new Date(date), 'EEE').toLowerCase() as any),
         revenue: deliveries.filter(d => d.date === date).reduce((acc, curr) => acc + (curr.amount || 0), 0),
         expense: expenses.filter(e => e.date === date).reduce((acc, curr) => acc + (curr.amount || 0), 0)
       }));
+      qualityAggregated = last7Days.map(date => {
+        const dayCols = collections.filter(c => c.date === date);
+        const avgFat = dayCols.length ? dayCols.reduce((acc, curr) => acc + (curr.fat || 0), 0) / dayCols.length : 0;
+        const avgSnf = dayCols.length ? dayCols.reduce((acc, curr) => acc + (curr.snf || 0), 0) / dayCols.length : 0;
+        return {
+          name: t(format(new Date(date), 'EEE').toLowerCase() as any),
+          fat: parseFloat(avgFat.toFixed(1)),
+          snf: parseFloat(avgSnf.toFixed(1))
+        };
+      });
     } else if (chartFilter === 'weekly') {
       for (let i = 3; i >= 0; i--) {
         const weekEnd = new Date();
@@ -212,10 +209,22 @@ export default function Dashboard({ onNavigate }: { onNavigate: (view: string) =
         weekStart.setDate(weekStart.getDate() - 6);
         const startStr = format(weekStart, 'yyyy-MM-dd');
         const endStr = format(weekEnd, 'yyyy-MM-dd');
+
+        const weekCols = collections.filter(c => c.date >= startStr && c.date <= endStr);
+        aggregated.push({
+          name: `W${4 - i}`,
+          collection: weekCols.reduce((acc, curr) => acc + (curr.quantity || 0), 0),
+          sales: deliveries.filter(d => d.date >= startStr && d.date <= endStr).reduce((acc, curr) => acc + (curr.quantity || 0), 0)
+        });
         finAggregated.push({
           name: `W${4 - i}`,
           revenue: deliveries.filter(d => d.date >= startStr && d.date <= endStr).reduce((acc, curr) => acc + (curr.amount || 0), 0),
           expense: expenses.filter(e => e.date >= startStr && e.date <= endStr).reduce((acc, curr) => acc + (curr.amount || 0), 0)
+        });
+        qualityAggregated.push({
+          name: `W${4 - i}`,
+          fat: parseFloat((weekCols.length ? weekCols.reduce((acc, curr) => acc + (curr.fat || 0), 0) / weekCols.length : 0).toFixed(1)),
+          snf: parseFloat((weekCols.length ? weekCols.reduce((acc, curr) => acc + (curr.snf || 0), 0) / weekCols.length : 0).toFixed(1))
         });
       }
     } else if (chartFilter === 'monthly') {
@@ -223,17 +232,30 @@ export default function Dashboard({ onNavigate }: { onNavigate: (view: string) =
         const monthDate = new Date();
         monthDate.setMonth(monthDate.getMonth() - i);
         const monthStrPrefix = format(monthDate, 'yyyy-MM');
+
+        const monthCols = collections.filter(c => c.date && c.date.startsWith(monthStrPrefix));
+        aggregated.push({
+          name: t(format(monthDate, 'MMM').toLowerCase() as any),
+          collection: monthCols.reduce((acc, curr) => acc + (curr.quantity || 0), 0),
+          sales: deliveries.filter(d => d.date && d.date.startsWith(monthStrPrefix)).reduce((acc, curr) => acc + (curr.quantity || 0), 0)
+        });
         finAggregated.push({
           name: t(format(monthDate, 'MMM').toLowerCase() as any),
           revenue: deliveries.filter(d => d.date && d.date.startsWith(monthStrPrefix)).reduce((acc, curr) => acc + (curr.amount || 0), 0),
           expense: expenses.filter(e => e.date && e.date.startsWith(monthStrPrefix)).reduce((acc, curr) => acc + (curr.amount || 0), 0)
         });
+        qualityAggregated.push({
+          name: t(format(monthDate, 'MMM').toLowerCase() as any),
+          fat: parseFloat((monthCols.length ? monthCols.reduce((acc, curr) => acc + (curr.fat || 0), 0) / monthCols.length : 0).toFixed(1)),
+          snf: parseFloat((monthCols.length ? monthCols.reduce((acc, curr) => acc + (curr.snf || 0), 0) / monthCols.length : 0).toFixed(1))
+        });
       }
     }
 
     setFinancialChartData(finAggregated);
+    setQualityChartData(qualityAggregated);
     setChartData(aggregated);
-  }, [collections, deliveries, chartFilter]);
+  }, [collections, deliveries, expenses, chartFilter]);
 
   const StatCard = ({ icon: Icon, title, value, color, unit = "" }: any) => (
     <div className="bg-white p-4 rounded-none border border-slate-200 flex items-start justify-between">
@@ -270,8 +292,6 @@ export default function Dashboard({ onNavigate }: { onNavigate: (view: string) =
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-
-
         <StatCard
           icon={Milk}
           title={t('today_collection')}
@@ -326,15 +346,127 @@ export default function Dashboard({ onNavigate }: { onNavigate: (view: string) =
                 <Tooltip
                   contentStyle={{ borderRadius: '0px', border: '1px solid #cbd5e1', boxShadow: 'none' }}
                 />
-                <Area type="monotone" dataKey="collection" stroke="#3b82f6" strokeWidth={2} fillOpacity={0.1} fill="#3b82f6" />
-                <Area type="monotone" dataKey="sales" stroke="#10b981" strokeWidth={2} fillOpacity={0} />
+                <Area type="monotone" dataKey="collection" name={t("collection_vs_sales")} stroke="#3b82f6" strokeWidth={2} fillOpacity={0.1} fill="#3b82f6" />
+                <Area type="monotone" dataKey="sales" name={t("today_sales")} stroke="#10b981" strokeWidth={2} fillOpacity={0} />
               </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>
 
+        {/* Milk Quality Trend (New) */}
+        <div className="bg-white p-4 border border-slate-200">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm text-slate-900 tracking-widest font-bold">Milk Quality Trend (FAT & SNF)</h3>
+          </div>
+          <div className="h-60">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={qualityChartData}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 10 }} dy={5} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 10 }} domain={['auto', 'auto']} />
+                <Tooltip
+                  contentStyle={{ borderRadius: '0px', border: '1px solid #cbd5e1', boxShadow: 'none' }}
+                />
+                <Legend iconType="circle" wrapperStyle={{ fontSize: '10px' }} />
+                <Line type="monotone" dataKey="fat" name="Avg FAT" stroke="#f59e0b" strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 5 }} />
+                <Line type="monotone" dataKey="snf" name="Avg SNF" stroke="#8b5cf6" strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 5 }} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Revenue vs Expenses */}
+        <div className="bg-white p-4 border border-slate-200">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm text-slate-900 tracking-widest font-bold">Revenue vs Expenses (₹)</h3>
+          </div>
+          <div className="h-60">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={financialChartData}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 10 }} dy={5} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 10 }} />
+                <Tooltip
+                  contentStyle={{ borderRadius: '0px', border: '1px solid #cbd5e1', boxShadow: 'none' }}
+                />
+                <Legend iconType="circle" wrapperStyle={{ fontSize: '10px' }} />
+                <Bar dataKey="revenue" name="Revenue" fill="#10b981" radius={[2, 2, 0, 0]} />
+                <Bar dataKey="expense" name="Expenses" fill="#ef4444" radius={[2, 2, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Financial Balances (New) */}
+        <div className="bg-white p-4 border border-slate-200">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm text-slate-900 tracking-widest font-bold">Balances Overview (₹)</h3>
+          </div>
+          <div className="h-60 flex items-center justify-center">
+            {balanceChartData.some(d => d.value > 0) ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={balanceChartData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={50}
+                    outerRadius={80}
+                    paddingAngle={2}
+                    dataKey="value"
+                  >
+                    {balanceChartData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={BALANCE_COLORS[index % BALANCE_COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    contentStyle={{ borderRadius: '0px', border: '1px solid #cbd5e1', boxShadow: 'none' }}
+                  />
+                  <Legend iconType="circle" wrapperStyle={{ fontSize: '10px' }} />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="text-center text-black text-xs tracking-widest">No pending balances</div>
+            )}
+          </div>
+        </div>
+
+        {/* Expenses Breakdown */}
+        <div className="bg-white p-4 border border-slate-200">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm text-slate-900 tracking-widest font-bold">Expenses Breakdown</h3>
+          </div>
+          <div className="h-60 flex items-center justify-center">
+            {expenseChartData.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={expenseChartData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={50}
+                    outerRadius={80}
+                    paddingAngle={2}
+                    dataKey="value"
+                  >
+                    {expenseChartData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    contentStyle={{ borderRadius: '0px', border: '1px solid #cbd5e1', boxShadow: 'none' }}
+                  />
+                  <Legend iconType="circle" wrapperStyle={{ fontSize: '10px' }} />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="text-center text-black text-xs tracking-widest">No expenses recorded</div>
+            )}
+          </div>
+        </div>
+
         {/* Recent Activity */}
-        <div className="bg-white p-4 border border-slate-200 flex flex-col h-full">
+        <div className="bg-white p-4 border border-slate-200 flex flex-col h-full lg:col-span-2 xl:col-span-1">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm text-slate-900 tracking-widest font-bold">{t("recent_transactions")}</h3>
             <button onClick={() => onNavigate('payments')} className="text-blue-600 text-[10px] hover:underline tracking-widest font-bold">{t("view_all")}</button>
@@ -375,64 +507,6 @@ export default function Dashboard({ onNavigate }: { onNavigate: (view: string) =
             <button onClick={() => onNavigate('customers')} className="flex items-center justify-center gap-1.5 p-2 md:p-3 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-[9px] md:text-[10px] tracking-wide border border-emerald-200 w-full text-center font-bold whitespace-nowrap">
               <Users className="w-3.5 h-3.5 md:w-4 md:h-4 shrink-0" /> {t('customer_ledgers')}
             </button>
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Revenue vs Expenses */}
-        <div className="bg-white p-4 border border-slate-200">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm text-slate-900 tracking-widest font-bold">Revenue vs Expenses (₹)</h3>
-          </div>
-          <div className="h-60">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={financialChartData}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 10 }} dy={5} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 10 }} />
-                <Tooltip
-                  contentStyle={{ borderRadius: '0px', border: '1px solid #cbd5e1', boxShadow: 'none' }}
-                />
-                <Legend iconType="circle" wrapperStyle={{ fontSize: '10px' }} />
-                <Bar dataKey="revenue" name="Revenue" fill="#10b981" radius={[2, 2, 0, 0]} />
-                <Bar dataKey="expense" name="Expenses" fill="#ef4444" radius={[2, 2, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* Expenses Breakdown */}
-        <div className="bg-white p-4 border border-slate-200">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm text-slate-900 tracking-widest font-bold">Expenses Breakdown</h3>
-          </div>
-          <div className="h-60 flex items-center justify-center">
-            {expenseChartData.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={expenseChartData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={80}
-                    paddingAngle={2}
-                    dataKey="value"
-                  >
-                    {expenseChartData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    contentStyle={{ borderRadius: '0px', border: '1px solid #cbd5e1', boxShadow: 'none' }}
-                  />
-                  <Legend iconType="circle" wrapperStyle={{ fontSize: '10px' }} />
-                </PieChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="text-center text-black text-xs tracking-widest">No expenses recorded</div>
-            )}
           </div>
         </div>
       </div>

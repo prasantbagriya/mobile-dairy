@@ -143,10 +143,10 @@ export default function ProfitLoss() {
       <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
         <div className="flex items-center justify-between w-full xl:w-auto">
           <div>
-            <h2 className="text-lg md:text-xl text-slate-900 uppercase tracking-tight flex items-center gap-2 font-bold">
+            <h2 className="text-lg md:text-xl text-slate-900 tracking-tight flex items-center gap-2 font-bold">
               {t('profit_loss')} <InfoTooltip text={t('profit_loss_desc')} />
             </h2>
-            <p className="text-black text-[10px] tracking-widest mt-0.5 uppercase font-bold">{t('financial_performance')}</p>
+            <p className="text-black text-xs mt-0.5 font-medium">{t('financial_performance')}</p>
           </div>
           <button 
             onClick={() => setShowFilters(!showFilters)}
