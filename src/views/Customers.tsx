@@ -299,7 +299,7 @@ export default function Customers() {
                 </div>
               )}
               {contacts.length > 0 && (
-                <div className="max-h-32 overflow-auto border-t border-slate-200 mt-2 pt-2 space-y-1">
+                <div className="max-h-32 overflow-auto no-scrollbar border-t border-slate-200 mt-2 pt-2 space-y-1">
                   {contacts.map((c, i) => {
                     const name = c.person?.names?.[0]?.displayName || 'No Name';
                     const phone = c.person?.phoneNumbers?.[0]?.value || '';
