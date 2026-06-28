@@ -359,13 +359,13 @@ export default function FarmerLedger({ farmer, allFarmers = [], onClose, onRefre
         </div>
       </div>
 
-      <div className="w-full p-0">
+      <div className="w-full p-2 md:p-4">
         {loading ? (
           <div className="p-12 text-center text-black  uppercase tracking-widest text-[10px]">Loading Records...</div>
         ) : viewMode === 'list' ? (
           <>
             {/* Responsive Table */}
-            <div className="block max-h-[600px] overflow-y-auto overflow-x-auto">
+            <div className="block max-h-[600px] overflow-y-auto overflow-x-auto no-scrollbar">
               <table className="w-full text-left border-collapse border border-slate-200">
                 <thead className="bg-slate-50 sticky top-0 text-black text-sm font-semibold border-b border-slate-200 z-10">
                   <tr>
