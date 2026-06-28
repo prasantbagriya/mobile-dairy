@@ -19,3 +19,9 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+-dontwarn com.facebook.**
+-keep class com.facebook.** { *; }
+-dontwarn io.capawesome.capacitorjs.plugins.firebase.authentication.**
+-keep class io.capawesome.capacitorjs.plugins.firebase.authentication.** { *; }
+
