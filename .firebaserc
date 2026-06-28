@@ -3,6 +3,14 @@
     "default": "milk-master-app",
     "firebase deploy": "milk-master-app"
   },
-  "targets": {},
+  "targets": {
+    "milk-master-app": {
+      "hosting": {
+        "default": [
+          "milk-master-app"
+        ]
+      }
+    }
+  },
   "etags": {}
 }
