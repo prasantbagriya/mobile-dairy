@@ -16,11 +16,10 @@ const ResponsiveUplot = ({ options, data }) => {
     observer.observe(containerRef.current);
     return () => observer.disconnect();
   }, []);
-
   return (
     <div ref={containerRef} style={{ width: '100%', height: '100%' }} className="min-h-[180px]">
       {size.width > 0 && size.height > 0 && (
-        <UplotReact options={{ ...options, width: size.width, height: size.height }} data={data} />
+        <UplotReact options={{ ...options, width: size.width, height: Math.max(100, size.height - 40) }} data={data} />
       )}
     </div>
   );

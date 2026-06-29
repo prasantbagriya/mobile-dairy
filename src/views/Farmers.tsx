@@ -553,8 +553,8 @@ export default function Farmers() {
               </button>
             </div>
           </div>
-        </div>
       </div>
+    );
   }
 
   const searchAndToggleUI = (className: string) => (

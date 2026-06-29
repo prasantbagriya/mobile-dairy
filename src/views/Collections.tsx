@@ -542,10 +542,10 @@ export default function Collections() {
       </>
     ) : (
           <div className="xl:col-span-12 bg-white border border-slate-100 overflow-hidden animate-in fade-in zoom-in-95 duration-300">
-            <div className="p-6 bg-slate-50 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
-               <div className="flex items-center justify-between w-full md:w-auto">
-                  <h3 className="text-sm md:text-base font-bold tracking-tight flex items-center gap-2 text-slate-900">
-                    Daily Collection Sheet <InfoTooltip text="Batch Entry Mode: Enter records for all farmers in sequence" />
+            <div className="p-3 md:p-4 bg-slate-50 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+               <div className="flex items-center justify-between w-full md:w-auto gap-2">
+                  <h3 className="text-sm md:text-base font-bold tracking-tight flex items-center gap-1.5 md:gap-2 text-slate-900 truncate">
+                    <span className="truncate">{t('daily_sheet', 'Daily Collection Sheet')}</span> <InfoTooltip text="Batch Entry Mode: Enter records for all farmers in sequence" />
                   </h3>
                   <button onClick={() => setShowSheetFilters(!showSheetFilters)} className="md:hidden flex items-center justify-center gap-1.5 bg-slate-100 text-slate-700 py-1.5 px-3 text-[10px] font-medium border border-slate-200 ml-2 shrink-0">
                     <Filter className="w-3.5 h-3.5" /> {showSheetFilters ? t('hide', 'Hide') : t('filter', 'Filter')}
