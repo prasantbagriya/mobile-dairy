@@ -162,38 +162,7 @@ export default function Reports() {
             >
               <Filter className="w-3.5 h-3.5" /> Filter
             </button>
-          </div>
-        </div>
-
-        {/* Filter Section */}
-        <div className={`${showFilters ? 'block' : 'hidden'} md:block`}>
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-3 bg-white p-3 md:p-4 rounded-none border border-slate-200 w-full shadow-sm">
-            <div className="flex flex-col md:flex-row md:items-end gap-3 w-full md:w-auto flex-1">
-              <div className="w-full md:w-48 shrink-0">
-                <label className="text-[9px] text-black capitalize tracking-widest block mb-0.5">Report Type</label>
-                <select className="w-full p-2 bg-slate-50 border border-slate-200 rounded-none outline-none text-xs font-bold" value={reportType} onChange={e => setReportType(e.target.value)}>
-                  <option value="collections">{t('collections')}</option>
-                  <option value="deliveries">{t('deliveries')}</option>
-                  <option value="dairy_sales">Dairy Sales</option>
-                  <option value="transactions">Full Detail</option>
-                  <option value="inventory">Inventory</option>
-                </select>
-              </div>
-              {reportType !== 'inventory' && (
-                <div className="flex items-center gap-2 w-full md:w-auto shrink-0">
-                  <div className="flex-1 md:w-36">
-                    <label className="text-[9px] text-black capitalize tracking-widest block mb-0.5">Start Date</label>
-                    <input type="date" className="w-full p-2 bg-slate-50 border border-slate-200 rounded-none text-xs font-bold" value={dateRange.start} onChange={e => setDateRange({...dateRange, start: e.target.value})} />
-                  </div>
-                  <span className="text-slate-400 self-end mb-2 shrink-0">-</span>
-                  <div className="flex-1 md:w-36">
-                    <label className="text-[9px] text-black capitalize tracking-widest block mb-0.5">End Date</label>
-                    <input type="date" className="w-full p-2 bg-slate-50 border border-slate-200 rounded-none text-xs font-bold" value={dateRange.end} onChange={e => setDateRange({...dateRange, end: e.target.value})} />
-                  </div>
-                </div>
-              )}
-            </div>
-
+            
             {/* Actions Dropdown */}
             <div className="relative w-full md:w-auto shrink-0 mt-2 md:mt-0">
               <button 
@@ -227,6 +196,38 @@ export default function Reports() {
                 </div>
               )}
             </div>
+          </div>
+        </div>
+
+        {/* Filter Section */}
+        <div className={`${showFilters ? 'block' : 'hidden'} md:block`}>
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-3 bg-white p-3 md:p-4 rounded-none border border-slate-200 w-full shadow-sm">
+            <div className="flex flex-col md:flex-row md:items-end gap-3 w-full md:w-auto flex-1">
+              <div className="w-full md:w-48 shrink-0">
+                <label className="text-[9px] text-black capitalize tracking-widest block mb-0.5">Report Type</label>
+                <select className="w-full p-2 bg-slate-50 border border-slate-200 rounded-none outline-none text-xs font-bold" value={reportType} onChange={e => setReportType(e.target.value)}>
+                  <option value="collections">{t('collections')}</option>
+                  <option value="deliveries">{t('deliveries')}</option>
+                  <option value="dairy_sales">Dairy Sales</option>
+                  <option value="transactions">Full Detail</option>
+                  <option value="inventory">Inventory</option>
+                </select>
+              </div>
+              {reportType !== 'inventory' && (
+                <div className="flex items-center gap-2 w-full md:w-auto shrink-0">
+                  <div className="flex-1 md:w-36">
+                    <label className="text-[9px] text-black capitalize tracking-widest block mb-0.5">Start Date</label>
+                    <input type="date" className="w-full p-2 bg-slate-50 border border-slate-200 rounded-none text-xs font-bold" value={dateRange.start} onChange={e => setDateRange({...dateRange, start: e.target.value})} />
+                  </div>
+                  <span className="text-slate-400 self-end mb-2 shrink-0">-</span>
+                  <div className="flex-1 md:w-36">
+                    <label className="text-[9px] text-black capitalize tracking-widest block mb-0.5">End Date</label>
+                    <input type="date" className="w-full p-2 bg-slate-50 border border-slate-200 rounded-none text-xs font-bold" value={dateRange.end} onChange={e => setDateRange({...dateRange, end: e.target.value})} />
+                  </div>
+                </div>
+              )}
+            </div>
+
           </div>
         </div>
       </div>

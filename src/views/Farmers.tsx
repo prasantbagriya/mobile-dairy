@@ -689,7 +689,7 @@ export default function Farmers() {
             </div>
           ) : (
             <div ref={tableContainerRef} className="bg-white border border-slate-100 overflow-auto no-scrollbar h-[calc(100vh-200px)] min-h-[400px]">
-              <table className="w-full xl:w-max text-left border-collapse border border-slate-200 min-w-[800px]">
+              <table className="w-full text-left border-collapse border border-slate-200 min-w-[800px]">
                 <thead className="bg-slate-50 sticky top-0 text-black text-sm font-semibold border-b border-slate-200 z-10">
                   <tr className="bg-slate-50 border-b border-slate-100">
                     <th className="px-4 py-3 border-b border-slate-200 text-black text-sm font-semibold whitespace-nowrap">{t("seq_no")}</th>
