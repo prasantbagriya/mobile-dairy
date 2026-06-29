@@ -5,7 +5,7 @@ import { useI18n } from '../lib/i18n';
 import { db } from '../lib/db';
 import { collection, where, addDoc, onSnapshot, updateDoc, deleteDoc, doc, query, orderBy, writeBatch, getDocs } from 'firebase/firestore';
 import { Farmer } from '../types';
-import { Plus, Search, Edit2, Trash2, X, Save, Phone, MapPin, Building, FileText, TrendingUp, Power, LayoutGrid, List as ListIcon } from 'lucide-react';
+import { Plus, Search, Edit2, Trash2, X, Save, Phone, MapPin, Building, FileText, TrendingUp, Power, LayoutGrid, List as ListIcon, Users } from 'lucide-react';
 const SharedLedger = lazy(() => import('../components/SharedLedger'));
 
 import { useAuth } from '../lib/auth';
@@ -627,7 +627,15 @@ export default function Farmers() {
           {/* Search Bar - Mobile Only */}
           {searchAndToggleUI("flex md:hidden")}
 
-          {viewMode === 'grid' ? (
+          {filteredFarmers.length === 0 ? (
+            <div className="py-16 text-center bg-white border border-slate-100 rounded-2xl mx-2 shadow-sm">
+               <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                 <Users className="w-8 h-8 text-slate-300" />
+               </div>
+               <p className="text-slate-600 text-sm font-medium tracking-wide mb-1">{t('no_records')}</p>
+               <p className="text-slate-400 text-xs">Add new farmers to see them here.</p>
+            </div>
+          ) : viewMode === 'grid' ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4">
               {filteredFarmers.map(farmer => {
                 const isDeactivated = farmer.isActive === false;
@@ -796,12 +804,7 @@ export default function Farmers() {
             </div>
           )}
 
-          {filteredFarmers.length === 0 && (
-            <div className="py-12 text-center bg-white border border-slate-100 rounded-none">
-               <Building className="w-10 h-10 text-slate-200 mx-auto mb-3" />
-               <p className="text-black  text-xs tracking-widest">{t('no_records')}</p>
-            </div>
-          )}
+          
         </div>
       </div>
 
