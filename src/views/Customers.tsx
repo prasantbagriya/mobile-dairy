@@ -449,20 +449,21 @@ export default function Customers() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-      </div>        <div className="flex items-center gap-2 border-l border-slate-200 pl-3">
+      </div>
+        <div className="flex items-center p-1 bg-slate-100 rounded-lg ml-2 shrink-0">
           <button 
             onClick={() => setViewMode('grid')}
-            className={`px-3 py-1.5 md:py-2 text-[9px] md:text-[10px] capitalize tracking-wider flex items-center gap-1.5 transition-colors ${viewMode === 'grid' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+            className={`flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-md text-[10px] md:text-xs font-semibold transition-all duration-200 ${viewMode === 'grid' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
             title="Grid View"
           >
-            <LayoutGrid className="w-3.5 h-3.5" /> <span className="hidden md:inline">Grid</span>
+            <LayoutGrid className="w-4 h-4" /> <span className="hidden sm:inline">Grid</span>
           </button>
           <button 
             onClick={() => setViewMode('list')}
-            className={`px-3 py-1.5 md:py-2 text-[9px] md:text-[10px] capitalize tracking-wider flex items-center gap-1.5 transition-colors ${viewMode === 'list' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+            className={`flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-md text-[10px] md:text-xs font-semibold transition-all duration-200 ${viewMode === 'list' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
             title="List View"
           >
-            <ListIcon className="w-3.5 h-3.5" /> <span className="hidden md:inline">List</span>
+            <ListIcon className="w-4 h-4" /> <span className="hidden sm:inline">List</span>
           </button>
         </div>
     </div>
