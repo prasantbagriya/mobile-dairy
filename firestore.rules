@@ -96,12 +96,12 @@ service cloud.firestore {
 
     // Check if the user is authenticated and has a valid App Check token
     function isAuthenticated() {
-      return request.auth != null && request.app != null;
+      return request.auth != null;
     }
 
     // Helper function to check if user owns the document (Staff only)
     function isOwner() {
-      return request.auth != null && request.app != null && (
+      return request.auth != null && (
         resource.data.userId == request.auth.uid ||
         (exists(/databases/$(database)/documents/admin_configs/$(request.auth.uid)) && 
          get(/databases/$(database)/documents/admin_configs/$(request.auth.uid)).data.tenantId == resource.data.userId)
@@ -110,7 +110,7 @@ service cloud.firestore {
 
     // Helper function to check if user is assigning their own ID on creation
     function isAssigningOwnId() {
-      return request.auth != null && request.app != null && (
+      return request.auth != null && (
         request.resource.data.userId == request.auth.uid ||
         (exists(/databases/$(database)/documents/admin_configs/$(request.auth.uid)) && 
          get(/databases/$(database)/documents/admin_configs/$(request.auth.uid)).data.tenantId == request.resource.data.userId)

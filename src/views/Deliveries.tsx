@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import toast from 'react-hot-toast';
 import { useI18n } from '../lib/i18n';
@@ -34,6 +34,17 @@ export default function Deliveries() {
   const [sheetData, setSheetData] = useState<Record<string, { quantity: string, rate: string }>>({});
   const [existingSessions, setExistingSessions] = useState<Record<string, Set<'morning' | 'evening'>>>({});
   const tableContainerRef = useRef<HTMLDivElement>(null);
+
+  const filteredCustomers = useMemo(() => {
+    return customers.filter(c => c.name.toLowerCase().includes(sheetSearch.toLowerCase()));
+  }, [customers, sheetSearch]);
+  
+  const rowVirtualizer = useVirtualizer({
+    count: filteredCustomers.length,
+    getScrollElement: () => tableContainerRef.current,
+    estimateSize: () => 56, // estimated row height
+    overscan: 5
+  });
 
   useEffect(() => {
     if (!tenantId) return;
@@ -520,14 +531,6 @@ export default function Deliveries() {
             </div>
             
             {(() => {
-              const filteredCustomers = customers.filter(c => c.name.toLowerCase().includes(sheetSearch.toLowerCase()));
-              const rowVirtualizer = useVirtualizer({
-                count: filteredCustomers.length,
-                getScrollElement: () => tableContainerRef.current,
-                estimateSize: () => 56, // estimated row height
-                overscan: 5
-              });
-
               return (
                 <div ref={tableContainerRef} className="overflow-auto no-scrollbar h-[calc(100vh-250px)] min-h-[400px]">
                   <table className="w-full text-left relative">

@@ -29,6 +29,21 @@ export default function Farmers() {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const tableContainerRef = useRef<HTMLDivElement>(null);
 
+  const filteredFarmers = useMemo(() => {
+    return farmers.filter(f => 
+      (f.name || "").toLowerCase().includes(debouncedSearch.toLowerCase()) || 
+      (f.mobile || "").includes(debouncedSearch) ||
+      (f.village || "").toLowerCase().includes(debouncedSearch.toLowerCase())
+    );
+  }, [farmers, debouncedSearch]);
+
+  const rowVirtualizer = useVirtualizer({
+    count: filteredFarmers.length,
+    getScrollElement: () => tableContainerRef.current,
+    estimateSize: () => 56, // estimated row height
+    overscan: 5
+  });
+
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(search), 300);
     return () => clearTimeout(timer);
@@ -322,21 +337,6 @@ export default function Farmers() {
       </div>
     );
   }
-
-  const filteredFarmers = useMemo(() => {
-    return farmers.filter(f => 
-      (f.name || "").toLowerCase().includes(debouncedSearch.toLowerCase()) || 
-      (f.mobile || "").includes(debouncedSearch) ||
-      (f.village || "").toLowerCase().includes(debouncedSearch.toLowerCase())
-    );
-  }, [farmers, debouncedSearch]);
-
-  const rowVirtualizer = useVirtualizer({
-    count: filteredFarmers.length,
-    getScrollElement: () => tableContainerRef.current,
-    estimateSize: () => 56, // estimated row height
-    overscan: 5
-  });
   if (showForm) {
     return (
       <div className="-m-4 md:-m-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
@@ -678,18 +678,19 @@ export default function Farmers() {
             <div ref={tableContainerRef} className="bg-white border border-slate-100 overflow-auto no-scrollbar h-[calc(100vh-200px)] min-h-[400px]">
               <table className="w-full text-left border-collapse min-w-[800px] relative">
                 <thead className="sticky top-0 z-10 bg-slate-50 border-b border-slate-100 shadow-sm">
-                  <tr>
+                  <tr className="flex w-full items-center">
                     <th className="px-2 py-1.5 text-[10px] text-black tracking-widest w-16 text-center whitespace-nowrap">{t("seq_no")}</th>
-                    <th className="px-2 py-1.5 text-[10px]  text-black tracking-widest">{t('farmer')}</th>
-                    <th className="px-2 py-1.5 text-[10px]  text-black tracking-widest">{t("contact")}</th>
-                    <th className="px-2 py-1.5 text-[10px]  text-black tracking-widest">{t('village')}</th>
-                    <th className="px-2 py-1.5 text-[10px]  text-black tracking-widest text-right">{t('balance')}</th>
-                    <th className="px-2 py-1.5 text-[10px]  text-black tracking-widest text-center">{t("actions")}</th>
+                    <th className="px-2 py-1.5 text-[10px]  text-black tracking-widest flex-1">{t('farmer')}</th>
+                    <th className="px-2 py-1.5 text-[10px]  text-black tracking-widest w-24">{t("contact")}</th>
+                    <th className="px-2 py-1.5 text-[10px]  text-black tracking-widest w-24">{t('village')}</th>
+                    <th className="px-2 py-1.5 text-[10px]  text-black tracking-widest w-32 text-right">{t('balance')}</th>
+                    <th className="px-2 py-1.5 text-[10px]  text-black tracking-widest w-24 text-center">{t("actions")}</th>
                   </tr>
                 </thead>
                 <tbody style={{ height: `${rowVirtualizer.getTotalSize()}px`, position: 'relative' }}>
                   {rowVirtualizer.getVirtualItems().map((virtualRow) => {
                     const farmer = filteredFarmers[virtualRow.index];
+                    if (!farmer) return null;
                     const isDeactivated = farmer.isActive === false;
                     return (
                       <tr key={farmer.id} 
@@ -701,34 +702,34 @@ export default function Farmers() {
                           height: `${virtualRow.size}px`,
                           transform: `translateY(${virtualRow.start}px)`
                         }}
-                        className={`border-b border-slate-50 hover:bg-slate-50 transition-colors ${isDeactivated ? 'opacity-75 grayscale bg-slate-50/50' : ''}`}
+                        className={`border-b border-slate-50 hover:bg-slate-50 transition-colors flex w-full items-center ${isDeactivated ? 'opacity-75 grayscale bg-slate-50/50' : ''}`}
                       >
-                        <td className="px-2 py-1.5 text-center">
+                        <td className="px-2 py-1.5 text-center w-16 shrink-0">
                           <span className="text-xs font-mono font-medium bg-slate-100 px-2 py-1">{farmer.sequence || virtualRow.index + 1}</span>
                         </td>
-                        <td className="px-2 py-1.5">
+                        <td className="px-2 py-1.5 flex-1 min-w-0">
                           <div className="flex items-center gap-2">
-                            <div className={`w-8 h-8 flex items-center justify-center  text-sm ${isDeactivated ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600'}`}>
+                            <div className={`w-8 h-8 shrink-0 flex items-center justify-center  text-sm ${isDeactivated ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600'}`}>
                               {(farmer.name || "?").charAt(0)}
                             </div>
-                            <div className="flex flex-col">
-                              <span className=" text-sm text-slate-900">{farmer.name}</span>
+                            <div className="flex flex-col truncate">
+                              <span className=" text-sm text-slate-900 truncate">{farmer.name}</span>
                               {isDeactivated && <span className="text-[8px]  text-red-600 tracking-widest">{t('inactive')}</span>}
                             </div>
                           </div>
                         </td>
-                        <td className="px-2 py-1.5">
-                          <span className="text-xs  text-black">{farmer.mobile}</span>
+                        <td className="px-2 py-1.5 w-24 shrink-0">
+                          <span className="text-xs  text-black truncate block w-full">{farmer.mobile}</span>
                         </td>
-                        <td className="px-2 py-1.5">
-                          <span className="text-xs  text-black">{farmer.village}</span>
+                        <td className="px-2 py-1.5 w-24 shrink-0">
+                          <span className="text-xs  text-black truncate block w-full">{farmer.village}</span>
                         </td>
-                        <td className="px-2 py-1.5 text-right">
-                          <span className={`text-xs  ${farmer.balance >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
+                        <td className="px-2 py-1.5 w-32 shrink-0 text-right">
+                          <span className={`text-xs block w-full truncate ${farmer.balance >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
                             ₹ {Math.abs(farmer.balance).toLocaleString()} {farmer.balance >= 0 ? ' (Dr)' : ' (Cr)'}
                           </span>
                         </td>
-                        <td className="px-2 py-1.5">
+                        <td className="px-2 py-1.5 w-24 shrink-0">
                           <div className="flex items-center justify-center gap-2">
                             <button 
                               onClick={() => setSelectedFarmer(farmer)}

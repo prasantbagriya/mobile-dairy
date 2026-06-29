@@ -28,6 +28,17 @@ export default function Customers() {
   const { accessToken, user, tenantId, connectGoogle, registerCustomerLogin } = useAuth();
   const tableContainerRef = useRef<HTMLDivElement>(null);
 
+  const filteredCustomers = useMemo(() => {
+    return customers.filter(c => (c.name || "").toLowerCase().includes(search.toLowerCase()));
+  }, [customers, search]);
+  
+  const rowVirtualizer = useVirtualizer({
+    count: filteredCustomers.length,
+    getScrollElement: () => tableContainerRef.current,
+    estimateSize: () => 56,
+    overscan: 5
+  });
+
   useEffect(() => {
     if (!tenantId) return;
     setLoading(true);
@@ -483,17 +494,6 @@ export default function Customers() {
           </div>
 
           {(() => {
-            const filteredCustomers = useMemo(() => {
-              return customers.filter(c => (c.name || "").toLowerCase().includes(search.toLowerCase()));
-            }, [customers, search]);
-            
-            const rowVirtualizer = useVirtualizer({
-              count: filteredCustomers.length,
-              getScrollElement: () => tableContainerRef.current,
-              estimateSize: () => 56,
-              overscan: 5
-            });
-
             if (viewMode === 'grid') {
               return (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4">

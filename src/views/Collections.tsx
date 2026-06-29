@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import toast from 'react-hot-toast';
 import { useI18n } from '../lib/i18n';
@@ -46,6 +46,17 @@ export default function Collections() {
   const [showSheetFilters, setShowSheetFilters] = useState(false);
   const [historySearch, setHistorySearch] = useState('');
   const tableContainerRef = useRef<HTMLDivElement>(null);
+
+  const filteredFarmers = useMemo(() => {
+    return farmers.filter(f => f.name.toLowerCase().includes(sheetSearch.toLowerCase()));
+  }, [farmers, sheetSearch]);
+
+  const rowVirtualizer = useVirtualizer({
+    count: filteredFarmers.length,
+    getScrollElement: () => tableContainerRef.current,
+    estimateSize: () => 70, // estimated row height
+    overscan: 5
+  });
 
   useEffect(() => {
     if (!tenantId) return;
@@ -574,14 +585,6 @@ export default function Collections() {
                 </div>
              </div>
              {(() => {
-               const filteredFarmers = farmers.filter(f => f.name.toLowerCase().includes(sheetSearch.toLowerCase()));
-              const rowVirtualizer = useVirtualizer({
-                count: filteredFarmers.length,
-                getScrollElement: () => tableContainerRef.current,
-                estimateSize: () => 70, // estimated row height
-                overscan: 5
-              });
-
               return (
               <div ref={tableContainerRef} className="bg-slate-50 md:bg-white border-t border-slate-100 overflow-auto no-scrollbar h-[calc(100vh-250px)] min-h-[400px]">
                 <table className="w-full text-left relative">
