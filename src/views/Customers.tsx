@@ -449,23 +449,22 @@ export default function Customers() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-      </div>
-      <div className="flex items-center gap-1 border-l border-slate-100 pl-3">
-        <button 
-          onClick={() => setViewMode('grid')}
-          className={`p-1.5 rounded-none transition-colors ${viewMode === 'grid' ? 'bg-slate-100 text-slate-900' : 'text-black hover:text-black hover:bg-slate-50'}`}
-          title="Grid View"
-        >
-          <LayoutGrid className="w-4 h-4" />
-        </button>
-        <button 
-          onClick={() => setViewMode('list')}
-          className={`p-1.5 rounded-none transition-colors ${viewMode === 'list' ? 'bg-slate-100 text-slate-900' : 'text-black hover:text-black hover:bg-slate-50'}`}
-          title="List View"
-        >
-          <ListIcon className="w-4 h-4" />
-        </button>
-      </div>
+      </div>        <div className="flex items-center gap-2 border-l border-slate-200 pl-3">
+          <button 
+            onClick={() => setViewMode('grid')}
+            className={`px-3 py-1.5 md:py-2 text-[9px] md:text-[10px] capitalize tracking-wider flex items-center gap-1.5 transition-colors ${viewMode === 'grid' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+            title="Grid View"
+          >
+            <LayoutGrid className="w-3.5 h-3.5" /> <span className="hidden md:inline">Grid</span>
+          </button>
+          <button 
+            onClick={() => setViewMode('list')}
+            className={`px-3 py-1.5 md:py-2 text-[9px] md:text-[10px] capitalize tracking-wider flex items-center gap-1.5 transition-colors ${viewMode === 'list' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+            title="List View"
+          >
+            <ListIcon className="w-3.5 h-3.5" /> <span className="hidden md:inline">List</span>
+          </button>
+        </div>
     </div>
   );
 
