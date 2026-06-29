@@ -1,5 +1,6 @@
 import React, { memo, useEffect, useRef, useState } from 'react';
 import UplotReact from 'uplot-react';
+import uPlot from 'uplot';
 import 'uplot/dist/uPlot.min.css';
 
 const ResponsiveUplot = ({ options, data }) => {
@@ -17,7 +18,7 @@ const ResponsiveUplot = ({ options, data }) => {
     return () => observer.disconnect();
   }, []);
   return (
-    <div ref={containerRef} style={{ width: '100%', height: '100%' }} className="min-h-[200px] md:min-h-[250px]">
+    <div ref={containerRef} style={{ width: '100%', height: '100%' }} className="h-[200px] md:h-[250px]">
       {size.width > 0 && size.height > 0 && (
         <UplotReact options={{ ...options, width: size.width, height: Math.max(100, size.height - 55) }} data={data} />
       )}
@@ -83,8 +84,8 @@ const DashboardCharts: React.FC<DashboardChartsProps> = memo(({
               ],
               series: [
                 {},
-                { label: t("collection_vs_sales"), stroke: '#3b82f6', width: 2 },
-                { label: t("today_sales"), stroke: '#10b981', width: 2 }
+                { label: t("collection_vs_sales"), stroke: '#3b82f6', fill: '#3b82f680', width: 2, paths: uPlot.paths.bars() },
+                { label: t("today_sales"), stroke: '#10b981', fill: '#10b98180', width: 2, paths: uPlot.paths.bars() }
               ]
             }}
           />
@@ -114,8 +115,8 @@ const DashboardCharts: React.FC<DashboardChartsProps> = memo(({
               ],
               series: [
                 {},
-                { label: "Avg FAT", stroke: '#f59e0b', width: 2 },
-                { label: "Avg SNF", stroke: '#8b5cf6', width: 2 }
+                { label: "Avg FAT", stroke: '#f59e0b', fill: '#f59e0b80', width: 2, paths: uPlot.paths.bars() },
+                { label: "Avg SNF", stroke: '#8b5cf6', fill: '#8b5cf680', width: 2, paths: uPlot.paths.bars() }
               ]
             }}
           />
@@ -145,8 +146,8 @@ const DashboardCharts: React.FC<DashboardChartsProps> = memo(({
               ],
               series: [
                 {},
-                { label: "Revenue", stroke: '#10b981', width: 2 },
-                { label: "Expenses", stroke: '#ef4444', width: 2 }
+                { label: "Revenue", stroke: '#10b981', fill: '#10b98180', width: 2, paths: uPlot.paths.bars() },
+                { label: "Expenses", stroke: '#ef4444', fill: '#ef444480', width: 2, paths: uPlot.paths.bars() }
               ]
             }}
           />
