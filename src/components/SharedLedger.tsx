@@ -485,16 +485,16 @@ const SharedLedger = memo(({ person, type, allPersons = [], onClose, onRefresh, 
               </div>
 
               <div className="flex bg-slate-100 p-1 shadow-inner">
-                <button onClick={() => setPaymentData({...paymentData, type: 'credit'})} className={`flex-1 py-2 text-xs md:text-sm font-bold border shadow-sm ${paymentData.type === 'credit' ? 'bg-emerald-600 text-white border-emerald-600' : 'text-black bg-transparent border-transparent hover:bg-slate-200 shadow-none'}`}>Received (+)</button>
-                <button onClick={() => setPaymentData({...paymentData, type: 'debit'})} className={`flex-1 py-2 text-xs md:text-sm font-bold border shadow-sm ${paymentData.type === 'debit' ? 'bg-red-600 text-white border-red-600' : 'text-black bg-transparent border-transparent hover:bg-slate-200 shadow-none'}`}>Paid (-)</button>
+                <button onClick={() => setPaymentData({...paymentData, type: 'credit'})} className={`flex-1 py-2 text-xs md:text-sm font-medium border shadow-sm ${paymentData.type === 'credit' ? 'bg-emerald-600 text-white border-emerald-600' : 'text-black bg-transparent border-transparent hover:bg-slate-200 shadow-none'}`}>Received (+)</button>
+                <button onClick={() => setPaymentData({...paymentData, type: 'debit'})} className={`flex-1 py-2 text-xs md:text-sm font-medium border shadow-sm ${paymentData.type === 'debit' ? 'bg-red-600 text-white border-red-600' : 'text-black bg-transparent border-transparent hover:bg-slate-200 shadow-none'}`}>Paid (-)</button>
               </div>
 
               <div className="flex-1 flex flex-col gap-3 mt-1">
                 <div className="space-y-1">
-                  <label className="text-sm text-black font-bold block">Amount (₹)</label>
+                  <label className="text-sm text-black block">Amount (₹)</label>
                   <input 
                     type="number" inputMode="decimal" pattern="[0-9]*" 
-                    className="w-full text-xl text-blue-600 border-2 border-slate-300 px-3 py-2 outline-none focus:border-blue-500 font-bold bg-white" 
+                    className="w-full text-xl text-blue-600 border-2 border-slate-300 px-3 py-2 outline-none focus:border-blue-500 bg-white" 
                     value={paymentData.amount}
                     onChange={(e) => setPaymentData({...paymentData, amount: e.target.value})}
                   />
@@ -502,8 +502,8 @@ const SharedLedger = memo(({ person, type, allPersons = [], onClose, onRefresh, 
 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <label className="text-sm text-black font-bold block">Method</label>
-                    <select className="w-full border-2 border-slate-300 px-3 py-2 outline-none focus:border-blue-500 text-base font-bold bg-white" value={paymentData.method} onChange={e => setPaymentData({...paymentData, method: e.target.value})}>
+                    <label className="text-sm text-black block">Method</label>
+                    <select className="w-full border-2 border-slate-300 px-3 py-2 outline-none focus:border-blue-500 text-base bg-white" value={paymentData.method} onChange={e => setPaymentData({...paymentData, method: e.target.value})}>
                       <option value="Cash">Cash</option>
                       <option value="Bank Transfer">Bank Transfer</option>
                       <option value="UPI">UPI</option>
@@ -511,28 +511,28 @@ const SharedLedger = memo(({ person, type, allPersons = [], onClose, onRefresh, 
                     </select>
                   </div>
                   <div className="space-y-1">
-                    <label className="text-sm text-black font-bold block">Date</label>
-                    <input type="date" className="w-full border-2 border-slate-300 px-3 py-2 outline-none focus:border-blue-500 text-base font-bold bg-white" value={paymentData.date} onChange={e => setPaymentData({...paymentData, date: e.target.value})} />
+                    <label className="text-sm text-black block">Date</label>
+                    <input type="date" className="w-full border-2 border-slate-300 px-3 py-2 outline-none focus:border-blue-500 text-base bg-white" value={paymentData.date} onChange={e => setPaymentData({...paymentData, date: e.target.value})} />
                   </div>
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-sm text-black font-bold block">Description / Note</label>
+                  <label className="text-sm text-black block">Description / Note</label>
                   <input type="text" className="w-full border-2 border-slate-300 px-3 py-2 outline-none focus:border-blue-500 text-base bg-white" value={paymentData.description} onChange={e => setPaymentData({...paymentData, description: e.target.value})} placeholder="Optional" />
                 </div>
               </div>
 
               <div className="flex flex-col gap-2 mt-auto pt-4 pb-4 md:pb-0">
                 <div className="flex gap-2">
-                  <button disabled={isSaving} onClick={() => setShowPaymentModal(false)} className="flex-1 px-3 py-2 bg-slate-100 text-black hover:bg-slate-200 border-2 border-slate-300 text-sm font-bold shadow-sm">
+                  <button disabled={isSaving} onClick={() => setShowPaymentModal(false)} className="flex-1 px-3 py-2 bg-slate-100 text-black hover:bg-slate-200 border-2 border-slate-300 text-sm font-medium shadow-sm">
                     Cancel
                   </button>
-                  <button onClick={() => handleSavePayment(false)} disabled={!paymentData.amount || isSaving} className="flex-1 px-3 py-2 bg-blue-600 text-white hover:bg-blue-700 border-2 border-blue-700 disabled:opacity-50 text-sm font-bold shadow-md">
+                  <button onClick={() => handleSavePayment(false)} disabled={!paymentData.amount || isSaving} className="flex-1 px-3 py-2 bg-blue-600 text-white hover:bg-blue-700 border-2 border-blue-700 disabled:opacity-50 text-sm font-medium shadow-md">
                     {isSaving ? 'Saving...' : 'Save'}
                   </button>
                 </div>
                 {allPersons && allPersons.length > 0 && onNavigateToPerson && (
-                  <button onClick={() => handleSavePayment(true)} disabled={!paymentData.amount || isSaving} className="w-full px-3 py-2 bg-emerald-600 text-white hover:bg-emerald-700 border-2 border-emerald-700 disabled:opacity-50 text-sm font-bold shadow-md whitespace-nowrap">
+                  <button onClick={() => handleSavePayment(true)} disabled={!paymentData.amount || isSaving} className="w-full px-3 py-2 bg-emerald-600 text-white hover:bg-emerald-700 border-2 border-emerald-700 disabled:opacity-50 text-sm font-medium shadow-md whitespace-nowrap">
                     {isSaving ? 'Saving...' : 'Save & Next'}
                   </button>
                 )}
