@@ -110,7 +110,7 @@ const SellItemModal = memo(({ isOpen, onClose, item, onSuccess }: SellItemModalP
 
   return (
     <div className="fixed inset-0 bg-slate-900/60 z-150 flex items-center justify-center p-4">
-      <div className="bg-white w-full max-w-md overflow-hidden border border-slate-200">
+      <div className="bg-white w-full max-w-md max-h-[90vh] overflow-y-auto border border-slate-200 flex flex-col">
         <div className="bg-emerald-600 p-4 text-white flex items-center justify-between">
           <h3 className="text-lg tracking-tight flex items-center gap-2">
             <ShoppingCart className="w-5 h-5" />

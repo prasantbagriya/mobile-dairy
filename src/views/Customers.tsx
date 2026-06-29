@@ -697,7 +697,7 @@ export default function Customers() {
       {/* Delete / Deactivate Modal */}
         {customerToDelete && (
           <div className="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4">
-            <div className="bg-white w-full max-w-md overflow-hidden border border-slate-200">
+            <div className="bg-white w-full max-w-md max-h-[90vh] overflow-y-auto border border-slate-200 flex flex-col">
               <div className="bg-red-600 p-4 text-white flex items-center justify-between">
                 <h3 className="text-lg  tracking-tight">Delete Profile?</h3>
                 <button onClick={() => setCustomerToDelete(null)} className="p-1 hover:bg-white/10">

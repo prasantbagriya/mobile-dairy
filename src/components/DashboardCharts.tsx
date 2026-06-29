@@ -29,6 +29,14 @@ const ResponsiveUplot = ({ options, data }) => {
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6'];
 const BALANCE_COLORS = ['#f43f5e', '#10b981']; // Red for payable, Green for receivable
 
+const formatYValue = (v: number) => {
+  if (Math.abs(v) >= 10000000) return (v / 10000000).toFixed(1) + 'Cr';
+  if (Math.abs(v) >= 100000) return (v / 100000).toFixed(1) + 'L';
+  if (Math.abs(v) >= 1000) return (v / 1000).toFixed(1) + 'K';
+  return v;
+};
+const formatYAxis = (u: any, vals: any[]) => vals.map(formatYValue);
+
 interface DashboardChartsProps {
   t: (key: string) => string;
   chartFilter: 'daily' | 'weekly' | 'monthly';
@@ -80,7 +88,7 @@ const DashboardCharts: React.FC<DashboardChartsProps> = memo(({
               scales: { x: { time: false } },
               axes: [
                 { values: (u, vals) => vals.map(v => chartData[v]?.name || ''), grid: { show: false }, font: '10px Arial' },
-                { grid: { stroke: '#e2e8f0', dash: [3, 3] }, font: '10px Arial' }
+                { values: formatYAxis, grid: { stroke: '#e2e8f0', dash: [3, 3] }, font: '10px Arial' }
               ],
               series: [
                 {},
@@ -111,7 +119,7 @@ const DashboardCharts: React.FC<DashboardChartsProps> = memo(({
               scales: { x: { time: false } },
               axes: [
                 { values: (u, vals) => vals.map(v => qualityChartData[v]?.name || ''), grid: { show: false }, font: '10px Arial' },
-                { grid: { stroke: '#e2e8f0', dash: [3, 3] }, font: '10px Arial' }
+                { values: formatYAxis, grid: { stroke: '#e2e8f0', dash: [3, 3] }, font: '10px Arial' }
               ],
               series: [
                 {},
@@ -142,7 +150,7 @@ const DashboardCharts: React.FC<DashboardChartsProps> = memo(({
               scales: { x: { time: false } },
               axes: [
                 { values: (u, vals) => vals.map(v => financialChartData[v]?.name || ''), grid: { show: false }, font: '10px Arial' },
-                { grid: { stroke: '#e2e8f0', dash: [3, 3] }, font: '10px Arial' }
+                { values: formatYAxis, grid: { stroke: '#e2e8f0', dash: [3, 3] }, font: '10px Arial' }
               ],
               series: [
                 {},
