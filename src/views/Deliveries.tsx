@@ -269,7 +269,7 @@ export default function Deliveries() {
           {(viewMode === 'form' || viewMode === 'cash') && (
             <button 
               onClick={() => setShowForm(true)}
-              className="xl:hidden bg-slate-900 text-white px-3 py-2 text-[10px] tracking-widest flex items-center gap-1 shrink-0"
+              className="xl:hidden bg-slate-900 text-white px-2 py-2 sm:px-3 sm:py-2 text-[10px] tracking-widest flex items-center gap-1 shrink-0 whitespace-nowrap"
             >
               <Plus className="w-3.5 h-3.5" /> {t('add_item')}
             </button>
@@ -280,23 +280,23 @@ export default function Deliveries() {
         <div className="grid grid-cols-3 gap-1 md:gap-2 mt-2 md:mt-0 w-full md:w-auto">
             <button 
               onClick={() => setViewMode('form')}
-              className={`px-1 py-2 md:px-4 md:py-3 text-[10px] md:text-xs tracking-tight md:tracking-wider transition-all flex flex-col md:flex-row items-center justify-center gap-1 md:gap-1.5 ${viewMode === 'form' ? 'bg-emerald-600 text-white' : 'bg-white text-black border border-slate-200 md:border-slate-100'}`}
+              className={`px-1 py-2 md:px-4 md:py-3 text-[10px] md:text-xs tracking-tight md:tracking-wider transition-all flex items-center justify-center gap-1 md:gap-1.5 whitespace-nowrap ${viewMode === 'form' ? 'bg-emerald-600 text-white' : 'bg-white text-black border border-slate-200 md:border-slate-100'}`}
             >
-              <span className="text-center leading-tight">{t('customer_sale')}</span>
+              <span className="text-center leading-tight whitespace-nowrap">{t('customer_sale')}</span>
               <div className="hidden lg:block"><InfoTooltip text="For regular registered customers with a full detail account." /></div>
             </button>
             <button 
               onClick={() => setViewMode('sheet')}
-              className={`px-1 py-2 md:px-4 md:py-3 text-[10px] md:text-xs tracking-tight md:tracking-wider transition-all flex flex-col md:flex-row items-center justify-center gap-1 md:gap-1.5 ${viewMode === 'sheet' ? 'bg-emerald-600 text-white' : 'bg-white text-black border border-slate-200 md:border-slate-100'}`}
+              className={`px-1 py-2 md:px-4 md:py-3 text-[10px] md:text-xs tracking-tight md:tracking-wider transition-all flex items-center justify-center gap-1 md:gap-1.5 whitespace-nowrap ${viewMode === 'sheet' ? 'bg-emerald-600 text-white' : 'bg-white text-black border border-slate-200 md:border-slate-100'}`}
             >
-              <span className="text-center leading-tight">{t('quick_dispatch')}</span>
+              <span className="text-center leading-tight whitespace-nowrap">{t('quick_dispatch')}</span>
               <div className="hidden lg:block"><InfoTooltip text="Quickly enter daily fixed quantity deliveries for all customers." /></div>
             </button>
             <button 
               onClick={() => setViewMode('cash')}
-              className={`px-1 py-2 md:px-4 md:py-3 text-[10px] md:text-xs tracking-tight md:tracking-wider transition-all flex flex-col md:flex-row items-center justify-center gap-1 md:gap-1.5 ${viewMode === 'cash' ? 'bg-violet-600 text-white' : 'bg-white text-black border border-slate-200 md:border-slate-100'}`}
+              className={`px-1 py-2 md:px-4 md:py-3 text-[10px] md:text-xs tracking-tight md:tracking-wider transition-all flex items-center justify-center gap-1 md:gap-1.5 whitespace-nowrap ${viewMode === 'cash' ? 'bg-violet-600 text-white' : 'bg-white text-black border border-slate-200 md:border-slate-100'}`}
             >
-              <span className="text-center leading-tight">{t('cash_sale')}</span>
+              <span className="text-center leading-tight whitespace-nowrap">{t('cash_sale')}</span>
               <div className="hidden lg:block"><InfoTooltip text="Walk-in sales without maintaining a customer full detail." /></div>
             </button>
         </div>

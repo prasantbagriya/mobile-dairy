@@ -336,7 +336,7 @@ export default function Collections() {
             {viewMode === 'form' && (
               <button 
                 onClick={() => setShowForm(true)}
-                className="xl:hidden bg-blue-600 text-white px-3 py-2 text-[10px] tracking-widest flex items-center gap-1 shrink-0"
+                className="xl:hidden bg-blue-600 text-white px-2 py-2 sm:px-3 sm:py-2 text-[10px] tracking-widest flex items-center gap-1 shrink-0 whitespace-nowrap"
               >
                 <Plus className="w-3.5 h-3.5" /> {t('add_item', 'Add Item')}
               </button>
@@ -345,15 +345,15 @@ export default function Collections() {
           <div className="flex gap-2 w-full md:w-auto shrink-0">
             <button 
               onClick={() => setViewMode('form')}
-              className={`flex-1 md:flex-none px-3 py-2.5 md:px-6 md:py-3 text-xs tracking-wider transition-all ${viewMode === 'form' ? 'bg-blue-600 text-white border border-blue-600' : 'bg-white text-black border border-slate-200'}`}
+              className={`flex-1 md:flex-none px-2 py-2.5 md:px-6 md:py-3 text-[10px] sm:text-xs tracking-wider transition-all whitespace-nowrap ${viewMode === 'form' ? 'bg-blue-600 text-white border border-blue-600' : 'bg-white text-black border border-slate-200'}`}
             >
               {t('single_entry')}
             </button>
             <button 
               onClick={() => setViewMode('sheet')}
-              className={`flex-1 md:flex-none px-3 py-2.5 md:px-6 md:py-3 text-xs tracking-wider transition-all ${viewMode === 'sheet' ? 'bg-blue-600 text-white border border-blue-600' : 'bg-white text-black border border-slate-200'}`}
+              className={`flex-1 md:flex-none px-2 py-2.5 md:px-6 md:py-3 text-[10px] sm:text-xs tracking-wider transition-all whitespace-nowrap ${viewMode === 'sheet' ? 'bg-blue-600 text-white border border-blue-600' : 'bg-white text-black border border-slate-200'}`}
             >
-              {t('daily_sheet')}
+              {t('batch_sheet')}
             </button>
           </div>
         </div>
