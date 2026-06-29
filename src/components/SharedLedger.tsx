@@ -461,10 +461,10 @@ const SharedLedger = memo(({ person, type, allPersons = [], onClose, onRefresh, 
           <div className="flex-1 w-full max-w-md flex flex-col justify-center py-6 px-4">
             <div className="bg-white w-full shadow-lg border border-slate-200 flex flex-col rounded-xl relative overflow-hidden">
               <div className="p-3 md:p-4 flex-1 flex flex-col w-full gap-3">
-              <div className="flex justify-between items-center p-2 md:p-3 bg-slate-50 border border-slate-200">
-                <span className="text-black text-[11px] md:text-sm font-bold">{isFarmer ? 'Current Balance' : 'Current Dues'}</span>
-                <div className="flex items-center gap-3">
-                  <span className={`text-lg md:text-xl font-bold ${isFarmer ? (localBalance >= 0 ? 'text-emerald-600' : 'text-red-600') : (localBalance > 0 ? 'text-red-500' : 'text-emerald-500')}`}>
+              <div className="flex justify-between items-center p-2 md:p-3 bg-slate-50 border border-slate-200 overflow-x-auto">
+                <span className="text-black text-[11px] md:text-sm font-bold whitespace-nowrap">{isFarmer ? 'Current Balance' : 'Current Dues'}</span>
+                <div className="flex items-center gap-2 md:gap-3 ml-2">
+                  <span className={`text-lg md:text-xl font-bold whitespace-nowrap ${isFarmer ? (localBalance >= 0 ? 'text-emerald-600' : 'text-red-600') : (localBalance > 0 ? 'text-red-500' : 'text-emerald-500')}`}>
                     ₹ {Math.abs(localBalance).toLocaleString()} {isFarmer ? (localBalance >= 0 ? '(Dr)' : '(Cr)') : (localBalance > 0 ? '(Dr)' : '(Cr)')}
                   </span>
                   {localBalance !== 0 && (
@@ -478,7 +478,7 @@ const SharedLedger = memo(({ person, type, allPersons = [], onClose, onRefresh, 
                           description: 'Full Balance Settlement'
                         });
                       }}
-                      className={`px-3 py-1.5 ${isFarmer ? 'bg-blue-100 text-blue-700 hover:bg-blue-200 border-blue-200' : 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200 border-emerald-200'} text-xs border font-bold shadow-sm`}
+                      className={`px-2 md:px-3 py-1.5 whitespace-nowrap ${isFarmer ? 'bg-blue-100 text-blue-700 hover:bg-blue-200 border-blue-200' : 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200 border-emerald-200'} text-xs border font-bold shadow-sm`}
                     >
                       Settle All
                     </button>
