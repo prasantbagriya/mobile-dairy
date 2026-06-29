@@ -23,12 +23,21 @@ android {
         abortOnError false
     }
 
+    signingConfigs {
+        release {
+            storeFile file("release.keystore")
+            storePassword "milkmaster123"
+            keyAlias "milkmaster"
+            keyPassword "milkmaster123"
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
         }
     }
 }

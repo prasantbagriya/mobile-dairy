@@ -1,0 +1,5 @@
+task printJavaHome {
+    doLast {
+        println "JAVA_HOME=" + System.getProperty("java.home")
+    }
+}
