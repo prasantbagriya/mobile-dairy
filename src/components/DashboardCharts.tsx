@@ -53,8 +53,8 @@ const DashboardCharts: React.FC<DashboardChartsProps> = memo(({
   return (
     <>
       {/* Collection Trend */}
-      <div className="bg-white p-4 border border-slate-200 col-span-2 lg:col-span-1">
-        <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+      <div className="bg-white p-2 sm:p-4 border border-slate-200 col-span-2 lg:col-span-1 flex flex-col h-full overflow-hidden">
+        <div className="shrink-0 flex flex-wrap items-center justify-between gap-2 mb-2 sm:mb-4">
           <h3 className="text-xs sm:text-sm text-slate-900 tracking-wide font-bold flex-1">{t("collection_vs_sales")} (L)</h3>
           <select
             value={chartFilter}
@@ -66,7 +66,7 @@ const DashboardCharts: React.FC<DashboardChartsProps> = memo(({
             <option value="monthly">{t("monthly")}</option>
           </select>
         </div>
-        <div className="h-60">
+        <div className="flex-1 min-h-0">
           <ResponsiveUplot 
             data={(() => {
               if (!chartData.length) return [[], [], []];
@@ -93,11 +93,11 @@ const DashboardCharts: React.FC<DashboardChartsProps> = memo(({
       </div>
 
       {/* Milk Quality Trend (New) */}
-      <div className="bg-white p-4 border border-slate-200 col-span-2 lg:col-span-1">
-        <div className="flex items-center justify-between gap-2 mb-4">
+      <div className="bg-white p-2 sm:p-4 border border-slate-200 col-span-2 lg:col-span-1 flex flex-col h-full overflow-hidden">
+        <div className="shrink-0 flex items-center justify-between gap-2 mb-2 sm:mb-4">
           <h3 className="text-xs sm:text-sm text-slate-900 tracking-wide font-bold">{t("milk_quality_trend", "Milk Quality Trend")} (FAT & SNF)</h3>
         </div>
-        <div className="h-60">
+        <div className="flex-1 min-h-0">
           <ResponsiveUplot 
             data={(() => {
               if (!qualityChartData.length) return [[], [], []];
@@ -124,11 +124,11 @@ const DashboardCharts: React.FC<DashboardChartsProps> = memo(({
       </div>
 
       {/* Revenue vs Expenses */}
-      <div className="bg-white p-4 border border-slate-200 col-span-2 lg:col-span-1">
-        <div className="flex items-center justify-between gap-2 mb-4">
+      <div className="bg-white p-2 sm:p-4 border border-slate-200 col-span-2 lg:col-span-1 flex flex-col h-full overflow-hidden">
+        <div className="shrink-0 flex items-center justify-between gap-2 mb-2 sm:mb-4">
           <h3 className="text-xs sm:text-sm text-slate-900 tracking-wide font-bold">Revenue vs Expenses (₹)</h3>
         </div>
-        <div className="h-60">
+        <div className="flex-1 min-h-0">
           <ResponsiveUplot 
             data={(() => {
               if (!financialChartData.length) return [[], [], []];
@@ -157,11 +157,11 @@ const DashboardCharts: React.FC<DashboardChartsProps> = memo(({
 
 
       {/* Expenses Breakdown */}
-      <div className="bg-white p-4 border border-slate-200 col-span-2 lg:col-span-1">
-        <div className="flex items-center justify-between gap-2 mb-4">
+      <div className="bg-white p-2 sm:p-4 border border-slate-200 col-span-2 lg:col-span-1 flex flex-col h-full overflow-hidden">
+        <div className="shrink-0 flex items-center justify-between gap-2 mb-2 sm:mb-4">
           <h3 className="text-xs sm:text-sm text-slate-900 tracking-wide font-bold">Expenses Breakdown</h3>
         </div>
-        <div className="h-60 flex flex-col items-center justify-center">
+        <div className="flex-1 min-h-0 flex flex-col items-center justify-center relative pb-8 md:pb-0">
           {expenseChartData.length > 0 ? (
             <div className="relative w-full max-w-[160px] aspect-square flex items-center justify-center mx-auto">
               <svg viewBox="0 0 100 100" className="w-full h-full transform -rotate-90">
@@ -205,7 +205,7 @@ const DashboardCharts: React.FC<DashboardChartsProps> = memo(({
              <div className="text-center text-black text-[10px] tracking-widest">No expenses recorded</div>
           )}
           {expenseChartData.length > 0 && (
-            <div className="w-full mt-4 flex flex-wrap gap-2 justify-center max-h-[80px] overflow-y-auto no-scrollbar">
+            <div className="w-full mt-2 sm:mt-4 flex flex-wrap gap-1 sm:gap-2 justify-center max-h-[60px] overflow-y-auto no-scrollbar pb-2">
               {[...expenseChartData].sort((a, b) => b.value - a.value).map((entry, index) => (
                 <div key={index} className="flex items-center gap-1 text-[8px] font-bold text-slate-700">
                   <div className="w-2 h-2" style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
