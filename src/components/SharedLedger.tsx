@@ -448,17 +448,19 @@ const SharedLedger = memo(({ person, type, allPersons = [], onClose, onRefresh, 
       </div>
 
       {showPaymentModal && (
-        <div className="fixed inset-0 bg-slate-900/60 z-[100] flex items-center justify-center p-4">
-          <div className="bg-white w-full h-auto max-h-[95vh] max-w-md overflow-y-auto shadow-2xl flex flex-col relative">
-            <div className={`${isFarmer ? 'bg-blue-600 border-blue-700' : 'bg-emerald-600 border-emerald-700'} p-3 text-white flex items-center justify-between border-b sticky top-0 z-10`}>
-              <div className="flex items-center gap-2">
-                <button onClick={() => setShowPaymentModal(false)} className={`p-1 ${isFarmer ? 'hover:bg-blue-700' : 'hover:bg-emerald-700'} transition-colors`}>
-                  <ArrowLeft className="w-4 h-4" />
-                </button>
-                <h3 className="text-base tracking-tight font-bold">Record Payment - {person.name}</h3>
-              </div>
+        <div className="fixed inset-0 bg-slate-50 z-[100] flex flex-col items-center overflow-y-auto">
+          <div className={`${isFarmer ? 'bg-blue-600 border-blue-700' : 'bg-emerald-600 border-emerald-700'} w-full p-3 text-white flex items-center justify-between sticky top-0 z-10 shadow-md`}>
+            <div className="flex items-center gap-2">
+              <button onClick={() => setShowPaymentModal(false)} className={`p-1 ${isFarmer ? 'hover:bg-blue-700' : 'hover:bg-emerald-700'} transition-colors`}>
+                <ArrowLeft className="w-4 h-4" />
+              </button>
+              <h3 className="text-base tracking-tight font-bold">Record Payment - {person.name}</h3>
             </div>
-            <div className="p-3 md:p-4 flex-1 flex flex-col max-w-xl mx-auto w-full gap-3">
+          </div>
+          
+          <div className="flex-1 w-full max-w-md flex flex-col justify-center py-6 px-4">
+            <div className="bg-white w-full shadow-lg border border-slate-200 flex flex-col rounded-xl relative overflow-hidden">
+              <div className="p-3 md:p-4 flex-1 flex flex-col w-full gap-3">
               <div className="flex justify-between items-center p-2 md:p-3 bg-slate-50 border border-slate-200">
                 <span className="text-black text-[11px] md:text-sm font-bold">{isFarmer ? 'Current Balance' : 'Current Dues'}</span>
                 <div className="flex items-center gap-3">
@@ -536,6 +538,7 @@ const SharedLedger = memo(({ person, type, allPersons = [], onClose, onRefresh, 
                     {isSaving ? 'Saving...' : 'Save & Next'}
                   </button>
                 )}
+              </div>
               </div>
             </div>
           </div>
