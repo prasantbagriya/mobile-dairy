@@ -276,7 +276,7 @@ export default function Dashboard({ onNavigate }: { onNavigate: (view: string) =
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           icon={Milk}
           title={t('today_collection')}
@@ -307,9 +307,9 @@ export default function Dashboard({ onNavigate }: { onNavigate: (view: string) =
         />
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 md:gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-2 gap-2 md:gap-4">
         <Suspense fallback={
-          <div className="lg:col-span-2 xl:col-span-1 h-60 flex items-center justify-center bg-white border border-slate-200">
+          <div className="col-span-2 h-60 flex items-center justify-center bg-white border border-slate-200">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
           </div>
         }>
@@ -324,52 +324,8 @@ export default function Dashboard({ onNavigate }: { onNavigate: (view: string) =
             expenseChartData={expenseChartData}
           />
         </Suspense>
-
-        {/* Recent Activity */}
-        <div className="bg-white p-4 border border-slate-200 flex flex-col h-full col-span-2 lg:col-span-3 xl:col-span-1">
-          <div className="flex items-center justify-between gap-2 mb-4">
-            <h3 className="text-xs sm:text-sm text-slate-900 tracking-wide font-bold flex-1 truncate">{t("recent_transactions")}</h3>
-            <button onClick={() => onNavigate('payments')} className="text-blue-600 text-[10px] hover:underline tracking-wide font-bold shrink-0">{t("view_all")}</button>
-          </div>
-          <div className="space-y-2 flex-1 max-h-[350px] overflow-y-auto custom-scrollbar pr-2">
-            {recentTransactions.length === 0 ? (
-              <div className="text-center py-8 text-black text-xs tracking-widest">
-                {t('no_records')}
-              </div>
-            ) : recentTransactions.map((tr) => (
-              <div key={tr.id} className="flex items-center justify-between py-2 border-b border-slate-200 last:border-0 hover:bg-slate-50 cursor-pointer">
-                <div className="flex items-center gap-3">
-                  <div className={`w-8 h-8 flex items-center justify-center border ${tr.type === 'credit' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-red-50 text-red-600 border-red-200'}`}>
-                    {tr.type === 'credit' ? <ArrowUpCircle className="w-4 h-4" /> : <ArrowDownCircle className="w-4 h-4" />}
-                  </div>
-                  <div>
-                    <h4 className="text-xs text-black tracking-tight font-bold">{tr.description || t('milk_settlement')}</h4>
-                    <p className="text-[9px] text-slate-500 tracking-tighter">{tr.date} • {tr.personType}</p>
-                  </div>
-                </div>
-                <div className="text-right flex items-center gap-3">
-                  <div className="text-right">
-                    <p className={`text-xs font-bold ${tr.type === 'credit' ? 'text-emerald-600' : 'text-red-600'}`}>
-                      ₹{tr.amount}
-                    </p>
-                    <p className="text-[9px] text-slate-500">{tr.method}</p>
-                  </div>
-                  <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-4 pt-4 border-t border-slate-200 grid grid-cols-2 gap-2 md:gap-3">
-            <button onClick={() => onNavigate('farmers')} className="flex items-center justify-center gap-1.5 p-2 md:p-3 bg-blue-50 text-blue-700 hover:bg-blue-100 text-[9px] md:text-[10px] tracking-wide border border-blue-200 w-full text-center font-bold whitespace-nowrap">
-              <Users className="w-3.5 h-3.5 md:w-4 md:h-4 shrink-0" /> {t('farmer_profiles')}
-            </button>
-            <button onClick={() => onNavigate('customers')} className="flex items-center justify-center gap-1.5 p-2 md:p-3 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-[9px] md:text-[10px] tracking-wide border border-emerald-200 w-full text-center font-bold whitespace-nowrap">
-              <Users className="w-3.5 h-3.5 md:w-4 md:h-4 shrink-0" /> {t('customer_ledgers')}
-            </button>
-          </div>
-        </div>
       </div>
+
     </div>
   );
 }
