@@ -18,9 +18,11 @@ const ResponsiveUplot = ({ options, data }) => {
     return () => observer.disconnect();
   }, []);
   return (
-    <div ref={containerRef} style={{ width: '100%', height: '100%' }} className="h-[200px] md:h-[250px]">
+    <div ref={containerRef} className="w-full h-full relative min-h-[200px]">
       {size.width > 0 && size.height > 0 && (
-        <UplotReact options={{ ...options, width: size.width, height: Math.max(100, size.height - 55) }} data={data} />
+        <div className="absolute top-0 left-0 w-full h-full">
+          <UplotReact options={{ ...options, width: size.width, height: size.height }} data={data} />
+        </div>
       )}
     </div>
   );
@@ -61,7 +63,7 @@ const DashboardCharts: React.FC<DashboardChartsProps> = memo(({
   return (
     <>
       {/* Collection Trend */}
-      <div className="bg-white p-2 sm:p-4 border border-slate-200 col-span-2 lg:col-span-1 flex flex-col h-full">
+      <div className="bg-white p-2 sm:p-4 border border-slate-200 col-span-2 lg:col-span-1 flex flex-col h-[300px]">
         <div className="shrink-0 flex flex-wrap items-center justify-between gap-2 mb-2 sm:mb-4">
           <h3 className="text-xs sm:text-sm text-slate-900 tracking-wide font-bold flex-1">{t("collection_vs_sales")} (L)</h3>
           <select
@@ -101,7 +103,7 @@ const DashboardCharts: React.FC<DashboardChartsProps> = memo(({
       </div>
 
       {/* Milk Quality Trend (New) */}
-      <div className="bg-white p-2 sm:p-4 border border-slate-200 col-span-2 lg:col-span-1 flex flex-col h-full">
+      <div className="bg-white p-2 sm:p-4 border border-slate-200 col-span-2 lg:col-span-1 flex flex-col h-[300px]">
         <div className="shrink-0 flex items-center justify-between gap-2 mb-2 sm:mb-4">
           <h3 className="text-xs sm:text-sm text-slate-900 tracking-wide font-bold">{t("milk_quality_trend", "Milk Quality Trend")} (FAT & SNF)</h3>
         </div>
@@ -132,7 +134,7 @@ const DashboardCharts: React.FC<DashboardChartsProps> = memo(({
       </div>
 
       {/* Revenue vs Expenses */}
-      <div className="bg-white p-2 sm:p-4 border border-slate-200 col-span-2 lg:col-span-1 flex flex-col h-full">
+      <div className="bg-white p-2 sm:p-4 border border-slate-200 col-span-2 lg:col-span-1 flex flex-col h-[300px]">
         <div className="shrink-0 flex items-center justify-between gap-2 mb-2 sm:mb-4">
           <h3 className="text-xs sm:text-sm text-slate-900 tracking-wide font-bold">Revenue vs Expenses (₹)</h3>
         </div>
@@ -165,7 +167,7 @@ const DashboardCharts: React.FC<DashboardChartsProps> = memo(({
 
 
       {/* Expenses Breakdown */}
-      <div className="bg-white p-2 sm:p-4 border border-slate-200 col-span-2 lg:col-span-1 flex flex-col h-full">
+      <div className="bg-white p-2 sm:p-4 border border-slate-200 col-span-2 lg:col-span-1 flex flex-col h-[300px]">
         <div className="shrink-0 flex items-center justify-between gap-2 mb-2 sm:mb-4">
           <h3 className="text-xs sm:text-sm text-slate-900 tracking-wide font-bold">Expenses Breakdown</h3>
         </div>
