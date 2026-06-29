@@ -25,7 +25,14 @@ export default function Farmers() {
   const [contacts, setContacts] = useState<any[]>([]);
   const [allContactsCache, setAllContactsCache] = useState<any[] | null>(null);
   const [searchingContacts, setSearchingContacts] = useState(false);
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>(window.innerWidth < 768 ? 'grid' : 'list');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>(() => {
+    const saved = localStorage.getItem('farmersViewMode');
+    return (saved as 'grid' | 'list') || 'list';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('farmersViewMode', viewMode);
+  }, [viewMode]);
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const tableContainerRef = useRef<HTMLDivElement>(null);
 

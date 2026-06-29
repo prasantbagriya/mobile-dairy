@@ -107,10 +107,14 @@ export default function Payments() {
       const transactionData = {
         ...formData,
         amount: amountNum,
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
+        userId: tenantId
       };
 
-      await addDoc(collection(db, 'transactions'), { ...transactionData, userId: tenantId });
+      const batch = writeBatch(db);
+      
+      const newTransactionRef = doc(collection(db, 'transactions'));
+      batch.set(newTransactionRef, transactionData);
 
       // Update balance
       // For farmer: credit = we owe them more, debit = we paid them (balance decreases)
@@ -125,7 +129,9 @@ export default function Payments() {
         balanceChange = formData.type === 'debit' ? amountNum : -amountNum;
       }
 
-      await updateDoc(personRef, { balance: increment(balanceChange) });
+      batch.update(personRef, { balance: increment(balanceChange) });
+
+      await batch.commit();
 
       setShowForm(false);
       setFormData({ ...formData, amount: '', description: '' });
@@ -152,33 +158,16 @@ export default function Payments() {
           <h2 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">{t('payments')} <InfoTooltip text="Manage incoming money from customers and outgoing to farmers." /></h2>
           <p className="text-black text-xs md:text-sm mt-1">{t('settle_dues_desc')}</p>
         </div>
-        <button
-          onClick={() => setShowForm(true)}
-          className="xl:hidden bg-slate-900 text-white px-3 py-2 text-[10px] uppercase tracking-widest flex items-center gap-1 shrink-0 shadow-sm"
-        >
-          <Plus className="w-3.5 h-3.5" /> {t('add_new')}
-        </button>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 items-start">
-        {/* Entry Form - Left Section */}
-        <div className={`xl:col-span-4 sticky top-4 ${showForm ? 'block' : 'hidden xl:block'}`}>
+      <div className="flex flex-col xl:grid xl:grid-cols-12 gap-4 items-start">
+        {/* Entry Form - Left Section (Top on mobile) */}
+        <div className="xl:col-span-4 sticky top-4 w-full">
           <div className="bg-white rounded-none border border-slate-200 overflow-hidden relative">
-            <button
-              onClick={() => setShowForm(false)}
-              aria-label="Close"
-              className="xl:hidden absolute top-4 right-4 text-white hover:text-slate-200 z-10"
-            >
-              <X className="w-5 h-5" />
-            </button>
             <div className="bg-indigo-600 p-4 text-white">
               <div className="flex items-center justify-between mb-4">
                 <div className="w-10 h-10 bg-white/20 rounded-none flex items-center justify-center">
                   <IndianRupee className="w-5 h-5" />
-                </div>
-                <div className="text-right">
-                  <p className="text-[10px]  opacity-60 mb-0.5">{t('total_amount')}</p>
-                  <h4 className="text-2xl ">₹ {parseFloat(formData.amount || '0').toLocaleString()}</h4>
                 </div>
               </div>
               <h3 className="text-xl ">{t('new_entry')}</h3>
@@ -186,15 +175,15 @@ export default function Payments() {
 
             <div className="p-4 space-y-4">
               <div className="space-y-3">
-                <div className="flex flex-col sm:flex-row p-1 bg-slate-100 rounded-none gap-1 sm:gap-0">
+                <div className="flex flex-row p-1 bg-slate-100 rounded-none gap-0">
                   <div className={`flex-1 flex justify-center py-2 rounded-none ${formData.personType === 'farmer' ? 'bg-white border border-slate-200' : ''}`}>
                     <button onClick={() => setFormData({ ...formData, personType: 'farmer', personId: '' })} className={`flex items-center justify-center gap-2 text-[10px] whitespace-nowrap w-full ${formData.personType === 'farmer' ? 'text-indigo-600' : 'text-black'}`}>
-                      {t('farmer')} <InfoTooltip text="Manage payments with milk suppliers" />
+                      {t('farmer')}
                     </button>
                   </div>
                   <div className={`flex-1 flex justify-center py-2 rounded-none ${formData.personType === 'customer' ? 'bg-white border border-slate-200' : ''}`}>
                     <button onClick={() => setFormData({ ...formData, personType: 'customer', personId: '' })} className={`flex items-center justify-center gap-2 text-[10px] whitespace-nowrap w-full ${formData.personType === 'customer' ? 'text-indigo-600' : 'text-black'}`}>
-                      {t('customer')} <InfoTooltip text="Manage payments with milk buyers" />
+                      {t('customer')}
                     </button>
                   </div>
                 </div>
@@ -227,15 +216,15 @@ export default function Payments() {
                   )}
                 </div>
 
-                <div className="flex flex-col sm:flex-row p-1 bg-slate-100 rounded-none gap-1 sm:gap-0">
+                <div className="flex flex-row p-1 bg-slate-100 rounded-none gap-0">
                   <div className={`flex-1 flex justify-center py-2 rounded-none ${formData.type === 'credit' ? 'bg-emerald-500' : ''}`}>
                     <button onClick={() => setFormData({ ...formData, type: 'credit' })} className={`flex items-center justify-center gap-2 text-[10px] whitespace-nowrap w-full ${formData.type === 'credit' ? 'text-white' : 'text-black'}`}>
-                      {t('credit')} <InfoTooltip text="Receiving money OR adding balance" />
+                      {t('credit')}
                     </button>
                   </div>
                   <div className={`flex-1 flex justify-center py-2 rounded-none ${formData.type === 'debit' ? 'bg-red-500' : ''}`}>
                     <button onClick={() => setFormData({ ...formData, type: 'debit' })} className={`flex items-center justify-center gap-2 text-[10px] whitespace-nowrap w-full ${formData.type === 'debit' ? 'text-white' : 'text-black'}`}>
-                      {t('debit')} <InfoTooltip text="Paying money OR deducting balance" />
+                      {t('debit')}
                     </button>
                   </div>
                 </div>
@@ -260,7 +249,22 @@ export default function Payments() {
                   </select>
                 </div>
 
-                <input type="text" placeholder={t('note_reference')} className="w-full bg-slate-50 border border-slate-100 rounded-none px-3 py-3 focus:ring-2 focus:ring-indigo-500 outline-none  text-black text-sm" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} />
+                <textarea 
+                  placeholder={t('note_reference')} 
+                  className="w-full bg-slate-50 border border-slate-100 rounded-none px-3 py-3 focus:ring-2 focus:ring-indigo-500 outline-none text-black text-sm resize-none overflow-hidden" 
+                  rows={1}
+                  value={formData.description} 
+                  onChange={e => setFormData({ ...formData, description: e.target.value })} 
+                  onInput={(e) => {
+                    e.currentTarget.style.height = 'auto';
+                    e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px';
+                  }}
+                />
+              </div>
+
+              <div className="bg-indigo-50/50 border border-indigo-100 p-4 mt-2 flex items-center justify-between">
+                <span className="text-sm font-bold text-slate-800">{t("total_amount")}</span>
+                <span className="text-2xl font-bold text-indigo-600">₹ {parseFloat(formData.amount || '0').toLocaleString()}</span>
               </div>
 
               <button onClick={handleSave} className="w-full px-4 py-4 rounded-none  bg-slate-900 text-white hover:bg-black flex items-center justify-center gap-2 text-sm">
@@ -270,8 +274,8 @@ export default function Payments() {
           </div>
         </div>
 
-        {/* History Section - Right Section */}
-        <div className={`xl:col-span-8 space-y-4 ${showForm ? 'hidden xl:block' : 'block'}`}>
+        {/* History Section - Right Section (Bottom on mobile) */}
+        <div className="xl:col-span-8 space-y-4 w-full">
           {requests.length > 0 && (
             <div className="bg-amber-50 rounded-none border border-amber-200 p-4">
               <div className="flex items-center justify-between mb-3">

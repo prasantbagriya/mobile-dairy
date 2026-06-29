@@ -24,7 +24,14 @@ export default function Customers() {
   const [contacts, setContacts] = useState<any[]>([]);
   const [allContactsCache, setAllContactsCache] = useState<any[] | null>(null);
   const [searchingContacts, setSearchingContacts] = useState(false);
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>(window.innerWidth < 768 ? 'grid' : 'list');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>(() => {
+    const saved = localStorage.getItem('customersViewMode');
+    return (saved as 'grid' | 'list') || 'list';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('customersViewMode', viewMode);
+  }, [viewMode]);
   const { accessToken, user, tenantId, connectGoogle, registerCustomerLogin } = useAuth();
   const tableContainerRef = useRef<HTMLDivElement>(null);
 

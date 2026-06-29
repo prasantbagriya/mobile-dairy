@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MilkDelivery } from '../types';
 import { db } from '../lib/db';
-import { doc, getDoc, updateDoc, increment, writeBatch } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, increment, writeBatch, runTransaction } from 'firebase/firestore';
 import { X, Save, Calculator } from 'lucide-react';
 import { useAuth } from '../lib/auth';
 
@@ -47,53 +47,59 @@ export default function EditDeliveryModal({ isOpen, onClose, delivery, onSuccess
     setLoading(true);
 
     try {
-      if (delivery.customerId !== 'CASH_SALE') {
-        const customerRef = doc(db, 'customers', delivery.customerId);
-        const customerSnap = await getDoc(customerRef);
-        if (customerSnap.exists()) {
-           const cData = customerSnap.data();
-           if (cData.lastSettledDate && delivery.date <= cData.lastSettledDate) {
-              alert("This entry is already settled and cannot be edited.");
-              setLoading(false);
-              return;
-           }
-        }
-      }
-
-      const newQty = parseFloat(formData.quantity);
-      const newRate = parseFloat(formData.rate);
-      const newAmount = formData.amount;
-      const oldAmount = delivery.amount;
-
-      const difference = newAmount - oldAmount;
-      const currentEditCount = delivery.editCount || 0;
-
-      const batch = writeBatch(db);
-      
-      // Update milk delivery
       const delRef = doc(db, 'milk_deliveries', delivery.id);
-      batch.update(delRef, {
-        quantity: newQty,
-        rate: newRate,
-        amount: newAmount,
-        editCount: currentEditCount + 1,
-        updatedAt: new Date().toISOString()
+
+      await runTransaction(db, async (transaction) => {
+        let customerRef = null;
+        if (delivery.customerId !== 'CASH_SALE') {
+          customerRef = doc(db, 'customers', delivery.customerId);
+          const customerSnap = await transaction.get(customerRef);
+          
+          if (customerSnap.exists()) {
+             const cData = customerSnap.data() as any;
+             if (cData?.lastSettledDate && delivery.date <= cData.lastSettledDate) {
+                throw new Error("This entry is already settled and cannot be edited.");
+             }
+          } else {
+             throw new Error("Customer document does not exist.");
+          }
+        }
+
+        const delSnap = await transaction.get(delRef);
+        if (!delSnap.exists()) {
+          throw new Error("Delivery document does not exist.");
+        }
+
+        const liveDelData = delSnap.data() as any;
+        const oldAmount = liveDelData?.amount || 0;
+
+        const newQty = parseFloat(formData.quantity);
+        const newRate = parseFloat(formData.rate);
+        const newAmount = formData.amount;
+        
+        const difference = newAmount - oldAmount;
+        const currentEditCount = liveDelData.editCount || 0;
+
+        transaction.update(delRef, {
+          quantity: newQty,
+          rate: newRate,
+          amount: newAmount,
+          editCount: currentEditCount + 1,
+          updatedAt: new Date().toISOString()
+        });
+
+        if (customerRef && delivery.customerId !== 'CASH_SALE') {
+          transaction.update(customerRef, {
+            balance: increment(difference) // Increased delivery amount increases their balance/debt
+          });
+        }
       });
 
-      // Update customer balance if not cash sale
-      if (delivery.customerId !== 'CASH_SALE') {
-        const customerRef = doc(db, 'customers', delivery.customerId);
-        batch.update(customerRef, {
-          balance: increment(difference) // Increased delivery amount increases their balance/debt
-        });
-      }
-
-      await batch.commit();
       onSuccess();
       onClose();
-    } catch (e) {
+    } catch (e: any) {
       console.error("Error updating milk delivery:", e);
-      alert("Failed to update entry.");
+      alert(e.message || "Failed to update entry.");
     } finally {
       setLoading(false);
     }

@@ -33,6 +33,7 @@ export default function Deliveries() {
   const [showSheetFilters, setShowSheetFilters] = useState(false);
   const [sheetData, setSheetData] = useState<Record<string, { quantity: string, rate: string }>>({});
   const [existingSessions, setExistingSessions] = useState<Record<string, Set<'morning' | 'evening'>>>({});
+  const [deliverySearch, setDeliverySearch] = useState('');
   const tableContainerRef = useRef<HTMLDivElement>(null);
 
   const filteredCustomers = useMemo(() => {
@@ -73,7 +74,7 @@ export default function Deliveries() {
     const unsubDels = onSnapshot(qDel, (snap) => {
       const dels = snap.docs.map(d => ({ id: d.id, ...d.data() } as MilkDelivery));
       dels.sort((a, b) => new Date(b.createdAt || b.date).getTime() - new Date(a.createdAt || a.date).getTime());
-      setRecentDeliveries(dels.slice(0, 10));
+      setRecentDeliveries(dels);
     });
 
     setLoading(false);
@@ -152,7 +153,7 @@ export default function Deliveries() {
   }
 
   useEffect(() => {
-    setFormData(prev => ({ ...prev, amount: (parseFloat(prev.quantity) || 0) * (parseFloat(prev.rate) || 0) }));
+    setFormData(prev => ({ ...prev, amount: parseFloat(((parseFloat(prev.quantity) || 0) * (parseFloat(prev.rate) || 0)).toFixed(2)) }));
   }, [formData.quantity, formData.rate]);
 
   async function handleSave(moveToNext = true) {
@@ -165,13 +166,11 @@ export default function Deliveries() {
           customerName: 'Counter Cash Sale',
           quantity: parseFloat(formData.quantity) || 0,
           rate: parseFloat(formData.rate) || 0,
+          amount: parseFloat(((parseFloat(formData.quantity) || 0) * (parseFloat(formData.rate) || 0)).toFixed(2)),
           createdAt: new Date().toISOString(),
           userId: tenantId
         };
-        addDoc(collection(db, 'milk_deliveries'), data).catch(e => {
-          console.error("Error saving cash sale: ", e);
-          toast.error("Failed to sync cash sale: " + e.message);
-        });
+        await addDoc(collection(db, 'milk_deliveries'), data);
         
         setFormData({
           ...formData,
@@ -202,6 +201,7 @@ export default function Deliveries() {
         ...formData,
         quantity: parseFloat(formData.quantity) || 0,
         rate: parseFloat(formData.rate) || 0,
+        amount: parseFloat(((parseFloat(formData.quantity) || 0) * (parseFloat(formData.rate) || 0)).toFixed(2)),
         customerName: customers.find(c => c.id === formData.customerId)?.name,
         createdAt: new Date().toISOString(),
         userId: tenantId
@@ -212,10 +212,7 @@ export default function Deliveries() {
 
       batch.set(deliveryRef, data);
       batch.update(customerRef, { balance: increment(data.amount) });
-      batch.commit().catch(e => {
-        console.error("Batch commit failed: ", e);
-        toast.error("Failed to sync dispatch: " + e.message);
-      });
+      await batch.commit();
 
       if (moveToNext) {
         // Find Next Customer in sequence
@@ -323,10 +320,6 @@ export default function Deliveries() {
                 <div className="w-10 h-10 bg-white/20 rounded-none flex items-center justify-center">
                   <Plus className="w-5 h-5" />
                 </div>
-                <div className="text-right">
-                  <p className="text-[10px] tracking-tight  opacity-70 mb-0.5">{t('total_bill')}</p>
-                  <h4 className="text-2xl ">₹ {formData.amount.toFixed(2)}</h4>
-                </div>
               </div>
               <h3 className="text-lg  tracking-tight">{t('new_delivery')}</h3>
               <p className="text-emerald-100 text-[10px]  tracking-tight opacity-80 mt-0.5">{t('sale_information')}</p>
@@ -392,6 +385,11 @@ export default function Deliveries() {
                 </div>
               </div>
 
+              <div className={`p-4 mt-2 mb-4 flex items-center justify-between border ${viewMode === 'cash' ? 'bg-violet-50/50 border-violet-100' : 'bg-emerald-50/50 border-emerald-100'}`}>
+                <span className="text-sm font-bold text-slate-800">{t("total_bill")}</span>
+                <span className={`text-2xl font-bold ${viewMode === 'cash' ? 'text-violet-600' : 'text-emerald-600'}`}>₹ {formData.amount.toFixed(2)}</span>
+              </div>
+
               {viewMode === 'cash' ? (
                 <button onClick={() => handleSave(true)} className="w-full px-4 py-4 rounded-none text-xs tracking-wider transition flex items-center justify-center gap-3 bg-violet-600 hover:bg-violet-700 text-white">
                   <Save className="w-5 h-5" /> {t('save_cash_sale')}
@@ -418,6 +416,17 @@ export default function Deliveries() {
                 <History className="w-4 h-4" />
                 {t('latest_deliveries')}
               </h3>
+              <div className="flex gap-2">
+                <div className="relative">
+                  <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-black" />
+                  <input 
+                    placeholder={t("search_placeholder")} 
+                    className="pl-9 pr-3 py-1.5 bg-slate-50 rounded-none text-[10px] border border-slate-100 outline-none focus:ring-1 focus:ring-emerald-100 w-40" 
+                    value={deliverySearch}
+                    onChange={(e) => setDeliverySearch(e.target.value)}
+                  />
+                </div>
+              </div>
             </div>
             <div className="max-h-[calc(100vh-220px)] md:max-h-[600px] overflow-y-auto overflow-x-auto custom-scrollbar">
               <table className="w-full text-left border-collapse min-w-[500px]">
@@ -431,7 +440,7 @@ export default function Deliveries() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50 text-black">
-                  {recentDeliveries.map(del => (
+                  {recentDeliveries.filter(del => (del.customerName || '').toLowerCase().includes(deliverySearch.toLowerCase()) || del.date.includes(deliverySearch)).map(del => (
                     <tr key={del.id} className={del.customerId === 'CASH_SALE' ? 'bg-amber-50/30' : ''}>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="">{del.date}</span>
@@ -494,12 +503,12 @@ export default function Deliveries() {
         ) : viewMode === 'sheet' ? (
           <div className="xl:col-span-12 bg-white border border-slate-100 overflow-hidden animate-in fade-in zoom-in-95 duration-300">
             <div className="p-6 bg-slate-50 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
-               <div>
+               <div className="flex items-center justify-between w-full md:w-auto">
                   <h3 className="text-sm md:text-base font-bold tracking-tight flex items-center gap-2 text-slate-900">
                     {t('daily_dispatch_sheet', 'Daily Dispatch Route Sheet')} <InfoTooltip text={t('dispatch_tooltip', 'Confirm deliveries based on customer fixed quantities')} />
                   </h3>
-                  <button onClick={() => setShowSheetFilters(!showSheetFilters)} className="md:hidden mt-3 w-full flex items-center justify-center gap-2 bg-slate-100 text-slate-700 py-2 px-4 text-xs font-medium border border-slate-200">
-                    <Filter className="w-4 h-4" /> {showSheetFilters ? t('hide_filters', 'Hide Filters') : t('show_filters', 'Show Filters')}
+                  <button onClick={() => setShowSheetFilters(!showSheetFilters)} className="md:hidden flex items-center justify-center gap-1.5 bg-slate-100 text-slate-700 py-1.5 px-3 text-[10px] font-medium border border-slate-200 ml-2 shrink-0">
+                    <Filter className="w-3.5 h-3.5" /> {showSheetFilters ? t('hide', 'Hide') : t('filter', 'Filter')}
                   </button>
                </div>
                 <div className={`flex flex-col md:flex-row items-stretch md:items-center gap-4 bg-white p-3 border border-slate-200 w-full md:w-auto ${showSheetFilters ? 'flex' : 'hidden md:flex'}`}>
@@ -544,94 +553,100 @@ export default function Deliveries() {
                         <th className="px-3 md:px-6 py-4 md:py-5 whitespace-nowrap text-center">{t('status_confirm', 'Status / Confirm')}</th>
                       </tr>
                     </thead>
-                    <tbody style={{ height: `${rowVirtualizer.getTotalSize()}px`, position: 'relative' }} className="divide-y divide-slate-100">
-                      {rowVirtualizer.getVirtualItems().map((virtualRow) => {
-                        const c = filteredCustomers[virtualRow.index];
-                        const rowData = sheetData[c.id!] || { quantity: '', rate: '' };
-                        const qty = parseFloat(rowData.quantity) || 0;
-                        const rate = parseFloat(rowData.rate) || 0;
-                        const amount = qty * rate;
-                        const isSaved = (rowData as any).saved;
-
+                    <tbody className="divide-y divide-slate-100">
+                      {(() => {
+                        const virtualItems = rowVirtualizer.getVirtualItems();
+                        const paddingTop = virtualItems.length > 0 ? virtualItems[0].start : 0;
+                        const paddingBottom = virtualItems.length > 0
+                          ? rowVirtualizer.getTotalSize() - virtualItems[virtualItems.length - 1].end
+                          : 0;
+                        
                         return (
-                          <tr key={c.id} 
-                            style={{
-                              position: 'absolute',
-                              top: 0,
-                              left: 0,
-                              width: '100%',
-                              height: `${virtualRow.size}px`,
-                              transform: `translateY(${virtualRow.start}px)`
-                            }}
-                            className={`${isSaved ? 'bg-emerald-50/30' : 'hover:bg-slate-50/80'}`}
-                          >
-                        <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
-                            <span className={`w-6 h-6 flex items-center justify-center  rounded-none text-[10px] ${isSaved ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-black'}`}>
-                              {c.sequence || virtualRow.index + 1}
-                            </span>
-                        </td>
-                        <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
-                          <p className={` tracking-tight text-sm ${isSaved ? 'text-emerald-700' : 'text-slate-900'}`}>{c.name}</p>
-                          <p className="text-[10px] text-black  tracking-widest">{c.mobile}</p>
-                        </td>
-                        <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
-                          <input 
-                            type="number" inputMode="decimal" pattern="[0-9]*" 
-                            disabled={isSaved}
-                            placeholder="0.0"
-                            id={`del-qty-${virtualRow.index}`}
-                            className="w-20 md:w-24 bg-slate-50 border border-slate-200 px-2 md:px-3 py-2 md:py-2.5  text-black focus:bg-white focus:border-emerald-500 outline-none text-sm disabled:opacity-50"
-                            value={rowData.quantity}
-                            onKeyDown={(e) => {
-                              if (e.key === ' ') {
-                                e.preventDefault();
-                                document.getElementById(`del-rate-${virtualRow.index}`)?.focus();
-                              } else if (e.key === 'Enter') {
-                                e.preventDefault();
-                                handleSaveSheetRow(c.id!);
-                                setTimeout(() => {
-                                  document.getElementById(`del-qty-${virtualRow.index + 1}`)?.focus();
-                                }, 100);
-                              }
-                            }}
-                            onChange={(e) => setSheetData({...sheetData, [c.id!]: {...rowData, quantity: e.target.value}})}
-                          />
-                        </td>
-                        <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
-                          <input 
-                            type="number" inputMode="decimal" pattern="[0-9]*" 
-                            disabled={isSaved}
-                            placeholder="0.0"
-                            id={`del-rate-${virtualRow.index}`}
-                            className="w-16 bg-slate-50 border border-slate-200 px-2 md:px-3 py-2 md:py-2.5  text-black focus:bg-white focus:border-emerald-500 outline-none text-sm disabled:opacity-50"
-                            value={rowData.rate}
-                            onKeyDown={(e) => {
-                              if (e.key === ' ' || e.key === 'Enter') {
-                                e.preventDefault();
-                                handleSaveSheetRow(c.id!);
-                                setTimeout(() => {
-                                  document.getElementById(`del-qty-${virtualRow.index + 1}`)?.focus();
-                                }, 100);
-                              }
-                            }}
-                            onChange={(e) => setSheetData({...sheetData, [c.id!]: {...rowData, rate: e.target.value}})}
-                          />
-                        </td>
-                        <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
-                           <span className="text-sm md:text-base text-slate-900 font-mono">₹ {amount.toFixed(2)}</span>
-                        </td>
-                        <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap text-center">
-                          <button 
-                            disabled={isSaved || !rowData.quantity}
-                            onClick={() => handleSaveSheetRow(c.id!)}
-                             className={`min-w-[100px] px-4 py-2.5  text-[10px] tracking-wider ${isSaved ? 'bg-emerald-500 text-white cursor-not-allowed' : 'bg-slate-900 text-white hover:bg-emerald-600'}`}
-                          >
-                            {isSaved ? t('confirmed', 'Confirmed') : t('confirm_box', 'Confirm Box')}
-                          </button>
-                        </td>
-                      </tr>
+                          <>
+                            {paddingTop > 0 && <tr><td style={{ height: `${paddingTop}px` }} colSpan={6} /></tr>}
+                            {virtualItems.map((virtualRow) => {
+                              const c = filteredCustomers[virtualRow.index];
+                              const rowData = sheetData[c.id!] || { quantity: '', rate: '' };
+                              const qty = parseFloat(rowData.quantity) || 0;
+                              const rate = parseFloat(rowData.rate) || 0;
+                              const amount = qty * rate;
+                              const isSaved = (rowData as any).saved;
+
+                              return (
+                                <tr key={c.id} 
+                                  className={`${isSaved ? 'bg-emerald-50/30' : 'hover:bg-slate-50/80'}`}
+                                >
+                                  <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
+                                      <span className={`w-6 h-6 flex items-center justify-center rounded-none text-[10px] ${isSaved ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-black'}`}>
+                                        {c.sequence || virtualRow.index + 1}
+                                      </span>
+                                  </td>
+                                  <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
+                                    <p className={`tracking-tight text-sm ${isSaved ? 'text-emerald-700' : 'text-slate-900'}`}>{c.name}</p>
+                                    <p className="text-[10px] text-black tracking-widest">{c.mobile}</p>
+                                  </td>
+                                  <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
+                                    <input 
+                                      type="number" inputMode="decimal" pattern="[0-9]*" 
+                                      disabled={isSaved}
+                                      placeholder="0.0"
+                                      id={`del-qty-${virtualRow.index}`}
+                                      className="w-20 md:w-24 bg-slate-50 border border-slate-200 px-2 md:px-3 py-2 md:py-2.5 text-black focus:bg-white focus:border-emerald-500 outline-none text-sm disabled:opacity-50"
+                                      value={rowData.quantity}
+                                      onKeyDown={(e) => {
+                                        if (e.key === ' ') {
+                                          e.preventDefault();
+                                          document.getElementById(`del-rate-${virtualRow.index}`)?.focus();
+                                        } else if (e.key === 'Enter') {
+                                          e.preventDefault();
+                                          handleSaveSheetRow(c.id!);
+                                          setTimeout(() => {
+                                            document.getElementById(`del-qty-${virtualRow.index + 1}`)?.focus();
+                                          }, 100);
+                                        }
+                                      }}
+                                      onChange={(e) => setSheetData({...sheetData, [c.id!]: {...rowData, quantity: e.target.value}})}
+                                    />
+                                  </td>
+                                  <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
+                                    <input 
+                                      type="number" inputMode="decimal" pattern="[0-9]*" 
+                                      disabled={isSaved}
+                                      placeholder="0.0"
+                                      id={`del-rate-${virtualRow.index}`}
+                                      className="w-16 bg-slate-50 border border-slate-200 px-2 md:px-3 py-2 md:py-2.5 text-black focus:bg-white focus:border-emerald-500 outline-none text-sm disabled:opacity-50"
+                                      value={rowData.rate}
+                                      onKeyDown={(e) => {
+                                        if (e.key === ' ' || e.key === 'Enter') {
+                                          e.preventDefault();
+                                          handleSaveSheetRow(c.id!);
+                                          setTimeout(() => {
+                                            document.getElementById(`del-qty-${virtualRow.index + 1}`)?.focus();
+                                          }, 100);
+                                        }
+                                      }}
+                                      onChange={(e) => setSheetData({...sheetData, [c.id!]: {...rowData, rate: e.target.value}})}
+                                    />
+                                  </td>
+                                  <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
+                                     <span className="text-sm md:text-base text-slate-900 font-mono">₹ {amount.toFixed(2)}</span>
+                                  </td>
+                                  <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap text-center">
+                                    <button 
+                                      disabled={isSaved || !rowData.quantity}
+                                      onClick={() => handleSaveSheetRow(c.id!)}
+                                      className={`min-w-[100px] px-4 py-2.5 text-[10px] tracking-wider ${isSaved ? 'bg-emerald-500 text-white cursor-not-allowed' : 'bg-slate-900 text-white hover:bg-emerald-600'}`}
+                                    >
+                                      {isSaved ? t('confirmed', 'Confirmed') : t('confirm_box', 'Confirm Box')}
+                                    </button>
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                            {paddingBottom > 0 && <tr><td style={{ height: `${paddingBottom}px` }} colSpan={6} /></tr>}
+                          </>
                         );
-                      })}
+                      })()}
                     </tbody>
                   </table>
                 </div>

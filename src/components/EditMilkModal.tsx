@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MilkCollection, AppSettings } from '../types';
 import { db } from '../lib/db';
-import { doc, getDoc, updateDoc, increment, writeBatch } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, increment, writeBatch, runTransaction } from 'firebase/firestore';
 import { X, Save, Calculator } from 'lucide-react';
 import { useAuth } from '../lib/auth';
 
@@ -80,51 +80,53 @@ export default function EditMilkModal({ isOpen, onClose, collection, onSuccess }
 
     try {
       const farmerRef = doc(db, 'farmers', collection.farmerId);
-      const farmerSnap = await getDoc(farmerRef);
-      if (farmerSnap.exists()) {
-         const fData = farmerSnap.data();
-         if (fData.lastSettledDate && collection.date <= fData.lastSettledDate) {
-            alert("This entry is already settled and cannot be edited.");
-            setLoading(false);
-            return;
-         }
-      }
-
-      const newQty = parseFloat(formData.quantity);
-      const newFat = parseFloat(formData.fat);
-      const newSnf = parseFloat(formData.snf);
-      const newRate = parseFloat(formData.rate);
-      const newAmount = formData.amount;
-      const oldAmount = collection.amount;
-
-      const difference = newAmount - oldAmount;
-      const currentEditCount = collection.editCount || 0;
-
-      const batch = writeBatch(db);
-      
-      // Update milk collection
       const colRef = doc(db, 'milk_collections', collection.id);
-      batch.update(colRef, {
-        quantity: newQty,
-        fat: newFat,
-        snf: newSnf,
-        rate: newRate,
-        amount: newAmount,
-        editCount: currentEditCount + 1,
-        updatedAt: new Date().toISOString()
+
+      await runTransaction(db, async (transaction) => {
+        const farmerSnap = await transaction.get(farmerRef);
+        const colSnap = await transaction.get(colRef);
+
+        if (!farmerSnap.exists() || !colSnap.exists()) {
+          throw new Error("Document does not exist.");
+        }
+
+        const fData = farmerSnap.data() as any;
+        if (fData?.lastSettledDate && collection.date <= fData.lastSettledDate) {
+          throw new Error("This entry is already settled and cannot be edited.");
+        }
+
+        const liveColData = colSnap.data() as any;
+        const oldAmount = liveColData?.amount || 0;
+        
+        const newQty = parseFloat(formData.quantity);
+        const newFat = parseFloat(formData.fat);
+        const newSnf = parseFloat(formData.snf);
+        const newRate = parseFloat(formData.rate);
+        const newAmount = formData.amount;
+        
+        const difference = newAmount - oldAmount;
+        const currentEditCount = liveColData.editCount || 0;
+
+        transaction.update(colRef, {
+          quantity: newQty,
+          fat: newFat,
+          snf: newSnf,
+          rate: newRate,
+          amount: newAmount,
+          editCount: currentEditCount + 1,
+          updatedAt: new Date().toISOString()
+        });
+
+        transaction.update(farmerRef, {
+          balance: increment(difference)
+        });
       });
 
-      // Update farmer balance
-      batch.update(farmerRef, {
-        balance: increment(difference)
-      });
-
-      await batch.commit();
       onSuccess();
       onClose();
-    } catch (e) {
+    } catch (e: any) {
       console.error("Error updating milk collection:", e);
-      alert("Failed to update entry.");
+      alert(e.message || "Failed to update entry.");
     } finally {
       setLoading(false);
     }

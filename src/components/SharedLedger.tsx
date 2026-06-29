@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, memo } from 'react';
 import { db } from '../lib/db';
-import { collection, query, where, getDocs, orderBy, writeBatch, doc, onSnapshot } from 'firebase/firestore';
+import { collection, query, where, getDocs, orderBy, writeBatch, doc, onSnapshot, increment } from 'firebase/firestore';
 import { MilkCollection, MilkDelivery, Transaction, Farmer, Customer } from '../types';
 import { ArrowLeft, Calendar, FileText, IndianRupee, Printer, Trash2, ChevronLeft, ChevronRight, Settings, X, Info, Edit2 } from 'lucide-react';
 import dayjs from 'dayjs';
@@ -194,10 +194,10 @@ const SharedLedger = memo(({ person, type, allPersons = [], onClose, onRefresh, 
       }
       
       batch.update(doc(db, isFarmer ? 'farmers' : 'customers', person.id!), {
-        balance: localBalance + reverseChange
+        balance: increment(reverseChange)
       });
       await batch.commit();
-      setLocalBalance(localBalance + reverseChange);
+      setLocalBalance(prev => prev + reverseChange);
       toast.success("Transaction deleted successfully");
       onRefresh();
     } catch(e: any) {

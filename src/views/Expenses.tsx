@@ -99,10 +99,6 @@ export default function Expenses() {
                 <div className="w-9 h-9 bg-white/20 rounded-none flex items-center justify-center">
                   <Wallet className="w-5 h-5" />
                 </div>
-                <div className="text-right">
-                  <p className="text-[10px] opacity-60 mb-0.5">{t('new_voucher')}</p>
-                  <h4 className="text-xl">₹ {parseFloat(formData.amount || '0').toLocaleString()}</h4>
-                </div>
               </div>
               <h3 className="text-lg">{t('record_expense')}</h3>
             </div>
@@ -158,10 +154,19 @@ export default function Expenses() {
                 <label className="text-[10px] text-black tracking-tight block mb-1">{t('description')}</label>
                 <textarea
                   placeholder={t('purpose_of_expense')}
-                  className="w-full p-3 bg-slate-50 border border-slate-100 rounded-none outline-none focus:ring-2 focus:ring-red-500 min-h-[70px] text-sm"
+                  className="w-full p-3 bg-slate-50 border border-slate-100 rounded-none outline-none focus:ring-2 focus:ring-red-500 min-h-[70px] text-sm resize-none overflow-hidden"
                   value={formData.description}
                   onChange={e => setFormData({ ...formData, description: e.target.value })}
+                  onInput={(e) => {
+                    e.currentTarget.style.height = 'auto';
+                    e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px';
+                  }}
                 />
+              </div>
+
+              <div className="bg-red-50/50 border border-red-100 p-4 mt-2 flex items-center justify-between">
+                <span className="text-sm font-bold text-slate-800">{t("total_amount")}</span>
+                <span className="text-2xl font-bold text-red-600">₹ {parseFloat(formData.amount || '0').toLocaleString()}</span>
               </div>
 
               <button
