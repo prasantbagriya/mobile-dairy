@@ -43,9 +43,11 @@ export class ErrorBoundary extends React.Component<Props, State> {
             >
               Refresh Page
             </button>
-            {import.meta.env.DEV && this.state.error && (
-              <pre className="mt-6 p-4 bg-slate-100 rounded-lg text-left text-xs overflow-auto text-red-600 max-h-40">
+            {this.state.error && (
+              <pre className="mt-6 p-4 bg-slate-100 rounded-lg text-left text-xs overflow-auto text-red-600 max-h-60 whitespace-pre-wrap">
                 {this.state.error.message}
+                {'\n'}
+                {this.state.error.stack}
               </pre>
             )}
           </div>
