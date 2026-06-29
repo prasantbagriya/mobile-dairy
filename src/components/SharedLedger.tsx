@@ -448,8 +448,8 @@ const SharedLedger = memo(({ person, type, allPersons = [], onClose, onRefresh, 
       </div>
 
       {showPaymentModal && (
-        <div className="fixed inset-0 bg-slate-900/60 z-[100] flex items-start md:items-center justify-center p-0 md:p-4">
-          <div className="bg-white w-full h-[100dvh] md:h-auto md:max-h-[95vh] md:max-w-md overflow-y-auto border-none md:border border-slate-400 flex flex-col relative">
+        <div className="fixed inset-0 bg-slate-900/60 z-[100] flex items-center justify-center p-4">
+          <div className="bg-white w-full h-auto max-h-[95vh] max-w-md overflow-y-auto shadow-2xl flex flex-col relative">
             <div className={`${isFarmer ? 'bg-blue-600 border-blue-700' : 'bg-emerald-600 border-emerald-700'} p-3 text-white flex items-center justify-between border-b sticky top-0 z-10`}>
               <div className="flex items-center gap-2">
                 <button onClick={() => setShowPaymentModal(false)} className={`p-1 ${isFarmer ? 'hover:bg-blue-700' : 'hover:bg-emerald-700'} transition-colors`}>
