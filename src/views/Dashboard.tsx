@@ -255,7 +255,7 @@ export default function Dashboard({ onNavigate }: { onNavigate: (view: string) =
   ));
 
   return (
-    <div className="flex flex-col h-[calc(100vh-140px)] md:h-[calc(100vh-48px)] gap-2 overflow-hidden">
+    <div className="flex flex-col h-[calc(100vh-140px)] md:h-[calc(100vh-48px)] gap-2 overflow-y-auto overflow-x-hidden">
       <div className="shrink-0 flex items-center justify-between border-b border-slate-200 pb-2">
         <div>
           <h2 className="text-2xl text-slate-900 tracking-tight flex items-center gap-2 font-bold">
@@ -307,7 +307,7 @@ export default function Dashboard({ onNavigate }: { onNavigate: (view: string) =
         />
       </div>
 
-      <div className="flex-1 min-h-0 grid grid-cols-2 lg:grid-cols-2 gap-2 overflow-hidden">
+      <div className="flex-1 min-h-[800px] md:min-h-[500px] grid grid-cols-2 lg:grid-cols-2 gap-2">
         <Suspense fallback={
           <div className="col-span-2 h-60 flex items-center justify-center bg-white border border-slate-200">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
