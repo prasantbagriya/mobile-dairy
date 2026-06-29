@@ -555,8 +555,38 @@ export default function Farmers() {
           </div>
         </div>
       </div>
-    );
   }
+
+  const searchAndToggleUI = (className: string) => (
+    <div className={`bg-white p-2 rounded-none border border-slate-100 items-center justify-between gap-2 px-4 ${className}`}>
+      <div className="flex-1 flex items-center gap-2 min-w-[200px]">
+        <Search className="w-4 h-4 text-black" />
+        <input 
+          type="text" 
+          placeholder={t('search_placeholder')} 
+          className="flex-1 bg-transparent py-1.5 focus:outline-none text-black  placeholder:text-slate-300 text-sm"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </div>
+      <div className="flex items-center gap-1 border-l border-slate-100 pl-3">
+        <button 
+          onClick={() => setViewMode('grid')}
+          className={`p-1.5 rounded-none transition-colors ${viewMode === 'grid' ? 'bg-slate-100 text-slate-900' : 'text-black hover:text-black hover:bg-slate-50'}`}
+          title="Grid View"
+        >
+          <LayoutGrid className="w-4 h-4" />
+        </button>
+        <button 
+          onClick={() => setViewMode('list')}
+          className={`p-1.5 rounded-none transition-colors ${viewMode === 'list' ? 'bg-slate-100 text-slate-900' : 'text-black hover:text-black hover:bg-slate-50'}`}
+          title="List View"
+        >
+          <ListIcon className="w-4 h-4" />
+        </button>
+      </div>
+    </div>
+  );
 
   return (
     <div className="space-y-4 animate-in fade-in duration-500">
@@ -565,6 +595,8 @@ export default function Farmers() {
           <h2 className="text-xl md:text-2xl text-slate-900 tracking-tight flex items-center gap-1.5 md:gap-2 truncate">{t('farmers')} <InfoTooltip text="Manage milk suppliers (farmers) and their ledger accounts." /></h2>
           <p className="text-black text-[9px] md:text-[10px] tracking-widest mt-0.5 truncate">{farmers.length} {t('farmer')}</p>
         </div>
+        {searchAndToggleUI("hidden md:flex flex-1 max-w-md mx-4")}
+
         <div className="flex items-center gap-1.5 md:gap-2 shrink-0">
           <button 
             onClick={() => {
@@ -591,35 +623,8 @@ export default function Farmers() {
 
         {/* Farmer List Section */}
         <div className="space-y-4">
-          {/* Search Bar */}
-          <div className="bg-white p-2 rounded-none border border-slate-100 flex items-center justify-between gap-2 px-4">
-            <div className="flex-1 flex items-center gap-2">
-              <Search className="w-4 h-4 text-black" />
-              <input 
-                type="text" 
-                placeholder={t('search_placeholder')} 
-                className="flex-1 bg-transparent py-1.5 focus:outline-none text-black  placeholder:text-slate-300 text-sm"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
-            <div className="flex items-center gap-1 border-l border-slate-100 pl-3">
-              <button 
-                onClick={() => setViewMode('grid')}
-                className={`p-1.5 rounded-none transition-colors ${viewMode === 'grid' ? 'bg-slate-100 text-slate-900' : 'text-black hover:text-black hover:bg-slate-50'}`}
-                title="Grid View"
-              >
-                <LayoutGrid className="w-4 h-4" />
-              </button>
-              <button 
-                onClick={() => setViewMode('list')}
-                className={`p-1.5 rounded-none transition-colors ${viewMode === 'list' ? 'bg-slate-100 text-slate-900' : 'text-black hover:text-black hover:bg-slate-50'}`}
-                title="List View"
-              >
-                <ListIcon className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
+          {/* Search Bar - Mobile Only */}
+          {searchAndToggleUI("flex md:hidden")}
 
           {viewMode === 'grid' ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4">

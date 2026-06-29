@@ -4,7 +4,7 @@ import 'uplot/dist/uPlot.min.css';
 
 const ResponsiveUplot = ({ options, data }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [size, setSize] = useState({ width: 0, height: 240 });
+  const [size, setSize] = useState({ width: 0, height: 0 });
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -18,9 +18,9 @@ const ResponsiveUplot = ({ options, data }) => {
   }, []);
 
   return (
-    <div ref={containerRef} style={{ width: '100%', height: '220px' }} className="mb-10">
-      {size.width > 0 && (
-        <UplotReact options={{ ...options, width: size.width, height: 220 }} data={data} />
+    <div ref={containerRef} style={{ width: '100%', height: '100%' }} className="min-h-[180px]">
+      {size.width > 0 && size.height > 0 && (
+        <UplotReact options={{ ...options, width: size.width, height: size.height }} data={data} />
       )}
     </div>
   );
