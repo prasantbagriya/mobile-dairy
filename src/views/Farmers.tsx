@@ -691,100 +691,106 @@ export default function Farmers() {
             <div ref={tableContainerRef} className="bg-white border border-slate-100 overflow-auto no-scrollbar h-[calc(100vh-200px)] min-h-[400px]">
               <table className="w-full text-left border-collapse min-w-[800px] relative">
                 <thead className="sticky top-0 z-10 bg-slate-50 border-b border-slate-100 shadow-sm">
-                  <tr className="flex w-full items-center">
-                    <th className="px-2 py-1.5 text-[10px] text-black tracking-widest w-16 text-center whitespace-nowrap">{t("seq_no")}</th>
-                    <th className="px-2 py-1.5 text-[10px]  text-black tracking-widest flex-1">{t('farmer')}</th>
-                    <th className="px-2 py-1.5 text-[10px]  text-black tracking-widest w-24">{t("contact")}</th>
-                    <th className="px-2 py-1.5 text-[10px]  text-black tracking-widest w-24">{t('village')}</th>
-                    <th className="px-2 py-1.5 text-[10px]  text-black tracking-widest w-32 text-right">{t('balance')}</th>
-                    <th className="px-2 py-1.5 text-[10px]  text-black tracking-widest w-24 text-center">{t("actions")}</th>
+                  <tr className="bg-slate-50 border-b border-slate-100">
+                    <th className="px-2 md:px-6 py-1.5 md:py-2 text-[10px] text-black tracking-widest w-16 text-center whitespace-nowrap">{t("seq_no")}</th>
+                    <th className="px-2 md:px-6 py-1.5 md:py-2 text-[10px] text-black tracking-widest">{t('farmer')}</th>
+                    <th className="px-2 md:px-6 py-1.5 md:py-2 text-[10px] text-black tracking-widest">{t("contact")}</th>
+                    <th className="px-2 md:px-6 py-1.5 md:py-2 text-[10px] text-black tracking-widest">{t('village')}</th>
+                    <th className="px-2 md:px-6 py-1.5 md:py-2 text-[10px] text-black tracking-widest text-right">{t('balance')}</th>
+                    <th className="px-2 md:px-6 py-1.5 md:py-2 text-[10px] text-black tracking-widest text-center">{t("actions")}</th>
                   </tr>
                 </thead>
-                <tbody style={{ height: `${rowVirtualizer.getTotalSize()}px`, position: 'relative' }}>
-                  {rowVirtualizer.getVirtualItems().map((virtualRow) => {
-                    const farmer = filteredFarmers[virtualRow.index];
-                    if (!farmer) return null;
-                    const isDeactivated = farmer.isActive === false;
+                <tbody className="divide-y divide-slate-100">
+                  {(() => {
+                    const virtualItems = rowVirtualizer.getVirtualItems();
+                    const paddingTop = virtualItems.length > 0 ? virtualItems[0].start : 0;
+                    const paddingBottom = virtualItems.length > 0
+                      ? rowVirtualizer.getTotalSize() - virtualItems[virtualItems.length - 1].end
+                      : 0;
+
                     return (
-                      <tr key={farmer.id} 
-                        style={{
-                          position: 'absolute',
-                          top: 0,
-                          left: 0,
-                          width: '100%',
-                          height: `${virtualRow.size}px`,
-                          transform: `translateY(${virtualRow.start}px)`
-                        }}
-                        className={`border-b border-slate-50 hover:bg-slate-50 transition-colors flex w-full items-center ${isDeactivated ? 'opacity-75 grayscale bg-slate-50/50' : ''}`}
-                      >
-                        <td className="px-2 py-1.5 text-center w-16 shrink-0">
-                          <span className="text-xs font-mono font-medium bg-slate-100 px-2 py-1">{farmer.sequence || virtualRow.index + 1}</span>
-                        </td>
-                        <td className="px-2 py-1.5 flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <div className={`w-8 h-8 shrink-0 flex items-center justify-center  text-sm ${isDeactivated ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600'}`}>
-                              {(farmer.name || "?").charAt(0)}
-                            </div>
-                            <div className="flex flex-col truncate">
-                              <span className=" text-sm text-slate-900 truncate">{farmer.name}</span>
-                              {isDeactivated && <span className="text-[8px]  text-red-600 tracking-widest">{t('inactive')}</span>}
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-2 py-1.5 w-24 shrink-0">
-                          <span className="text-xs  text-black truncate block w-full">{farmer.mobile}</span>
-                        </td>
-                        <td className="px-2 py-1.5 w-24 shrink-0">
-                          <span className="text-xs  text-black truncate block w-full">{farmer.village}</span>
-                        </td>
-                        <td className="px-2 py-1.5 w-32 shrink-0 text-right">
-                          <span className={`text-xs block w-full truncate ${farmer.balance >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
-                            ₹ {Math.abs(farmer.balance).toLocaleString()} {farmer.balance >= 0 ? ' (Dr)' : ' (Cr)'}
-                          </span>
-                        </td>
-                        <td className="px-2 py-1.5 w-24 shrink-0">
-                          <div className="flex items-center justify-center gap-2">
-                            <button 
-                              onClick={() => setSelectedFarmer(farmer)}
-                              className="p-1.5 text-blue-600 hover:bg-blue-50 transition-colors"
-                              title="Full Detail"
+                      <>
+                        {paddingTop > 0 && <tr><td style={{ height: `${paddingTop}px` }} colSpan={6} /></tr>}
+                        {virtualItems.map((virtualRow) => {
+                          const farmer = filteredFarmers[virtualRow.index];
+                          if (!farmer) return null;
+                          const isDeactivated = farmer.isActive === false;
+                          return (
+                            <tr key={farmer.id} 
+                              className={`hover:bg-slate-50 transition-colors ${isDeactivated ? 'opacity-75 grayscale bg-slate-50/50' : ''}`}
                             >
-                              <FileText className="w-4 h-4" />
-                            </button>
-                            {isDeactivated ? (
-                              <button 
-                                onClick={() => handleActivate(farmer)}
-                                className="p-1.5 text-emerald-600 hover:bg-emerald-50 transition-colors"
-                                title="Turn On"
-                              >
-                                <Power className="w-4 h-4" />
-                              </button>
-                            ) : (
-                              <>
-                                <button 
-                                  onClick={() => {
-                                    setCurrentFarmer(farmer);
-                                    setShowForm(true);
-                                  }}
-                                  className="p-1.5 text-black hover:text-blue-600 hover:bg-blue-50 transition-colors"
-                                  title="Edit"
-                                >
-                                  <Edit2 className="w-4 h-4" />
-                                </button>
-                                <button 
-                                  onClick={() => setFarmerToDelete(farmer)}
-                                  className="p-1.5 text-black hover:text-red-600 hover:bg-red-50 transition-colors"
-                                  title="Delete"
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </button>
-                              </>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
+                              <td className="px-2 md:px-6 py-2.5 md:py-4 whitespace-nowrap text-center">
+                                <span className="text-xs font-mono font-medium bg-slate-100 px-2 py-1">{farmer.sequence || virtualRow.index + 1}</span>
+                              </td>
+                              <td className="px-2 md:px-6 py-2.5 md:py-4 whitespace-nowrap">
+                                <div className="flex items-center gap-2 md:gap-3">
+                                  <div className={`w-8 h-8 md:w-10 md:h-10 shrink-0 flex items-center justify-center text-sm font-medium ${isDeactivated ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600'}`}>
+                                    {(farmer.name || "?").charAt(0)}
+                                  </div>
+                                  <div className="flex flex-col truncate">
+                                    <span className="text-sm text-slate-900 truncate font-medium">{farmer.name}</span>
+                                    {isDeactivated && <span className="text-[10px] text-red-600 font-medium tracking-widest">{t('inactive')}</span>}
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="px-2 md:px-6 py-2.5 md:py-4 whitespace-nowrap">
+                                <span className="text-xs text-black block flex items-center gap-1"><Phone className="w-3 h-3"/> {farmer.mobile}</span>
+                              </td>
+                              <td className="px-2 md:px-6 py-2.5 md:py-4 whitespace-nowrap">
+                                <span className="text-xs text-black block flex items-center gap-1"><MapPin className="w-3 h-3"/> {farmer.village || 'N/A'}</span>
+                              </td>
+                              <td className="px-2 md:px-6 py-2.5 md:py-4 whitespace-nowrap text-right">
+                                <span className={`text-sm font-bold block ${farmer.balance >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
+                                  ₹ {Math.abs(farmer.balance).toLocaleString()} {farmer.balance >= 0 ? ' (Dr)' : ' (Cr)'}
+                                </span>
+                              </td>
+                              <td className="px-2 md:px-6 py-2.5 md:py-4 whitespace-nowrap text-center">
+                                <div className="flex items-center justify-center gap-2">
+                                  <button 
+                                    onClick={() => setSelectedFarmer(farmer)}
+                                    className="p-1.5 text-blue-600 hover:bg-blue-50 transition-colors"
+                                    title="Full Detail"
+                                  >
+                                    <FileText className="w-4 h-4" />
+                                  </button>
+                                  {isDeactivated ? (
+                                    <button 
+                                      onClick={() => handleActivate(farmer)}
+                                      className="p-1.5 text-emerald-600 hover:bg-emerald-50 transition-colors"
+                                      title="Turn On"
+                                    >
+                                      <Power className="w-4 h-4" />
+                                    </button>
+                                  ) : (
+                                    <>
+                                      <button 
+                                        onClick={() => {
+                                          setCurrentFarmer(farmer);
+                                          setShowForm(true);
+                                        }}
+                                        className="p-1.5 text-slate-600 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                                        title="Edit"
+                                      >
+                                        <Edit2 className="w-4 h-4" />
+                                      </button>
+                                      <button 
+                                        onClick={() => setFarmerToDelete(farmer)}
+                                        className="p-1.5 text-slate-600 hover:text-red-600 hover:bg-red-50 transition-colors"
+                                        title="Delete"
+                                      >
+                                        <Trash2 className="w-4 h-4" />
+                                      </button>
+                                    </>
+                                  )}
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                        {paddingBottom > 0 && <tr><td style={{ height: `${paddingBottom}px` }} colSpan={6} /></tr>}
+                      </>
                     );
-                  })}
+                  })()}
                 </tbody>
               </table>
             </div>
