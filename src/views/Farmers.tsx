@@ -553,6 +553,7 @@ export default function Farmers() {
               </button>
             </div>
           </div>
+        </div>
       </div>
     );
   }
