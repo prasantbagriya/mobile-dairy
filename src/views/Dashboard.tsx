@@ -307,7 +307,7 @@ export default function Dashboard({ onNavigate }: { onNavigate: (view: string) =
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 md:gap-4">
         <Suspense fallback={
           <div className="lg:col-span-2 xl:col-span-1 h-60 flex items-center justify-center bg-white border border-slate-200">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -326,7 +326,7 @@ export default function Dashboard({ onNavigate }: { onNavigate: (view: string) =
         </Suspense>
 
         {/* Recent Activity */}
-        <div className="bg-white p-4 border border-slate-200 flex flex-col h-full lg:col-span-2 xl:col-span-1">
+        <div className="bg-white p-4 border border-slate-200 flex flex-col h-full col-span-2 lg:col-span-3 xl:col-span-1">
           <div className="flex items-center justify-between gap-2 mb-4">
             <h3 className="text-xs sm:text-sm text-slate-900 tracking-wide font-bold flex-1 truncate">{t("recent_transactions")}</h3>
             <button onClick={() => onNavigate('payments')} className="text-blue-600 text-[10px] hover:underline tracking-wide font-bold shrink-0">{t("view_all")}</button>

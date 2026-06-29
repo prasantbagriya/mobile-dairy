@@ -580,93 +580,99 @@ export default function Customers() {
                     <th className="px-2 py-1.5 text-[10px]  text-black tracking-widest text-center">{t("actions")}</th>
                   </tr>
                 </thead>
-                <tbody style={{ height: `${rowVirtualizer.getTotalSize()}px`, position: 'relative' }}>
-                  {rowVirtualizer.getVirtualItems().map((virtualRow) => {
-                    const customer = filteredCustomers[virtualRow.index];
-                    const isDeactivated = customer.isActive === false;
+                <tbody className="divide-y divide-slate-100">
+                  {(() => {
+                    const virtualItems = rowVirtualizer.getVirtualItems();
+                    const paddingTop = virtualItems.length > 0 ? virtualItems[0].start : 0;
+                    const paddingBottom = virtualItems.length > 0
+                      ? rowVirtualizer.getTotalSize() - virtualItems[virtualItems.length - 1].end
+                      : 0;
+
                     return (
-                      <tr key={customer.id} 
-                        style={{
-                          position: 'absolute',
-                          top: 0,
-                          left: 0,
-                          width: '100%',
-                          height: `${virtualRow.size}px`,
-                          transform: `translateY(${virtualRow.start}px)`
-                        }}
-                        className={`border-b border-slate-50 hover:bg-slate-50 transition-colors ${isDeactivated ? 'opacity-75 grayscale bg-slate-50/50' : ''}`}
-                      >
-                        <td className="px-2 py-1.5">
-                          <span className="text-xs  text-black">#{customer.sequence || '?'}</span>
-                        </td>
-                        <td className="px-2 py-1.5">
-                          <div className="flex items-center gap-2">
-                            <div className={`w-8 h-8 flex items-center justify-center  text-sm ${isDeactivated ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600'}`}>
-                              {(customer.name || "?").charAt(0)}
-                            </div>
-                            <div className="flex flex-col">
-                              <span className=" text-sm text-slate-900">{customer.name}</span>
-                              {isDeactivated && <span className="text-[8px]  text-red-600 tracking-widest">Deactivated</span>}
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-2 py-1.5">
-                          <div className="flex flex-col">
-                            <span className="text-xs  text-black">{customer.mobile}</span>
-                            <span className="text-[10px] text-black line-clamp-1">{customer.address}</span>
-                          </div>
-                        </td>
-                        <td className="px-2 py-1.5">
-                          <span className="text-xs  text-black">₹ {customer.defaultRate || 'NAV'}/L</span>
-                        </td>
-                        <td className="px-2 py-1.5 text-right">
-                          <span className={`text-xs  ${customer.balance > 0 ? 'text-red-500' : 'text-emerald-500'}`}>
-                            ₹ {customer.balance}
-                          </span>
-                        </td>
-                        <td className="px-2 py-1.5">
-                          <div className="flex items-center justify-center gap-2">
-                            <button 
-                              onClick={() => setSelectedCustomer(customer)}
-                              className="p-1.5 text-blue-600 hover:bg-blue-50 transition-colors"
-                              title="Full Detail"
+                      <>
+                        {paddingTop > 0 && <tr><td style={{ height: `${paddingTop}px` }} colSpan={6} /></tr>}
+                        {virtualItems.map((virtualRow) => {
+                          const customer = filteredCustomers[virtualRow.index];
+                          const isDeactivated = customer.isActive === false;
+                          return (
+                            <tr key={customer.id} 
+                              className={`hover:bg-slate-50 transition-colors ${isDeactivated ? 'opacity-75 grayscale bg-slate-50/50' : ''}`}
                             >
-                              <FileText className="w-4 h-4" />
-                            </button>
-                            {isDeactivated ? (
-                              <button 
-                                onClick={() => handleActivate(customer)}
-                                className="p-1.5 text-emerald-600 hover:bg-emerald-50 transition-colors"
-                                title="Turn On"
-                              >
-                                <Power className="w-4 h-4" />
-                              </button>
-                            ) : (
-                              <>
-                                <button 
-                                  onClick={() => {
-                                    setCurrentCustomer(customer);
-                                    setShowForm(true);
-                                  }}
-                                  className="p-1.5 text-black hover:text-blue-600 hover:bg-blue-50 transition-colors"
-                                  title="Edit"
-                                >
-                                  <Edit2 className="w-4 h-4" />
-                                </button>
-                                <button 
-                                  onClick={() => setCustomerToDelete(customer)}
-                                  className="p-1.5 text-black hover:text-red-600 hover:bg-red-50 transition-colors"
-                                  title="Delete"
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </button>
-                              </>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
+                              <td className="px-2 md:px-6 py-2.5 md:py-4 whitespace-nowrap">
+                                <span className="text-xs text-black">#{customer.sequence || '?'}</span>
+                              </td>
+                              <td className="px-2 md:px-6 py-2.5 md:py-4 whitespace-nowrap">
+                                <div className="flex items-center gap-2 md:gap-3">
+                                  <div className={`w-8 h-8 md:w-10 md:h-10 flex items-center justify-center text-sm font-medium ${isDeactivated ? 'bg-red-50 text-red-600' : 'bg-slate-100 text-slate-700'}`}>
+                                    {(customer.name || "?").charAt(0)}
+                                  </div>
+                                  <div className="flex flex-col">
+                                    <span className="text-sm font-medium text-slate-900">{customer.name}</span>
+                                    {isDeactivated && <span className="text-[10px] text-red-600 font-medium">Deactivated</span>}
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="px-2 md:px-6 py-2.5 md:py-4 whitespace-nowrap">
+                                <div className="flex flex-col gap-1">
+                                  <span className="text-xs text-slate-700 flex items-center gap-1"><Phone className="w-3 h-3"/> {customer.mobile}</span>
+                                  <span className="text-[10px] text-slate-500 flex items-center gap-1"><MapPin className="w-3 h-3"/> {customer.address || 'N/A'}</span>
+                                </div>
+                              </td>
+                              <td className="px-2 md:px-6 py-2.5 md:py-4 whitespace-nowrap">
+                                <span className="text-xs font-medium text-slate-700">₹ {customer.defaultRate || 'NAV'}/L</span>
+                              </td>
+                              <td className="px-2 md:px-6 py-2.5 md:py-4 whitespace-nowrap text-right">
+                                <span className={`text-sm font-bold ${customer.balance > 0 ? 'text-red-600' : 'text-emerald-600'}`}>
+                                  ₹ {customer.balance}
+                                </span>
+                              </td>
+                              <td className="px-2 md:px-6 py-2.5 md:py-4 whitespace-nowrap text-center">
+                                <div className="flex items-center justify-center gap-2">
+                                  <button 
+                                    onClick={() => setSelectedCustomer(customer)}
+                                    className="p-1.5 text-blue-600 hover:bg-blue-50 transition-colors"
+                                    title="Full Detail"
+                                  >
+                                    <FileText className="w-4 h-4" />
+                                  </button>
+                                  {isDeactivated ? (
+                                    <button 
+                                      onClick={() => handleActivate(customer)}
+                                      className="p-1.5 text-emerald-600 hover:bg-emerald-50 transition-colors"
+                                      title="Turn On"
+                                    >
+                                      <Power className="w-4 h-4" />
+                                    </button>
+                                  ) : (
+                                    <>
+                                      <button 
+                                        onClick={() => {
+                                          setCurrentCustomer(customer);
+                                          setShowForm(true);
+                                        }}
+                                        className="p-1.5 text-slate-600 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                                        title="Edit"
+                                      >
+                                        <Edit2 className="w-4 h-4" />
+                                      </button>
+                                      <button 
+                                        onClick={() => setCustomerToDelete(customer)}
+                                        className="p-1.5 text-slate-600 hover:text-red-600 hover:bg-red-50 transition-colors"
+                                        title="Delete"
+                                      >
+                                        <Trash2 className="w-4 h-4" />
+                                      </button>
+                                    </>
+                                  )}
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                        {paddingBottom > 0 && <tr><td style={{ height: `${paddingBottom}px` }} colSpan={6} /></tr>}
+                      </>
                     );
-                  })}
+                  })()}
                 </tbody>
               </table>
             </div>

@@ -158,17 +158,31 @@ export default function Payments() {
           <h2 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">{t('payments')} <InfoTooltip text="Manage incoming money from customers and outgoing to farmers." /></h2>
           <p className="text-black text-xs md:text-sm mt-1">{t('settle_dues_desc')}</p>
         </div>
+        {!showForm && (
+          <button 
+            onClick={() => setShowForm(true)}
+            className="flex items-center gap-1 md:gap-2 bg-slate-900 text-white px-2.5 py-1.5 md:px-3 text-[10px] md:text-[11px] tracking-tight hover:bg-black whitespace-nowrap"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">{t('new_entry')}</span>
+            <span className="sm:hidden">{t('add_new')}</span>
+          </button>
+        )}
       </div>
 
       <div className="flex flex-col xl:grid xl:grid-cols-12 gap-4 items-start">
         {/* Entry Form - Left Section (Top on mobile) */}
-        <div className="xl:col-span-4 sticky top-4 w-full">
+        {showForm && (
+        <div className="xl:col-span-4 xl:sticky xl:top-4 w-full">
           <div className="bg-white rounded-none border border-slate-200 overflow-hidden relative">
             <div className="bg-indigo-600 p-4 text-white">
               <div className="flex items-center justify-between mb-4">
                 <div className="w-10 h-10 bg-white/20 rounded-none flex items-center justify-center">
                   <IndianRupee className="w-5 h-5" />
                 </div>
+                <button onClick={() => setShowForm(false)} className="p-1 hover:bg-white/10 transition-colors">
+                  <X className="w-5 h-5" />
+                </button>
               </div>
               <h3 className="text-xl ">{t('new_entry')}</h3>
             </div>
@@ -273,9 +287,10 @@ export default function Payments() {
             </div>
           </div>
         </div>
+        )}
 
         {/* History Section - Right Section (Bottom on mobile) */}
-        <div className="xl:col-span-8 space-y-4 w-full">
+        <div className={`space-y-4 w-full ${showForm ? 'xl:col-span-8' : 'xl:col-span-12'}`}>
           {requests.length > 0 && (
             <div className="bg-amber-50 rounded-none border border-amber-200 p-4">
               <div className="flex items-center justify-between mb-3">
