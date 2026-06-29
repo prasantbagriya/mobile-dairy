@@ -276,7 +276,7 @@ export default function Dashboard({ onNavigate }: { onNavigate: (view: string) =
       </div>
 
       {/* Stats Grid */}
-      <div className="shrink-0 grid grid-cols-2 lg:grid-cols-4 gap-2">
+      <div className="shrink-0 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
         <StatCard
           icon={Milk}
           title={t('today_collection')}
