@@ -169,9 +169,9 @@ export default function ProfitLoss() {
             </div>
           </div>
           <div className="flex items-center gap-2 border-slate-200 md:border-l md:pl-2 w-full md:w-auto justify-between md:justify-start">
-            <button onClick={() => setPreset('thisMonth')} className="flex-1 md:flex-none px-2 py-2 md:px-3 bg-slate-900 text-white text-[9px] md:text-[10px] uppercase tracking-wider hover:bg-slate-800">{t('this_month')}</button>
-            <button onClick={() => setPreset('lastMonth')} className="flex-1 md:flex-none px-2 py-2 md:px-3 bg-slate-900 text-white text-[9px] md:text-[10px] uppercase tracking-wider hover:bg-slate-800">{t('last_month')}</button>
-            <button onClick={() => setPreset('year')} className="flex-1 md:flex-none px-2 py-2 md:px-3 bg-slate-900 text-white text-[9px] md:text-[10px] uppercase tracking-wider hover:bg-slate-800">{t('this_year')}</button>
+            <button onClick={() => setPreset('thisMonth')} className="flex-1 md:flex-none px-2 py-2 md:px-3 bg-slate-900 text-white text-[9px] md:text-[10px] capitalize tracking-wider hover:bg-slate-800">{t('this_month')}</button>
+            <button onClick={() => setPreset('lastMonth')} className="flex-1 md:flex-none px-2 py-2 md:px-3 bg-slate-900 text-white text-[9px] md:text-[10px] capitalize tracking-wider hover:bg-slate-800">{t('last_month')}</button>
+            <button onClick={() => setPreset('year')} className="flex-1 md:flex-none px-2 py-2 md:px-3 bg-slate-900 text-white text-[9px] md:text-[10px] capitalize tracking-wider hover:bg-slate-800">{t('this_year')}</button>
           </div>
         </div>
       </div>

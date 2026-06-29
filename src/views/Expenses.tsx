@@ -78,7 +78,7 @@ export default function Expenses() {
         </div>
         <button 
           onClick={() => setShowForm(true)}
-          className="xl:hidden bg-slate-900 text-white px-3 py-2 text-[10px] uppercase tracking-widest flex items-center gap-1 shrink-0"
+          className="xl:hidden bg-slate-900 text-white px-3 py-2 text-[10px] capitalize tracking-widest flex items-center gap-1 shrink-0"
         >
           <Plus className="w-3.5 h-3.5" /> {t('add_expense')}
         </button>
@@ -183,15 +183,15 @@ export default function Expenses() {
         <div className={`xl:col-span-8 ${showForm ? 'hidden xl:block' : 'block'}`}>
           <div className="bg-white border border-slate-200 divide-y divide-slate-100 max-h-[calc(100vh-220px)] md:max-h-[600px] overflow-y-auto custom-scrollbar">
             <div className="px-4 py-2.5 bg-slate-50 flex items-center justify-between sticky top-0 z-10">
-              <span className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">{t('expense_history')}</span>
+              <span className="text-[10px] capitalize tracking-widest text-slate-500 font-bold">{t('expense_history')}</span>
               <span className="text-[10px] text-slate-400">{expenses.length} {t('records')}</span>
             </div>
             {loading ? (
-              <div className="py-10 text-center text-xs text-slate-400 uppercase tracking-widest">Loading...</div>
+              <div className="py-10 text-center text-xs text-slate-400 capitalize tracking-widest">Loading...</div>
             ) : expenses.length === 0 ? (
               <div className="py-12 text-center">
                 <Wallet className="w-8 h-8 text-slate-200 mx-auto mb-2" />
-                <p className="text-black text-xs uppercase tracking-widest">{t('no_expenses_recorded')}</p>
+                <p className="text-black text-xs capitalize tracking-widest">{t('no_expenses_recorded')}</p>
               </div>
             ) : expenses.map(exp => {
               const Icon = getIcon(exp.category);
@@ -203,7 +203,7 @@ export default function Expenses() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <p className="text-xs font-bold text-black">₹{exp.amount.toLocaleString()}</p>
-                      <span className="text-[8px] uppercase tracking-widest text-black bg-slate-100 px-1.5 py-0.5">{exp.category}</span>
+                      <span className="text-[8px] capitalize tracking-widest text-black bg-slate-100 px-1.5 py-0.5">{exp.category}</span>
                       <span className="text-[8px] text-black">{(exp as any).method || 'Cash'}</span>
                     </div>
                     {exp.description && (

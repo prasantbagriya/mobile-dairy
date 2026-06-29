@@ -146,7 +146,7 @@ export default function DairySales() {
 
       <div className="bg-white rounded-none border border-slate-200 overflow-hidden">
         <table className="w-full text-left">
-          <thead className="bg-slate-50/50 text-black text-[9px] uppercase tracking-widest sticky top-0 z-10 backdrop-blur-sm">
+          <thead className="bg-slate-50/50 text-black text-[9px] capitalize tracking-widest sticky top-0 z-10 backdrop-blur-sm">
             <tr>
               <th className="px-4 py-3">{t('date')}</th>
               <th className="px-4 py-3">{t('dairy')}</th>

@@ -75,7 +75,7 @@ export default function Layout({ children, activeView, setActiveView }: LayoutPr
 
   const isSuperAdmin = user?.email?.toLowerCase().trim() === 'prashantbagriya7877@gmail.com';
   if (role === 'admin' || isSuperAdmin) {
-    menuItems.push({ id: 'admin', icon: SettingsIcon, label: t('admin') });
+    menuItems.push({ id: 'admin', icon: SettingsIcon, label: t('settings', 'Settings') });
   }
 
   const handleNavClick = (id: string) => {

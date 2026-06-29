@@ -192,14 +192,14 @@ export default function Payments() {
                 {formData.personId && (
                   <div className="mt-2 p-3 bg-indigo-50/50 border border-indigo-100 flex justify-between items-center">
                     <div>
-                      <p className="text-[10px]  text-indigo-400 uppercase tracking-widest mb-0.5">{t('current_balance')}</p>
+                      <p className="text-[10px]  text-indigo-400 capitalize tracking-widest mb-0.5">{t('current_balance')}</p>
                       <p className={` text-sm ${(formData.personType === 'farmer' ? farmers.find(f => f.id === formData.personId)?.balance : customers.find(c => c.id === formData.personId)?.balance) >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                         ₹ {Math.abs((formData.personType === 'farmer' ? farmers.find(f => f.id === formData.personId)?.balance : customers.find(c => c.id === formData.personId)?.balance) || 0).toLocaleString()}
                         {((formData.personType === 'farmer' ? farmers.find(f => f.id === formData.personId)?.balance : customers.find(c => c.id === formData.personId)?.balance) || 0) >= 0 ? ' (Dr)' : ' (Cr)'}
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-[10px]  text-black uppercase tracking-widest mb-0.5">{t('mobile')}</p>
+                      <p className="text-[10px]  text-black capitalize tracking-widest mb-0.5">{t('mobile')}</p>
                       <p className=" text-xs text-black">
                         {formData.personType === 'farmer' ? farmers.find(f => f.id === formData.personId)?.mobile : customers.find(c => c.id === formData.personId)?.mobile}
                       </p>
@@ -293,19 +293,19 @@ export default function Payments() {
           {requests.length > 0 && (
             <div className="bg-amber-50 rounded-none border border-amber-200 p-4">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm text-amber-800 flex items-center gap-2 uppercase tracking-widest">
+                <h3 className="text-sm text-amber-800 flex items-center gap-2 capitalize tracking-widest">
                   <History className="w-4 h-4" /> {t('pending_approvals', 'Pending Approvals')} ({requests.length})
                 </h3>
                 <div className="flex bg-amber-100/50 rounded-none p-1 border border-amber-200/50">
                   <button
                     onClick={() => setApprovalTab('customer')}
-                    className={`px-3 py-1 text-[10px] uppercase tracking-widest font-bold ${approvalTab === 'customer' ? 'bg-white shadow-sm text-amber-900' : 'text-amber-700/70 hover:text-amber-900'}`}
+                    className={`px-3 py-1 text-[10px] capitalize tracking-widest font-bold ${approvalTab === 'customer' ? 'bg-white shadow-sm text-amber-900' : 'text-amber-700/70 hover:text-amber-900'}`}
                   >
                     {t('customers')} ({requests.filter(r => !!r.customerId).length})
                   </button>
                   <button
                     onClick={() => setApprovalTab('farmer')}
-                    className={`px-3 py-1 text-[10px] uppercase tracking-widest font-bold ${approvalTab === 'farmer' ? 'bg-white shadow-sm text-amber-900' : 'text-amber-700/70 hover:text-amber-900'}`}
+                    className={`px-3 py-1 text-[10px] capitalize tracking-widest font-bold ${approvalTab === 'farmer' ? 'bg-white shadow-sm text-amber-900' : 'text-amber-700/70 hover:text-amber-900'}`}
                   >
                     {t('farmers')} ({requests.filter(r => !!r.farmerId).length})
                   </button>
@@ -319,13 +319,13 @@ export default function Payments() {
                         {req.customerName || req.farmerName} <span className="text-xs text-black ml-1">{(req.customerMobile || req.farmerMobile) ? `(${req.customerMobile || req.farmerMobile})` : ''}</span>
                         <span className="text-amber-500 text-xs ml-2">₹ {req.amount}</span>
                       </p>
-                      <p className="text-[10px]  text-black uppercase tracking-widest">{req.method} • {new Date(req.createdAt).toLocaleDateString()}</p>
+                      <p className="text-[10px]  text-black capitalize tracking-widest">{req.method} • {new Date(req.createdAt).toLocaleDateString()}</p>
                     </div>
                     <div className="flex gap-2 self-end sm:self-auto">
-                      <button onClick={() => handleApproveRequest(req)} className="bg-emerald-50 text-emerald-600 hover:bg-emerald-100 p-2  text-[10px] uppercase tracking-widest flex items-center gap-1 border border-emerald-200">
+                      <button onClick={() => handleApproveRequest(req)} className="bg-emerald-50 text-emerald-600 hover:bg-emerald-100 p-2  text-[10px] capitalize tracking-widest flex items-center gap-1 border border-emerald-200">
                         <Check className="w-3.5 h-3.5" /> {t('approve', 'Approve')}
                       </button>
-                      <button onClick={() => handleRejectRequest(req.id)} className="bg-red-50 text-red-600 hover:bg-red-100 p-2  text-[10px] uppercase tracking-widest flex items-center gap-1 border border-red-200">
+                      <button onClick={() => handleRejectRequest(req.id)} className="bg-red-50 text-red-600 hover:bg-red-100 p-2  text-[10px] capitalize tracking-widest flex items-center gap-1 border border-red-200">
                         <X className="w-3.5 h-3.5" /> {t('reject', 'Reject')}
                       </button>
                     </div>
@@ -358,7 +358,7 @@ export default function Payments() {
             <div className="max-h-[600px] overflow-y-auto overflow-x-auto bg-slate-50 md:bg-white border-t border-slate-100 no-scrollbar">
               {/* Desktop View */}
               <table className="w-full text-left border-collapse whitespace-nowrap hidden md:table">
-                <thead className="bg-slate-50/50 text-black uppercase text-[9px] tracking-widest sticky top-0 z-10 backdrop-blur-sm">
+                <thead className="bg-slate-50/50 text-black capitalize text-[9px] tracking-widest sticky top-0 z-10 backdrop-blur-sm">
                   <tr>
                     <th className="px-4 py-3">{t('date_person')}</th>
                     <th className="px-4 py-3">{t('type_method')}</th>

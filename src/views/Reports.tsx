@@ -152,13 +152,13 @@ export default function Reports() {
         {/* Header Section: Title and Buttons */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h2 className="text-lg md:text-xl text-slate-900 uppercase tracking-tight flex items-center gap-2">{t('reports')} <InfoTooltip text="View, analyze, and export business data as PDF/Excel." /></h2>
+            <h2 className="text-lg md:text-xl text-slate-900 capitalize tracking-tight flex items-center gap-2">{t('reports')} <InfoTooltip text="View, analyze, and export business data as PDF/Excel." /></h2>
           </div>
           <div className="flex w-full md:w-auto items-center justify-end gap-2">
             {/* Filter Toggle Button for mobile */}
             <button 
               onClick={() => setShowFilters(!showFilters)}
-              className="md:hidden flex shrink-0 items-center gap-1 bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-300 px-3 py-2 rounded-none text-[10px] uppercase font-semibold"
+              className="md:hidden flex shrink-0 items-center gap-1 bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-300 px-3 py-2 rounded-none text-[10px] capitalize font-semibold"
             >
               <Filter className="w-3.5 h-3.5" /> Filter
             </button>
@@ -170,7 +170,7 @@ export default function Reports() {
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-3 bg-white p-3 md:p-4 rounded-none border border-slate-200 w-full shadow-sm">
             <div className="flex flex-col md:flex-row md:items-end gap-3 w-full md:w-auto flex-1">
               <div className="w-full md:w-48 shrink-0">
-                <label className="text-[9px] text-black uppercase tracking-widest block mb-0.5">Report Type</label>
+                <label className="text-[9px] text-black capitalize tracking-widest block mb-0.5">Report Type</label>
                 <select className="w-full p-2 bg-slate-50 border border-slate-200 rounded-none outline-none text-xs font-bold" value={reportType} onChange={e => setReportType(e.target.value)}>
                   <option value="collections">{t('collections')}</option>
                   <option value="deliveries">{t('deliveries')}</option>
@@ -182,12 +182,12 @@ export default function Reports() {
               {reportType !== 'inventory' && (
                 <div className="flex items-center gap-2 w-full md:w-auto shrink-0">
                   <div className="flex-1 md:w-36">
-                    <label className="text-[9px] text-black uppercase tracking-widest block mb-0.5">Start Date</label>
+                    <label className="text-[9px] text-black capitalize tracking-widest block mb-0.5">Start Date</label>
                     <input type="date" className="w-full p-2 bg-slate-50 border border-slate-200 rounded-none text-xs font-bold" value={dateRange.start} onChange={e => setDateRange({...dateRange, start: e.target.value})} />
                   </div>
                   <span className="text-slate-400 self-end mb-2 shrink-0">-</span>
                   <div className="flex-1 md:w-36">
-                    <label className="text-[9px] text-black uppercase tracking-widest block mb-0.5">End Date</label>
+                    <label className="text-[9px] text-black capitalize tracking-widest block mb-0.5">End Date</label>
                     <input type="date" className="w-full p-2 bg-slate-50 border border-slate-200 rounded-none text-xs font-bold" value={dateRange.end} onChange={e => setDateRange({...dateRange, end: e.target.value})} />
                   </div>
                 </div>
@@ -198,7 +198,7 @@ export default function Reports() {
             <div className="relative w-full md:w-auto shrink-0 mt-2 md:mt-0">
               <button 
                 onClick={() => setShowActions(!showActions)} 
-                className="w-full md:w-auto flex items-center justify-between gap-2 bg-slate-900 text-white px-4 py-2 border border-slate-900 hover:bg-slate-800 text-[10px] uppercase font-bold tracking-widest transition-colors"
+                className="w-full md:w-auto flex items-center justify-between gap-2 bg-slate-900 text-white px-4 py-2 border border-slate-900 hover:bg-slate-800 text-[10px] capitalize font-bold tracking-widest transition-colors"
               >
                 Actions <ChevronDown className={`w-4 h-4 transition-transform ${showActions ? 'rotate-180' : ''}`} />
               </button>
@@ -207,20 +207,20 @@ export default function Reports() {
                 <div className="absolute right-0 top-full mt-1 w-full md:w-48 bg-white border border-slate-200 shadow-xl z-50 flex flex-col">
                   <button 
                     onClick={() => { exportPDF(); setShowActions(false); }} 
-                    className="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 text-left text-xs uppercase tracking-widest font-bold text-slate-700 border-b border-slate-100"
+                    className="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 text-left text-xs capitalize tracking-widest font-bold text-slate-700 border-b border-slate-100"
                   >
                     <FileText className="w-4 h-4" /> Export PDF
                   </button>
                   <button 
                     onClick={() => { exportExcel(); setShowActions(false); }} 
-                    className="flex items-center gap-3 px-4 py-3 hover:bg-emerald-50 text-left text-xs uppercase tracking-widest font-bold text-emerald-700 border-b border-slate-100"
+                    className="flex items-center gap-3 px-4 py-3 hover:bg-emerald-50 text-left text-xs capitalize tracking-widest font-bold text-emerald-700 border-b border-slate-100"
                   >
                     <TableIcon className="w-4 h-4" /> Export Excel
                   </button>
                   <button 
                     onClick={() => { runAIAnalysis(); setShowActions(false); }} 
                     disabled={analyzing || data.length === 0} 
-                    className="flex items-center gap-3 px-4 py-3 hover:bg-blue-50 text-left text-xs uppercase tracking-widest font-bold text-blue-700 disabled:opacity-50"
+                    className="flex items-center gap-3 px-4 py-3 hover:bg-blue-50 text-left text-xs capitalize tracking-widest font-bold text-blue-700 disabled:opacity-50"
                   >
                     <Sparkles className="w-4 h-4" /> AI Analysis
                   </button>
@@ -234,7 +234,7 @@ export default function Reports() {
       {analysis && (
         <div className="bg-blue-50 border border-blue-100 p-6 rounded-none relative">
           <Sparkles className="absolute top-4 right-4 w-6 h-6 text-blue-200" />
-          <h3 className="text-sm  text-blue-900 mb-3 uppercase tracking-widest flex items-center gap-2">AI Insights</h3>
+          <h3 className="text-sm  text-blue-900 mb-3 capitalize tracking-widest flex items-center gap-2">AI Insights</h3>
           <div className="prose prose-blue max-w-none text-blue-800 text-xs whitespace-pre-wrap ">
             {analysis}
           </div>
@@ -243,17 +243,17 @@ export default function Reports() {
 
       <div className="bg-white rounded-none border border-slate-200 overflow-hidden">
         <div className="p-4 border-b border-slate-50 flex items-center justify-between">
-           <h3 className="text-[10px] uppercase  tracking-widest text-slate-900 leading-tight">Data Preview</h3>
-           <span className="bg-slate-100 px-2 py-0.5 rounded-none text-[9px]  uppercase text-black">{data.length} Records</span>
+           <h3 className="text-[10px] capitalize  tracking-widest text-slate-900 leading-tight">Data Preview</h3>
+           <span className="bg-slate-100 px-2 py-0.5 rounded-none text-[9px]  capitalize text-black">{data.length} Records</span>
         </div>
         <div className="overflow-x-auto text-xs">
           {loading ? (
-             <div className="p-12 text-center text-black  text-xs uppercase tracking-widest">Loading...</div>
+             <div className="p-12 text-center text-black  text-xs capitalize tracking-widest">Loading...</div>
           ) : data.length === 0 ? (
-            <div className="p-12 text-center text-black  text-xs uppercase tracking-widest">No records found</div>
+            <div className="p-12 text-center text-black  text-xs capitalize tracking-widest">No records found</div>
           ) : (
             <table className="w-full text-left">
-              <thead className="bg-slate-50 text-[9px]  uppercase text-black tracking-widest">
+              <thead className="bg-slate-50 text-[9px]  capitalize text-black tracking-widest">
                 <tr>
                   {reportType === 'inventory' ? (
                     <>
@@ -282,9 +282,9 @@ export default function Reports() {
                     {reportType === 'inventory' ? (
                       <>
                         <td className="px-4 py-3 font-medium">{item.itemName}</td>
-                        <td className="px-4 py-3 text-[9px] uppercase">{item.category}</td>
+                        <td className="px-4 py-3 text-[10px] capitalize">{item.category}</td>
                         <td className="px-4 py-3 font-bold">{item.quantity}</td>
-                        <td className="px-4 py-3 text-[9px] uppercase">{item.unit}</td>
+                        <td className="px-4 py-3 text-[10px] capitalize">{item.unit}</td>
                         <td className="px-4 py-3">₹{item.rate || 0}</td>
                         <td className="px-4 py-3 font-bold text-emerald-700">₹{((item.quantity || 0) * (item.rate || 0)).toFixed(2)}</td>
                       </>
@@ -292,9 +292,9 @@ export default function Reports() {
                       <>
                         <td className="px-4 py-3">{item.date}</td>
                         <td className="px-4 py-3">{item.farmerName || item.customerName || item.dairyName || item.personName}</td>
-                        <td className="px-4 py-3 text-[9px] uppercase text-black">{reportType === 'dairy_sales' ? item.fat : reportType === 'transactions' ? item.method : item.session}</td>
-                        <td className="px-4 py-3">{reportType === 'transactions' ? <span className="uppercase text-[9px]">{item.personType}</span> : `${item.quantity} L`}</td>
-                        <td className="px-4 py-3 text-black">{reportType === 'transactions' ? <span className={item.type === 'debit' ? 'text-red-500 uppercase text-[9px]' : 'text-emerald-500 uppercase text-[9px]'}>{item.type}</span> : `₹ ${item.rate}`}</td>
+                        <td className="px-4 py-3 text-[10px] capitalize text-black">{reportType === 'dairy_sales' ? item.fat : reportType === 'transactions' ? item.method : item.session}</td>
+                        <td className="px-4 py-3">{reportType === 'transactions' ? <span className="capitalize text-[9px]">{item.personType}</span> : `${item.quantity} L`}</td>
+                        <td className="px-4 py-3 text-black">{reportType === 'transactions' ? <span className={item.type === 'debit' ? 'text-red-500 capitalize text-[9px]' : 'text-emerald-500 capitalize text-[9px]'}>{item.type}</span> : `₹ ${item.rate}`}</td>
                         <td className="px-4 py-3">₹ {item.amount}</td>
                       </>
                     )}
