@@ -115,19 +115,9 @@ export default function PinLock({ user, onSuccess, onLogout }: PinLockProps) {
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 sm:p-6">
       <div className={`max-w-sm w-full bg-white p-6 md:p-8 border border-slate-200 flex flex-col items-center gap-6 md:gap-8 transition-transform ${isShaking ? 'animate-shake' : ''}`}>
         {/* User Badge */}
-        <div className="flex items-center gap-3 bg-slate-50 p-2.5 px-4 rounded-none border border-slate-100 w-full shrink-0">
-          <UserCircle className="w-5 h-5 text-black" />
-          <div className="text-left flex-1 min-w-0">
-            <p className="text-[10px] text-black tracking-widest">Logged in as</p>
-            <p className="text-xs text-black truncate">{user.displayName || user.email}</p>
-          </div>
-          <button 
-            onClick={onLogout}
-            className="p-2 text-black hover:text-red-500 hover:bg-red-50"
-            title="Log out"
-          >
-            <LogOut className="w-4 h-4" />
-          </button>
+        <div className="flex items-center justify-center gap-2 bg-slate-50 py-2 px-4 border border-slate-200 rounded-full w-fit mx-auto mb-2">
+          <UserCircle className="w-4 h-4 text-slate-500" />
+          <span className="text-xs text-slate-700 font-medium truncate max-w-[200px]">{user.displayName || user.email}</span>
         </div>
 
         <div className="flex flex-col items-center justify-center w-full">
@@ -139,11 +129,26 @@ export default function PinLock({ user, onSuccess, onLogout }: PinLockProps) {
           {error && <p className="text-xs text-red-500 font-semibold tracking-widest">{error}</p>}
         </div>
 
-        {/* Standard Keyboard Input */}
-        <div className="w-full max-w-[260px] mx-auto pb-2">
+        {/* OTP Input UI */}
+        <div className="relative w-full max-w-[280px] mx-auto pb-4">
+          <div className="flex gap-3 justify-center">
+            {[0, 1, 2, 3].map((index) => (
+              <div 
+                key={index} 
+                className={`w-14 h-16 sm:w-16 sm:h-20 border-2 flex items-center justify-center text-4xl rounded-none transition-all duration-200 ${
+                  pin.length === index ? 'border-blue-600 bg-blue-50/30' : 
+                  pin.length > index ? 'border-slate-800 text-slate-900 bg-slate-50' : 'border-slate-200 bg-white'
+                }`}
+              >
+                {pin[index] ? '•' : ''}
+              </div>
+            ))}
+          </div>
+          
           <input 
-            type="password" 
-            inputMode="numeric" 
+            type="tel"
+            inputMode="numeric"
+            pattern="[0-9]*"
             maxLength={4} 
             value={pin}
             onChange={(e) => {
@@ -157,16 +162,17 @@ export default function PinLock({ user, onSuccess, onLogout }: PinLockProps) {
               }
             }}
             autoFocus
-            className="w-full text-center text-3xl tracking-[0.5em] md:tracking-[1em] p-4 border border-slate-200 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-none text-black"
-            placeholder="••••"
+            autoComplete="off"
+            className="absolute inset-0 w-full h-full opacity-0 text-transparent bg-transparent cursor-text"
           />
         </div>
 
         <button 
           onClick={onLogout}
-          className="text-[10px] tracking-widest text-black hover:text-black hover:underline pt-2"
+          className="w-full flex items-center justify-center gap-2 p-4 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-red-600 transition-colors text-xs tracking-widest font-bold mt-2"
         >
-          Switch Account / Logout
+          <LogOut className="w-4 h-4" />
+          SWITCH ACCOUNT
         </button>
       </div>
     </div>
