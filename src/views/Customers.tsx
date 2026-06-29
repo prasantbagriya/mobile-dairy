@@ -507,17 +507,6 @@ export default function Customers() {
           {searchAndToggleUI("flex md:hidden")}
 
           {(() => {
-            if (filteredCustomers.length === 0) {
-              return (
-                <div className="py-16 text-center bg-white border border-slate-100 rounded-2xl mx-2 shadow-sm">
-                  <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <UserCircle className="w-8 h-8 text-slate-300" />
-                  </div>
-                  <p className="text-slate-600 text-sm font-medium tracking-wide mb-1">{t('no_records')}</p>
-                  <p className="text-slate-400 text-xs">Add new customers to see them here.</p>
-                </div>
-              );
-            }
             if (viewMode === 'grid') {
               return (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4">
@@ -586,15 +575,15 @@ export default function Customers() {
 
             return (
             <div ref={tableContainerRef} className="bg-white border border-slate-100 overflow-auto no-scrollbar h-[calc(100vh-200px)] min-h-[400px]">
-              <table className="w-full xl:w-max text-left border-collapse min-w-[800px] relative">
-                <thead className="sticky top-0 z-10 bg-slate-50 border-b border-slate-100 shadow-sm">
+              <table className="w-full text-left border-collapse border border-slate-200 min-w-[800px]">
+                <thead className="bg-slate-50 sticky top-0 text-black text-sm font-semibold border-b border-slate-200 z-10">
                   <tr className="bg-slate-50 border-b border-slate-100">
-                    <th className="px-2 md:px-6 py-3 md:py-4 text-[10px] text-black font-semibold capitalize tracking-widest whitespace-nowrap">{t('seq_no')}</th>
-                    <th className="px-2 md:px-6 py-3 md:py-4 text-[10px] text-black font-semibold capitalize tracking-widest whitespace-nowrap">{t('customer')}</th>
-                    <th className="px-2 md:px-6 py-3 md:py-4 text-[10px] text-black font-semibold capitalize tracking-widest whitespace-nowrap">{t("contact")}</th>
-                    <th className="px-2 md:px-6 py-3 md:py-4 text-[10px] text-black font-semibold capitalize tracking-widest whitespace-nowrap">{t('fixed_rate')}</th>
-                    <th className="px-2 md:px-6 py-3 md:py-4 text-[10px] text-black font-semibold capitalize tracking-widest text-right whitespace-nowrap">{t('balance')}</th>
-                    <th className="px-2 md:px-6 py-3 md:py-4 text-[10px] text-black font-semibold capitalize tracking-widest text-center whitespace-nowrap">{t("actions")}</th>
+                    <th className="px-4 py-3 border-b border-slate-200 text-black text-sm font-semibold whitespace-nowrap">{t('seq_no')}</th>
+                    <th className="px-4 py-3 border-b border-slate-200 text-black text-sm font-semibold whitespace-nowrap">{t('customer')}</th>
+                    <th className="px-4 py-3 border-b border-slate-200 text-black text-sm font-semibold whitespace-nowrap">{t("contact")}</th>
+                    <th className="px-4 py-3 border-b border-slate-200 text-black text-sm font-semibold whitespace-nowrap">{t('fixed_rate')}</th>
+                    <th className="px-4 py-3 border-b border-slate-200 text-black text-sm font-semibold whitespace-nowrap text-right">{t('balance')}</th>
+                    <th className="px-4 py-3 border-b border-slate-200 text-black text-sm font-semibold whitespace-nowrap text-center">{t("actions")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
