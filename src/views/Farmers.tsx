@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo, Suspense, lazy } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import toast from 'react-hot-toast';
 import { useI18n } from '../lib/i18n';
@@ -6,7 +6,7 @@ import { db } from '../lib/db';
 import { collection, where, addDoc, onSnapshot, updateDoc, deleteDoc, doc, query, orderBy, writeBatch, getDocs } from 'firebase/firestore';
 import { Farmer } from '../types';
 import { Plus, Search, Edit2, Trash2, X, Save, Phone, MapPin, Building, FileText, TrendingUp, Power, LayoutGrid, List as ListIcon } from 'lucide-react';
-import SharedLedger from '../components/SharedLedger';
+const SharedLedger = lazy(() => import('../components/SharedLedger'));
 
 import { useAuth } from '../lib/auth';
 import InfoTooltip from '../components/InfoTooltip';
@@ -25,7 +25,7 @@ export default function Farmers() {
   const [contacts, setContacts] = useState<any[]>([]);
   const [allContactsCache, setAllContactsCache] = useState<any[] | null>(null);
   const [searchingContacts, setSearchingContacts] = useState(false);
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>(window.innerWidth < 768 ? 'grid' : 'list');
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const tableContainerRef = useRef<HTMLDivElement>(null);
 
@@ -306,26 +306,30 @@ export default function Farmers() {
   if (selectedFarmer) {
     return (
       <div className="-m-4 md:-m-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-        <SharedLedger 
-          person={selectedFarmer} 
-          type="farmer"
-          allPersons={farmers}
-          onClose={() => setSelectedFarmer(null)} 
-          onNavigateToPerson={(f) => setSelectedFarmer(f as Farmer)}
-          onRefresh={() => {
-            const updated = farmers.find(curr => curr.id === selectedFarmer.id);
-            if (updated) setSelectedFarmer(updated);
-          }}
-        />
+        <Suspense fallback={null}>
+          <SharedLedger 
+            person={selectedFarmer} 
+            type="farmer"
+            allPersons={farmers}
+            onClose={() => setSelectedFarmer(null)} 
+            onNavigateToPerson={(f) => setSelectedFarmer(f as Farmer)}
+            onRefresh={() => {
+              const updated = farmers.find(curr => curr.id === selectedFarmer.id);
+              if (updated) setSelectedFarmer(updated);
+            }}
+          />
+        </Suspense>
       </div>
     );
   }
 
-  const filteredFarmers = farmers.filter(f => 
-    (f.name || "").toLowerCase().includes(debouncedSearch.toLowerCase()) || 
-    (f.mobile || "").includes(debouncedSearch) ||
-    (f.village || "").toLowerCase().includes(debouncedSearch.toLowerCase())
-  );
+  const filteredFarmers = useMemo(() => {
+    return farmers.filter(f => 
+      (f.name || "").toLowerCase().includes(debouncedSearch.toLowerCase()) || 
+      (f.mobile || "").includes(debouncedSearch) ||
+      (f.village || "").toLowerCase().includes(debouncedSearch.toLowerCase())
+    );
+  }, [farmers, debouncedSearch]);
 
   const rowVirtualizer = useVirtualizer({
     count: filteredFarmers.length,

@@ -92,7 +92,7 @@ export default function DairySales() {
 
   if (showForm) {
     return (
-      <div className="space-y-4 animate-in fade-in zoom-in-95 duration-300">
+      <div className="space-y-4 animate-in fade-in zoom-in-95 duration-300 max-w-2xl mx-auto mt-4 md:mt-10">
         <div className="flex items-center gap-4 mb-6">
           <button onClick={() => setShowForm(false)} className="p-2 bg-slate-100 hover:bg-slate-200 text-black rounded-none transition-colors">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="square" strokeLinejoin="miter" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
@@ -100,7 +100,7 @@ export default function DairySales() {
           <h2 className="text-2xl text-slate-900 tracking-tight">{editingId ? t('edit_dairy_sale') : t('new_dairy_sale')}</h2>
         </div>
 
-        <div className="bg-white border border-slate-200 p-6 max-w-2xl">
+        <div className="bg-white border border-slate-200 p-6">
           <div className="space-y-4">
               <input placeholder={t('dairy_name')} className="w-full p-3 bg-slate-50 rounded-none border border-slate-100 text-sm focus:border-slate-300 focus:outline-none" value={formData.dairyName} onChange={e => setFormData({...formData, dairyName: e.target.value})} />
               <input type="date" className="w-full p-3 bg-slate-50 rounded-none border border-slate-100 text-sm focus:border-slate-300 focus:outline-none" value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} />
@@ -127,7 +127,7 @@ export default function DairySales() {
   return (
     <div className="space-y-4 animate-in fade-in duration-500">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl text-slate-900 tracking-tight flex items-center gap-2">{t('dairy_sales')} <InfoTooltip text="Record bulk milk sales to large Dairies (based on FAT)." /></h2>
+        <h2 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">{t('dairy_sales')} <InfoTooltip text="Record bulk milk sales to large Dairies (based on FAT)." /></h2>
         <button onClick={() => {
           setEditingId(null);
           setFormData({
@@ -139,14 +139,14 @@ export default function DairySales() {
             amount: 0
           });
           setShowForm(true);
-        }} className="bg-blue-600 hover:bg-blue-700 transition-colors text-white px-3 py-1.5 md:px-4 md:py-2 rounded-none text-[10px] md:text-sm flex items-center gap-1.5 md:gap-2 tracking-widest">
-          <Plus className="w-3.5 h-3.5 md:w-4 md:h-4" /> {t('record_sale')}
+        }} className="bg-slate-900 text-white px-3 py-2 text-[10px] uppercase tracking-widest flex items-center gap-1 shrink-0 shadow-sm">
+          <Plus className="w-3.5 h-3.5" /> {t('record_sale')}
         </button>
       </div>
 
       <div className="bg-white rounded-none border border-slate-200 overflow-hidden">
         <table className="w-full text-left">
-          <thead className="bg-slate-50 text-[10px] text-black">
+          <thead className="bg-slate-50/50 text-black text-[9px] uppercase tracking-widest sticky top-0 z-10 backdrop-blur-sm">
             <tr>
               <th className="px-4 py-3">{t('date')}</th>
               <th className="px-4 py-3">{t('dairy')}</th>
@@ -158,13 +158,13 @@ export default function DairySales() {
           </thead>
           <tbody className="divide-y divide-slate-50">
             {sales.map(s => (
-              <tr key={s.id} className="text-xs hover:bg-slate-50/50 transition-colors">
-                <td className="px-4 py-3">{s.date}</td>
-                <td className="px-4 py-3 ">{s.dairyName}</td>
-                <td className="px-4 py-3">{s.quantity} L</td>
-                <td className="px-4 py-3">{s.fat}</td>
-                <td className="px-4 py-3 ">₹ {s.amount}</td>
-                <td className="px-4 py-3 text-right">
+              <tr key={s.id} className="hover:bg-slate-50/50 transition-colors group text-sm">
+                <td className="px-4 py-3 whitespace-nowrap text-xs text-black">{s.date}</td>
+                <td className="px-4 py-3 whitespace-nowrap font-medium">{s.dairyName}</td>
+                <td className="px-4 py-3 whitespace-nowrap">{s.quantity} L</td>
+                <td className="px-4 py-3 whitespace-nowrap">{s.fat}</td>
+                <td className="px-4 py-3 whitespace-nowrap font-mono text-emerald-600">₹ {s.amount}</td>
+                <td className="px-4 py-3 text-right whitespace-nowrap">
                   <div className="flex items-center justify-end gap-2">
                     <button onClick={() => handleEditClick(s)} className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-colors">
                       <Edit2 className="w-4 h-4" />

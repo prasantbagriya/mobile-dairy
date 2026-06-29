@@ -94,14 +94,14 @@ service cloud.firestore {
     // Helper Functions
     // ===============================================================
 
-    // Check if the user is authenticated
+    // Check if the user is authenticated and has a valid App Check token
     function isAuthenticated() {
-      return request.auth != null;
+      return request.auth != null && request.app != null;
     }
 
     // Helper function to check if user owns the document (Staff only)
     function isOwner() {
-      return request.auth != null && (
+      return request.auth != null && request.app != null && (
         resource.data.userId == request.auth.uid ||
         (exists(/databases/$(database)/documents/admin_configs/$(request.auth.uid)) && 
          get(/databases/$(database)/documents/admin_configs/$(request.auth.uid)).data.tenantId == resource.data.userId)
@@ -110,7 +110,7 @@ service cloud.firestore {
 
     // Helper function to check if user is assigning their own ID on creation
     function isAssigningOwnId() {
-      return request.auth != null && (
+      return request.auth != null && request.app != null && (
         request.resource.data.userId == request.auth.uid ||
         (exists(/databases/$(database)/documents/admin_configs/$(request.auth.uid)) && 
          get(/databases/$(database)/documents/admin_configs/$(request.auth.uid)).data.tenantId == request.resource.data.userId)
@@ -133,7 +133,7 @@ service cloud.firestore {
 
     match /milk_collections/{document} {
       allow get: if isOwner() || (request.auth != null && exists(/databases/$(database)/documents/admin_configs/$(request.auth.uid)) && get(/databases/$(database)/documents/admin_configs/$(request.auth.uid)).data.role == 'farmer' && get(/databases/$(database)/documents/admin_configs/$(request.auth.uid)).data.farmerId == resource.data.farmerId);
-      allow list: if request.auth != null;
+      allow list: if isAuthenticated();
       allow delete: if isOwner();
       allow create: if isAssigningOwnId() && (request.resource.data.userId == request.auth.uid || isOperator()) && isValidMilkCollection(request.resource.data);
       allow update: if isOwner() && isAssigningOwnId() && isValidMilkCollection(request.resource.data);
@@ -141,7 +141,7 @@ service cloud.firestore {
 
     match /milk_deliveries/{document} {
       allow get: if isOwner() || (request.auth != null && exists(/databases/$(database)/documents/admin_configs/$(request.auth.uid)) && get(/databases/$(database)/documents/admin_configs/$(request.auth.uid)).data.role == 'customer' && get(/databases/$(database)/documents/admin_configs/$(request.auth.uid)).data.customerId == resource.data.customerId);
-      allow list: if request.auth != null;
+      allow list: if isAuthenticated();
       allow delete: if isOwner();
       allow create: if isAssigningOwnId() && isValidMilkDelivery(request.resource.data);
       allow update: if isOwner() && isAssigningOwnId() && isValidMilkDelivery(request.resource.data);
@@ -149,7 +149,7 @@ service cloud.firestore {
 
     match /expenses/{document} {
       allow get, delete: if isOwner();
-      allow list: if request.auth != null;
+      allow list: if isAuthenticated();
       allow create: if isAssigningOwnId() && isValidExpense(request.resource.data);
       allow update: if isOwner() && isAssigningOwnId() && isValidExpense(request.resource.data);
     }
@@ -159,7 +159,7 @@ service cloud.firestore {
         (get(/databases/$(database)/documents/admin_configs/$(request.auth.uid)).data.role == 'farmer' && get(/databases/$(database)/documents/admin_configs/$(request.auth.uid)).data.farmerId == resource.data.personId && resource.data.personType == 'farmer') ||
         (get(/databases/$(database)/documents/admin_configs/$(request.auth.uid)).data.role == 'customer' && get(/databases/$(database)/documents/admin_configs/$(request.auth.uid)).data.customerId == resource.data.personId && resource.data.personType == 'customer')
       ));
-      allow list: if request.auth != null;
+      allow list: if isAuthenticated();
       allow delete: if isOwner();
       allow create: if isAssigningOwnId() && isValidTransaction(request.resource.data);
       allow update: if isOwner() && isAssigningOwnId() && isValidTransaction(request.resource.data);
@@ -172,14 +172,14 @@ service cloud.firestore {
 
     match /dairy_sales/{document} {
       allow get, delete: if isOwner();
-      allow list: if request.auth != null;
+      allow list: if isAuthenticated();
       allow create: if isAssigningOwnId() && isValidDairySale(request.resource.data);
       allow update: if isOwner() && isAssigningOwnId() && isValidDairySale(request.resource.data);
     }
 
     match /inventory/{document} {
       allow get, delete: if isOwner();
-      allow list: if request.auth != null;
+      allow list: if isAuthenticated();
       allow create: if isAssigningOwnId() && isValidInventory(request.resource.data);
       // Allow update if owner: either a full update (with userId matching) OR a partial increment update (e.g. quantity decrement from SellItemModal)
       allow update: if isOwner() && (
@@ -195,7 +195,7 @@ service cloud.firestore {
 
     match /settings/{document} {
       allow get, delete: if isOwner();
-      allow list: if request.auth != null;
+      allow list: if isAuthenticated();
       allow create: if isAssigningOwnId() && isValidSetting(request.resource.data);
       allow update: if isOwner() && isAssigningOwnId() && isValidSetting(request.resource.data);
     }
@@ -374,7 +374,7 @@ service cloud.firestore {
     }
 
     match /user_tokens/{docId} {
-      allow read, write: if request.auth != null && request.auth.uid == docId;
+      allow read, write: if isAuthenticated() && request.auth.uid == docId;
     }
   }
 }

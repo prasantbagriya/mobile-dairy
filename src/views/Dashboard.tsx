@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, memo } from 'react';
 import { useI18n } from '../lib/i18n';
 import { useAuth } from '../lib/auth';
 import { db } from '../lib/db';
-import { collection, query, getDocs, limit, orderBy, where, onSnapshot } from 'firebase/firestore';
+import { collection, query, getDocs, limit, orderBy, where, onSnapshot, getAggregateFromServer, sum } from 'firebase/firestore';
 import {
   Milk,
   TrendingUp,
@@ -46,13 +46,18 @@ export default function Dashboard({ onNavigate }: { onNavigate: (view: string) =
       }
     });
 
-    const unsubFar = onSnapshot(query(collection(db, 'farmers'), where('userId', '==', tenantId)), (snap) => {
-      setFarmers(snap.docs.map(d => d.data()));
-    });
+    // Fetch aggregates directly without keeping active raw subscriptions
+    getAggregateFromServer(query(collection(db, 'farmers'), where('userId', '==', tenantId)), {
+      totalBalance: sum('balance')
+    }).then(snap => {
+      setFarmers([{ balance: snap.data().totalBalance || 0 }]);
+    }).catch(console.error);
 
-    const unsubCus = onSnapshot(query(collection(db, 'customers'), where('userId', '==', tenantId)), (snap) => {
-      setCustomers(snap.docs.map(d => d.data()));
-    });
+    getAggregateFromServer(query(collection(db, 'customers'), where('userId', '==', tenantId)), {
+      totalBalance: sum('balance')
+    }).then(snap => {
+      setCustomers([{ balance: snap.data().totalBalance || 0 }]);
+    }).catch(console.error);
 
     const transStartDate = new Date();
     transStartDate.setDate(transStartDate.getDate() - 30);
@@ -65,8 +70,6 @@ export default function Dashboard({ onNavigate }: { onNavigate: (view: string) =
 
     return () => {
       unsubSettings();
-      unsubFar();
-      unsubCus();
       unsubTrans();
     };
   }, [tenantId]);
@@ -324,9 +327,9 @@ export default function Dashboard({ onNavigate }: { onNavigate: (view: string) =
 
         {/* Recent Activity */}
         <div className="bg-white p-4 border border-slate-200 flex flex-col h-full lg:col-span-2 xl:col-span-1">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm text-slate-900 tracking-widest font-bold">{t("recent_transactions")}</h3>
-            <button onClick={() => onNavigate('payments')} className="text-blue-600 text-[10px] hover:underline tracking-widest font-bold">{t("view_all")}</button>
+          <div className="flex items-center justify-between gap-2 mb-4">
+            <h3 className="text-xs sm:text-sm text-slate-900 tracking-wide font-bold flex-1 truncate">{t("recent_transactions")}</h3>
+            <button onClick={() => onNavigate('payments')} className="text-blue-600 text-[10px] hover:underline tracking-wide font-bold shrink-0">{t("view_all")}</button>
           </div>
           <div className="space-y-2 flex-1 max-h-[350px] overflow-y-auto custom-scrollbar pr-2">
             {recentTransactions.length === 0 ? (

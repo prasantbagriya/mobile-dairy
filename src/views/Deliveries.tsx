@@ -400,7 +400,7 @@ export default function Deliveries() {
         </div>
 
         {/* History Section - Right Section */}
-        <div className="xl:col-span-8 text-xs">
+        <div className={`xl:col-span-8 text-xs ${showForm ? 'hidden xl:block' : 'block'}`}>
           <div className="bg-white rounded-none border border-slate-100 overflow-hidden">
             <div className="p-4 border-b border-slate-50 flex items-center justify-between">
               <h3 className="text-sm  flex items-center gap-2 tracking-tight text-emerald-600">
@@ -408,8 +408,8 @@ export default function Deliveries() {
                 {t('latest_deliveries')}
               </h3>
             </div>
-            <div className="max-h-[calc(100vh-220px)] md:max-h-[600px] overflow-y-auto overflow-x-auto no-scrollbar">
-              <table className="w-full text-left border-collapse">
+            <div className="max-h-[calc(100vh-220px)] md:max-h-[600px] overflow-y-auto overflow-x-auto custom-scrollbar">
+              <table className="w-full text-left border-collapse min-w-[500px]">
                 <thead className="bg-slate-50/50 text-black text-[9px] tracking-widest  sticky top-0 z-10 backdrop-blur-sm">
                   <tr>
                     <th className="px-6 py-4 whitespace-nowrap">{t('date')}</th>

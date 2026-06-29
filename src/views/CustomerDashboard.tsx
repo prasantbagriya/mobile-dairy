@@ -259,7 +259,7 @@ export default function CustomerDashboard() {
                <p className="text-orange-100 mb-1 uppercase tracking-widest text-[10px]">Welcome</p>
                <h1 className="text-2xl font-bold">{customer.name}</h1>
              </div>
-             <button onClick={logout} className="p-2 bg-slate-800 border border-slate-700"><LogOut className="w-5 h-5" /></button>
+             <button onClick={logout} aria-label="Logout" className="p-2 bg-slate-800 border border-slate-700"><LogOut className="w-5 h-5" /></button>
           </div>
         </div>
 

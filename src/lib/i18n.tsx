@@ -1063,7 +1063,7 @@ const translations = {
 export type Lang = 'en' | 'hi' | 'gu' | 'mr';
 
 interface I18nContextType {
-  t: (key: keyof typeof translations.en) => string;
+  t: (key: string, fallback?: string) => string;
   lang: Lang;
   setLang: (lang: Lang) => void;
 }
@@ -1084,9 +1084,9 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('lang', newLang);
   };
 
-  const t = (key: keyof typeof translations.en) => {
-    // Return translation if exists, otherwise fallback to English, otherwise fallback to key itself
-    return translations[lang]?.[key] || translations.en[key] || key;
+  const t = (key: string, fallback?: string) => {
+    // Return translation if exists, otherwise fallback to English, otherwise fallback to passed string, otherwise key itself
+    return (translations[lang as keyof typeof translations] as any)?.[key] || (translations.en as any)[key] || fallback || key;
   };
 
   return (

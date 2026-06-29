@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import toast from 'react-hot-toast';
 import { useI18n } from '../lib/i18n';
 import { db } from '../lib/db';
@@ -8,7 +9,8 @@ import { Plus, Search, Calendar, Moon, Sun, Calculator, Save, X, Milk, History, 
 import dayjs from 'dayjs';
 import InfoTooltip from '../components/InfoTooltip';
 import { useAuth } from '../lib/auth';
-import EditMilkModal from '../components/EditMilkModal';
+import { Suspense, lazy } from 'react';
+const EditMilkModal = lazy(() => import('../components/EditMilkModal'));
 
 export default function Collections() {
   const { t } = useI18n();
@@ -42,6 +44,8 @@ export default function Collections() {
   const [existingSessions, setExistingSessions] = useState<Record<string, Record<string, { id: string, amount: number, quantity?: number, fat?: number, snf?: number }>>>({});
   const [editingCollection, setEditingCollection] = useState<MilkCollection | null>(null);
   const [showSheetFilters, setShowSheetFilters] = useState(false);
+  const [historySearch, setHistorySearch] = useState('');
+  const tableContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!tenantId) return;
@@ -61,7 +65,7 @@ export default function Collections() {
     const unsubCols = onSnapshot(qCol, (snap) => {
       const cols = snap.docs.map(d => ({ id: d.id, ...d.data() } as MilkCollection));
       cols.sort((a, b) => new Date(b.createdAt || b.date).getTime() - new Date(a.createdAt || a.date).getTime());
-      setRecentCollections(cols.slice(0, 10));
+      setRecentCollections(cols.slice(0, 50));
     });
 
     setLoading(false);
@@ -137,18 +141,14 @@ export default function Collections() {
     }
   }, [formData.farmerId, farmers, existingSessions]);
 
-  const calculateAmount = () => {
+  useEffect(() => {
     const qty = parseFloat(formData.quantity) || 0;
     const rate = parseFloat(formData.rate) || 0;
     const amount = qty * rate;
     setFormData(prev => ({ ...prev, amount }));
-  };
-
-  useEffect(() => {
-    calculateAmount();
   }, [formData.quantity, formData.rate]);
 
-  const autoCalculateRate = () => {
+  useEffect(() => {
     const selectedFarmer = farmers.find(f => f.id === formData.farmerId);
     if (selectedFarmer?.fixedRate) return;
 
@@ -158,11 +158,7 @@ export default function Collections() {
       const calculatedRate = (fat * settings.peakFatRate / 10) + (snf * 3.5); 
       setFormData(prev => ({ ...prev, rate: calculatedRate.toFixed(2) }));
     }
-  };
-
-  useEffect(() => {
-    autoCalculateRate();
-  }, [formData.fat, formData.snf, settings]);
+  }, [formData.fat, formData.snf, settings, formData.farmerId, farmers]);
 
   async function handleSave(moveToNext = true) {
     if (!formData.farmerId || !formData.quantity || !formData.amount) {
@@ -456,7 +452,7 @@ export default function Collections() {
         </div>
 
         {/* {t('history')} & Summary - Right Section */}
-        <div className="xl:col-span-8 space-y-4">
+        <div className={`xl:col-span-8 space-y-4 ${showForm ? 'hidden xl:block' : 'block'}`}>
           <div className="bg-white rounded-none border border-slate-100 overflow-hidden text-xs">
             <div className="p-4 border-b border-slate-50 flex items-center justify-between">
               <h3 className="text-sm text-slate-900 flex items-center gap-2 font-semibold">
@@ -466,12 +462,17 @@ export default function Collections() {
               <div className="flex gap-2">
                 <div className="relative">
                   <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-black" />
-                  <input placeholder={t("search_placeholder")} className="pl-9 pr-3 py-1.5 bg-slate-50 rounded-none text-[10px]  border border-slate-100 outline-none focus:ring-1 focus:ring-blue-100 w-40" />
+                  <input 
+                    placeholder={t("search_placeholder")} 
+                    className="pl-9 pr-3 py-1.5 bg-slate-50 rounded-none text-[10px]  border border-slate-100 outline-none focus:ring-1 focus:ring-blue-100 w-40" 
+                    value={historySearch}
+                    onChange={(e) => setHistorySearch(e.target.value)}
+                  />
                 </div>
               </div>
             </div>
-            <div className="max-h-[calc(100vh-220px)] md:max-h-[600px] overflow-y-auto overflow-x-auto no-scrollbar">
-              <table className="w-full text-left order-collapse">
+            <div className="max-h-[calc(100vh-220px)] md:max-h-[600px] overflow-y-auto overflow-x-auto custom-scrollbar">
+              <table className="w-full text-left order-collapse min-w-[500px]">
                 <thead className="bg-slate-50/50 text-black text-[9px] tracking-widest  sticky top-0 z-10 backdrop-blur-sm">
                   <tr>
                     <th className="px-6 py-4 whitespace-nowrap">{t('date_session')}</th>
@@ -482,7 +483,7 @@ export default function Collections() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50 text-black">
-                  {recentCollections.map(col => (
+                  {recentCollections.filter(c => (c.farmerName || '').toLowerCase().includes(historySearch.toLowerCase()) || c.date.includes(historySearch)).map(col => (
                     <tr key={col.id} className="hover:bg-slate-50/50 transition-colors group">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex flex-col">
@@ -569,245 +570,171 @@ export default function Collections() {
                         onChange={e => setSheetSearch(e.target.value)}
                       />
                     </div>
-                  </div>
-               </div>
-            </div>
-            <div className="bg-slate-50 md:bg-white border-t border-slate-100">
-              {/* Desktop View */}
-              <table className="w-full text-left hidden md:table">
-                <thead className="bg-slate-50 text-black text-[11px] border-b border-slate-100">
-                  <tr>
-                    <th className="px-6 py-5">#Seq</th>
-                    <th className="px-6 py-5">Farmer Name</th>
-                    <th className="px-6 py-5">Quantity (L)</th>
-                    <th className="px-6 py-5">Fat (%)</th>
-                    <th className="px-6 py-5">SNF (%)</th>
-                    <th className="px-6 py-5">Rate / Amount</th>
-                    <th className="px-6 py-5 text-center">{t("status")}</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {farmers.filter(f => f.name.toLowerCase().includes(sheetSearch.toLowerCase())).map((f, idx) => {
-                    const rowData = sheetData[f.id!] || { quantity: '', fat: '', snf: '8.5' };
-                    const fat = parseFloat(rowData.fat) || 0;
-                    const snf = parseFloat(rowData.snf) || 0;
-                    const rate = f.fixedRate ? f.fixedRate : ((fat * settings.peakFatRate / 10) + (snf * 3.5));
-                    const amount = (parseFloat(rowData.quantity) || 0) * rate;
-                    const isSaved = !!existingSessions[f.id!]?.[formData.session] || (rowData as any).saved;
+                   </div>
+                </div>
+             </div>
+             {(() => {
+               const filteredFarmers = farmers.filter(f => f.name.toLowerCase().includes(sheetSearch.toLowerCase()));
+              const rowVirtualizer = useVirtualizer({
+                count: filteredFarmers.length,
+                getScrollElement: () => tableContainerRef.current,
+                estimateSize: () => 70, // estimated row height
+                overscan: 5
+              });
 
-                    return (
-                      <tr key={f.id} className={`transition-all duration-300 ${isSaved ? 'bg-emerald-50/30' : 'hover:bg-slate-50/80'}`}>
-                        <td className="px-6 py-4">
-                           <span className={`w-6 h-6 flex items-center justify-center  rounded-none text-[10px] ${isSaved ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-black'}`}>
-                             {f.sequence || idx + 1}
-                           </span>
-                        </td>
-                        <td className="px-6 py-4">
-                          <p className={` tracking-tight text-sm ${isSaved ? 'text-emerald-700' : 'text-slate-900'}`}>{f.name}</p>
-                          <p className="text-[10px] text-black  tracking-widest">{f.village}</p>
-                        </td>
-                        <td className="px-6 py-4">
-                          <input 
-                            type="number" inputMode="decimal" pattern="[0-9]*" 
-                            disabled={isSaved}
-                            placeholder="0.0"
-                            id={`qty-${idx}`}
-                            className="w-24 bg-slate-50 border border-slate-200 px-3 py-2.5  text-black focus:bg-white focus:border-blue-500 outline-none transition-all text-sm disabled:opacity-50"
-                            value={rowData.quantity}
-                            onKeyDown={(e) => {
-                              if (e.key === ' ') {
-                                e.preventDefault();
-                                document.getElementById(`fat-${idx}`)?.focus();
-                              } else if (e.key === 'Enter') {
-                                e.preventDefault();
-                                handleSaveSheetRow(f.id!);
-                                setTimeout(() => {
-                                  document.getElementById(`qty-${idx + 1}`)?.focus();
-                                }, 100);
-                              }
-                            }}
-                            onChange={(e) => setSheetData({...sheetData, [f.id!]: {...rowData, quantity: e.target.value}})}
-                          />
-                        </td>
-                        <td className="px-6 py-4">
-                          <input 
-                            type="number" inputMode="decimal" pattern="[0-9]*" 
-                            disabled={isSaved}
-                            placeholder="0.0"
-                            id={`fat-${idx}`}
-                            className="w-16 bg-slate-50 border border-slate-200 px-3 py-2.5  text-black focus:bg-white focus:border-blue-500 outline-none transition-all text-sm disabled:opacity-50"
-                            value={rowData.fat}
-                            onKeyDown={(e) => {
-                              if (e.key === ' ') {
-                                e.preventDefault();
-                                document.getElementById(`snf-${idx}`)?.focus();
-                              } else if (e.key === 'Enter') {
-                                e.preventDefault();
-                                handleSaveSheetRow(f.id!);
-                                setTimeout(() => {
-                                  document.getElementById(`qty-${idx + 1}`)?.focus();
-                                }, 100);
-                              }
-                            }}
-                            onChange={(e) => setSheetData({...sheetData, [f.id!]: {...rowData, fat: e.target.value}})}
-                          />
-                        </td>
-                        <td className="px-6 py-4">
-                          <input 
-                            type="number" inputMode="decimal" pattern="[0-9]*" 
-                            disabled={isSaved}
-                            placeholder="8.5"
-                            id={`snf-${idx}`}
-                            className="w-16 bg-slate-50 border border-slate-200 px-3 py-2.5  text-black focus:bg-white focus:border-blue-500 outline-none transition-all text-sm disabled:opacity-50"
-                            value={rowData.snf}
-                            onKeyDown={(e) => {
-                              if (e.key === ' ' || e.key === 'Enter') {
-                                e.preventDefault();
-                                handleSaveSheetRow(f.id!);
-                                setTimeout(() => {
-                                  document.getElementById(`qty-${idx + 1}`)?.focus();
-                                }, 100);
-                              }
-                            }}
-                            onChange={(e) => setSheetData({...sheetData, [f.id!]: {...rowData, snf: e.target.value}})}
-                          />
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex flex-col">
-                            <span className=" text-slate-900 font-mono">₹ {amount.toFixed(2)}</span>
-                            <span className="text-[9px]  text-black tracking-wider">@ ₹ {rate.toFixed(2)}/L</span>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 text-center">
-                          <button 
-                            disabled={isSaved || !rowData.quantity}
-                            onClick={() => handleSaveSheetRow(f.id!)}
-                            className={`min-w-[100px] px-4 py-2.5  text-[10px] tracking-wider ${isSaved ? 'bg-emerald-500 text-white cursor-not-allowed' : 'bg-slate-900 text-white hover:bg-blue-600'}`}
-                          >
-                            {isSaved ? 'Success' : 'Save Record'}
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+              return (
+              <div ref={tableContainerRef} className="bg-slate-50 md:bg-white border-t border-slate-100 overflow-auto no-scrollbar h-[calc(100vh-250px)] min-h-[400px]">
+                <table className="w-full text-left relative">
+                  <thead className="sticky top-0 z-10 bg-slate-100 text-black text-[10px] md:text-[11px] border-b border-slate-200 shadow-sm">
+                    <tr>
+                      <th className="px-3 md:px-6 py-4 md:py-5 whitespace-nowrap">#Seq</th>
+                      <th className="px-3 md:px-6 py-4 md:py-5 whitespace-nowrap">Farmer Name</th>
+                      <th className="px-3 md:px-6 py-4 md:py-5 whitespace-nowrap">Quantity (L)</th>
+                      <th className="px-3 md:px-6 py-4 md:py-5 whitespace-nowrap">Fat (%)</th>
+                      <th className="px-3 md:px-6 py-4 md:py-5 whitespace-nowrap">SNF (%)</th>
+                      <th className="px-3 md:px-6 py-4 md:py-5 whitespace-nowrap">Rate / Amount</th>
+                      <th className="px-3 md:px-6 py-4 md:py-5 whitespace-nowrap text-center">{t("status")}</th>
+                    </tr>
+                  </thead>
+                  <tbody style={{ height: `${rowVirtualizer.getTotalSize()}px`, position: 'relative' }} className="divide-y divide-slate-100">
+                    {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                      const f = filteredFarmers[virtualRow.index];
+                      const rowData = sheetData[f.id!] || { quantity: '', fat: '', snf: '8.5' };
+                      const fat = parseFloat(rowData.fat) || 0;
+                      const snf = parseFloat(rowData.snf) || 0;
+                      const rate = f.fixedRate ? f.fixedRate : ((fat * settings.peakFatRate / 10) + (snf * 3.5));
+                      const amount = (parseFloat(rowData.quantity) || 0) * rate;
+                      const isSaved = !!existingSessions[f.id!]?.[formData.session] || (rowData as any).saved;
 
-              {/* Mobile View */}
-              <div className="md:hidden p-3 space-y-3">
-                 {farmers.filter(f => f.name.toLowerCase().includes(sheetSearch.toLowerCase())).map((f, idx) => {
-                    const rowData = sheetData[f.id!] || { quantity: '', fat: '', snf: '8.5' };
-                    const fat = parseFloat(rowData.fat) || 0;
-                    const snf = parseFloat(rowData.snf) || 0;
-                    const rate = f.fixedRate ? f.fixedRate : ((fat * settings.peakFatRate / 10) + (snf * 3.5));
-                    const amount = (parseFloat(rowData.quantity) || 0) * rate;
-                    const isSaved = !!existingSessions[f.id!]?.[formData.session] || (rowData as any).saved;
-
-                    return (
-                       <div key={f.id} className={`p-4 border ${isSaved ? 'border-emerald-200 bg-emerald-50' : 'border-slate-200 bg-white'}`}>
-                          <div className="flex justify-between items-start mb-3">
-                             <div className="flex gap-2 items-center">
-                               <span className={`w-7 h-7 flex items-center justify-center  rounded-none text-xs ${isSaved ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-black'}`}>
-                                 {f.sequence || idx + 1}
-                               </span>
-                               <div>
-                                 <p className={` tracking-tight text-sm ${isSaved ? 'text-emerald-700' : 'text-slate-900'}`}>{f.name}</p>
-                                 <p className="text-[10px] text-black  tracking-widest">{f.village}</p>
-                               </div>
-                             </div>
-                             <div className="text-right">
-                               <span className=" text-slate-900 font-mono block">₹ {amount.toFixed(2)}</span>
-                               <span className="text-[9px]  text-black tracking-wider block">@ ₹ {rate.toFixed(2)}/L</span>
-                             </div>
-                          </div>
-                          
-                          <div className="grid grid-cols-3 gap-2 mb-3">
-                             <div>
-                               <label className="text-[9px]  text-black block mb-1">Qty (L)</label>
-                               <input 
-                                 type="number" inputMode="decimal" pattern="[0-9]*" 
-                                 disabled={isSaved}
-                                 placeholder="0.0"
-                                 id={`m-qty-${idx}`}
-                                 className="w-full bg-slate-50 border border-slate-200 px-3 py-2.5  text-black focus:bg-white focus:border-blue-500 outline-none transition-all text-sm disabled:opacity-50 text-center"
-                                 value={rowData.quantity}
-                                 onKeyDown={(e) => {
-                                   if (e.key === ' ' || e.key === 'Enter') {
-                                     e.preventDefault();
-                                     document.getElementById(`m-fat-${idx}`)?.focus();
-                                   }
-                                 }}
-                                 onChange={(e) => setSheetData({...sheetData, [f.id!]: {...rowData, quantity: e.target.value}})}
-                               />
-                             </div>
-                             <div>
-                               <label className="text-[9px]  text-black block mb-1">Fat (%)</label>
-                               <input 
-                                 type="number" inputMode="decimal" pattern="[0-9]*" 
-                                 disabled={isSaved}
-                                 placeholder="0.0"
-                                 id={`m-fat-${idx}`}
-                                 className="w-full bg-slate-50 border border-slate-200 px-3 py-2.5  text-black focus:bg-white focus:border-blue-500 outline-none transition-all text-sm disabled:opacity-50 text-center"
-                                 value={rowData.fat}
-                                 onKeyDown={(e) => {
-                                   if (e.key === ' ' || e.key === 'Enter') {
-                                     e.preventDefault();
-                                     document.getElementById(`m-snf-${idx}`)?.focus();
-                                   }
-                                 }}
-                                 onChange={(e) => setSheetData({...sheetData, [f.id!]: {...rowData, fat: e.target.value}})}
-                               />
-                             </div>
-                             <div>
-                               <label className="text-[9px]  text-black block mb-1">SNF (%)</label>
-                               <input 
-                                 type="number" inputMode="decimal" pattern="[0-9]*" 
-                                 disabled={isSaved}
-                                 placeholder="8.5"
-                                 id={`m-snf-${idx}`}
-                                 className="w-full bg-slate-50 border border-slate-200 px-3 py-2.5  text-black focus:bg-white focus:border-blue-500 outline-none transition-all text-sm disabled:opacity-50 text-center"
-                                 value={rowData.snf}
-                                 onKeyDown={(e) => {
-                                   if (e.key === ' ' || e.key === 'Enter') {
-                                     e.preventDefault();
-                                     handleSaveSheetRow(f.id!);
-                                     setTimeout(() => {
-                                       document.getElementById(`m-qty-${idx + 1}`)?.focus();
-                                     }, 100);
-                                   }
-                                 }}
-                                 onChange={(e) => setSheetData({...sheetData, [f.id!]: {...rowData, snf: e.target.value}})}
-                               />
-                             </div>
-                          </div>
-                          
-                          <button 
-                            disabled={isSaved || !rowData.quantity}
-                            onClick={() => handleSaveSheetRow(f.id!)}
-                            className={`w-full py-3  text-xs tracking-wider ${isSaved ? 'bg-emerald-500 text-white cursor-not-allowed' : 'bg-slate-900 text-white hover:bg-blue-600'}`}
-                          >
-                            {isSaved ? 'Saved Successfully' : 'Save Record'}
-                          </button>
-                       </div>
-                    );
-                 })}
+                      return (
+                        <tr key={f.id} 
+                          style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            width: '100%',
+                            height: `${virtualRow.size}px`,
+                            transform: `translateY(${virtualRow.start}px)`
+                          }}
+                          className={`${isSaved ? 'bg-emerald-50/30' : 'hover:bg-slate-50/80'}`}
+                        >
+                          <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
+                             <span className={`w-6 h-6 flex items-center justify-center  rounded-none text-[10px] ${isSaved ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-black'}`}>
+                               {f.sequence || virtualRow.index + 1}
+                             </span>
+                          </td>
+                          <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
+                            <p className={` tracking-tight text-sm ${isSaved ? 'text-emerald-700' : 'text-slate-900'}`}>{f.name}</p>
+                            <p className="text-[10px] text-black  tracking-widest">{f.village}</p>
+                          </td>
+                          <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
+                            <input 
+                              type="number" inputMode="decimal" pattern="[0-9]*" 
+                              disabled={isSaved}
+                              placeholder="0.0"
+                              id={`qty-${virtualRow.index}`}
+                              className="w-20 md:w-24 bg-slate-50 border border-slate-200 px-2 md:px-3 py-2 md:py-2.5  text-black focus:bg-white focus:border-blue-500 outline-none text-sm disabled:opacity-50"
+                              value={rowData.quantity}
+                              onKeyDown={(e) => {
+                                if (e.key === ' ') {
+                                  e.preventDefault();
+                                  document.getElementById(`fat-${virtualRow.index}`)?.focus();
+                                } else if (e.key === 'Enter') {
+                                  e.preventDefault();
+                                  handleSaveSheetRow(f.id!);
+                                  setTimeout(() => {
+                                    document.getElementById(`qty-${virtualRow.index + 1}`)?.focus();
+                                  }, 100);
+                                }
+                              }}
+                              onChange={(e) => setSheetData({...sheetData, [f.id!]: {...rowData, quantity: e.target.value}})}
+                            />
+                          </td>
+                          <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
+                            <input 
+                              type="number" inputMode="decimal" pattern="[0-9]*" 
+                              disabled={isSaved}
+                              placeholder="0.0"
+                              id={`fat-${virtualRow.index}`}
+                              className="w-16 md:w-20 bg-slate-50 border border-slate-200 px-2 md:px-3 py-2 md:py-2.5  text-black focus:bg-white focus:border-blue-500 outline-none text-sm disabled:opacity-50"
+                              value={rowData.fat}
+                              onKeyDown={(e) => {
+                                if (e.key === ' ') {
+                                  e.preventDefault();
+                                  document.getElementById(`snf-${virtualRow.index}`)?.focus();
+                                } else if (e.key === 'Enter') {
+                                  e.preventDefault();
+                                  handleSaveSheetRow(f.id!);
+                                  setTimeout(() => {
+                                    document.getElementById(`qty-${virtualRow.index + 1}`)?.focus();
+                                  }, 100);
+                                }
+                              }}
+                              onChange={(e) => setSheetData({...sheetData, [f.id!]: {...rowData, fat: e.target.value}})}
+                            />
+                          </td>
+                          <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
+                            <input 
+                              type="number" inputMode="decimal" pattern="[0-9]*" 
+                              disabled={isSaved}
+                              placeholder="8.5"
+                              id={`snf-${virtualRow.index}`}
+                              className="w-16 md:w-20 bg-slate-50 border border-slate-200 px-2 md:px-3 py-2 md:py-2.5  text-black focus:bg-white focus:border-blue-500 outline-none text-sm disabled:opacity-50"
+                              value={rowData.snf}
+                              onKeyDown={(e) => {
+                                if (e.key === ' ' || e.key === 'Enter') {
+                                  e.preventDefault();
+                                  handleSaveSheetRow(f.id!);
+                                  setTimeout(() => {
+                                    document.getElementById(`qty-${virtualRow.index + 1}`)?.focus();
+                                  }, 100);
+                                }
+                              }}
+                              onChange={(e) => setSheetData({...sheetData, [f.id!]: {...rowData, snf: e.target.value}})}
+                            />
+                          </td>
+                          <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
+                            <div className="flex flex-col">
+                              <span className=" text-slate-900 font-mono">₹ {amount.toFixed(2)}</span>
+                              <span className="text-[9px]  text-black tracking-wider">@ ₹ {rate.toFixed(2)}/L</span>
+                            </div>
+                          </td>
+                          <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap text-center">
+                            <button 
+                              disabled={isSaved || !rowData.quantity}
+                              onClick={() => handleSaveSheetRow(f.id!)}
+                              className={`w-full md:w-auto px-4 py-2.5  text-[10px] tracking-wider ${isSaved ? 'bg-emerald-500 text-white cursor-not-allowed' : 'bg-slate-900 text-white hover:bg-blue-600'}`}
+                            >
+                              {isSaved ? 'Success' : 'Save'}
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
               </div>
+              );
+            })()}
               {farmers.length === 0 && (
                 <div className="p-20 text-center text-slate-300  tracking-widest text-xs">No farmers available for batch entry.</div>
               )}
             </div>
-          </div>
         )}
       </div>
 
-      <EditMilkModal 
-        isOpen={!!editingCollection} 
-        collection={editingCollection} 
-        onClose={() => setEditingCollection(null)} 
-        onSuccess={() => {
-          setEditingCollection(null);
-        }} 
-      />
+      <Suspense fallback={null}>
+        {editingCollection && (
+          <EditMilkModal 
+            isOpen={!!editingCollection} 
+            collection={editingCollection} 
+            onClose={() => setEditingCollection(null)} 
+            onSuccess={() => {
+              setEditingCollection(null);
+            }} 
+          />
+        )}
+      </Suspense>
     </div>
   );
 }

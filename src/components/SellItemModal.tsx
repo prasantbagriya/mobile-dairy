@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import { InventoryItem, Farmer, Customer } from '../types';
 import { db } from '../lib/db';
 import { collection, query, where, getDocs, doc, writeBatch, increment } from 'firebase/firestore';
@@ -12,7 +12,7 @@ interface SellItemModalProps {
   onSuccess: () => void;
 }
 
-export default function SellItemModal({ isOpen, onClose, item, onSuccess }: SellItemModalProps) {
+const SellItemModal = memo(({ isOpen, onClose, item, onSuccess }: SellItemModalProps) => {
   const { tenantId } = useAuth();
   const [personType, setPersonType] = useState<'farmer' | 'customer'>('farmer');
   const [farmers, setFarmers] = useState<Farmer[]>([]);
@@ -224,4 +224,6 @@ export default function SellItemModal({ isOpen, onClose, item, onSuccess }: Sell
       </div>
     </div>
   );
-}
+});
+
+export default SellItemModal;

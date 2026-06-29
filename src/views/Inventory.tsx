@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense, lazy } from 'react';
 import { useI18n } from '../lib/i18n';
 import { useAuth } from '../lib/auth';
 import { db } from '../lib/db';
 import { collection, where, addDoc, onSnapshot, query, doc, updateDoc, deleteDoc, writeBatch } from 'firebase/firestore';
 import { Package, Plus, Save, X, Edit2, Trash2, AlertTriangle, TrendingUp, ShoppingCart, LayoutGrid, List } from 'lucide-react';
 import InfoTooltip from '../components/InfoTooltip';
-import SellItemModal from '../components/SellItemModal';
+const SellItemModal = lazy(() => import('../components/SellItemModal'));
 
 export default function Inventory() {
   const { t } = useI18n();
@@ -151,8 +151,8 @@ export default function Inventory() {
 
   if (showForm) {
     return (
-      <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
-        <div className="bg-white w-full overflow-hidden border border-slate-200 shadow-sm">
+      <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-300 max-w-2xl mx-auto mt-4 md:mt-10">
+        <div className="bg-white w-full overflow-hidden border border-slate-200 shadow-sm relative">
           <div className="bg-blue-600 p-4 text-white flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 bg-white/20 flex items-center justify-center">
@@ -160,7 +160,11 @@ export default function Inventory() {
               </div>
               <h3 className="text-lg tracking-tight">{editingId ? t('edit_inventory_item') : t('add_inventory_item')}</h3>
             </div>
-            <button onClick={() => { setShowForm(false); setEditingId(null); }} className="p-1 hover:bg-white/10 transition-colors flex items-center gap-1 text-sm">
+            <button
+              onClick={() => { setShowForm(false); setEditingId(null); }}
+              aria-label="Close"
+              className="p-1 hover:bg-white/10 transition-colors flex items-center gap-1 text-sm"
+            >
               <X className="w-5 h-5 text-white" />
             </button>
           </div>
@@ -472,17 +476,14 @@ export default function Inventory() {
         </div>
       )}
 
-      <SellItemModal 
-        isOpen={!!sellItem}
-        onClose={() => setSellItem(null)}
-        item={sellItem}
-        onSuccess={() => {
-          setSellItem(null);
-        }}
-      />
+      <Suspense fallback={null}>
+        <SellItemModal 
+          isOpen={!!sellItem}
+          item={sellItem}
+          onClose={() => setSellItem(null)}
+          onSuccess={() => setSellItem(null)}
+        />
+      </Suspense>
     </div>
   );
 }
-
-
-

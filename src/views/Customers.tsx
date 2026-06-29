@@ -1,11 +1,12 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useMemo, Suspense, lazy } from 'react';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import toast from 'react-hot-toast';
 import { useI18n } from '../lib/i18n';
 import { db } from '../lib/db';
 import { collection, where, addDoc, onSnapshot, updateDoc, deleteDoc, doc, query, orderBy, writeBatch, getDocs } from 'firebase/firestore';
 import { Customer } from '../types';
 import { Plus, Search, Edit2, Phone, MapPin, FileText, Save, Trash2, X, Power, LayoutGrid, List as ListIcon } from 'lucide-react';
-import SharedLedger from '../components/SharedLedger';
+const SharedLedger = lazy(() => import('../components/SharedLedger'));
 import { useAuth } from '../lib/auth';
 import InfoTooltip from '../components/InfoTooltip';
 
@@ -23,8 +24,9 @@ export default function Customers() {
   const [contacts, setContacts] = useState<any[]>([]);
   const [allContactsCache, setAllContactsCache] = useState<any[] | null>(null);
   const [searchingContacts, setSearchingContacts] = useState(false);
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>(window.innerWidth < 768 ? 'grid' : 'list');
   const { accessToken, user, tenantId, connectGoogle, registerCustomerLogin } = useAuth();
+  const tableContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!tenantId) return;
@@ -480,9 +482,22 @@ export default function Customers() {
             </div>
           </div>
 
-          {viewMode === 'grid' ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4">
-              {customers.filter(c => (c.name || "").toLowerCase().includes(search.toLowerCase())).map(customer => {
+          {(() => {
+            const filteredCustomers = useMemo(() => {
+              return customers.filter(c => (c.name || "").toLowerCase().includes(search.toLowerCase()));
+            }, [customers, search]);
+            
+            const rowVirtualizer = useVirtualizer({
+              count: filteredCustomers.length,
+              getScrollElement: () => tableContainerRef.current,
+              estimateSize: () => 56,
+              overscan: 5
+            });
+
+            if (viewMode === 'grid') {
+              return (
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4">
+                  {filteredCustomers.map(customer => {
                 const isDeactivated = customer.isActive === false;
                 return (
                 <div 
@@ -542,10 +557,13 @@ export default function Customers() {
                 </div>
               )})}
             </div>
-          ) : (
-            <div className="bg-white border border-slate-100 overflow-x-auto no-scrollbar">
-              <table className="w-full text-left border-collapse min-w-[800px]">
-                <thead>
+              );
+            }
+
+            return (
+            <div ref={tableContainerRef} className="bg-white border border-slate-100 overflow-auto no-scrollbar h-[calc(100vh-200px)] min-h-[400px]">
+              <table className="w-full text-left border-collapse min-w-[800px] relative">
+                <thead className="sticky top-0 z-10 bg-slate-50 border-b border-slate-100 shadow-sm">
                   <tr className="bg-slate-50 border-b border-slate-100">
                     <th className="px-2 py-1.5 text-[10px] text-black tracking-widest w-12 whitespace-nowrap">{t('seq_no')}</th>
                     <th className="px-2 py-1.5 text-[10px]  text-black tracking-widest">{t('customer')}</th>
@@ -555,11 +573,22 @@ export default function Customers() {
                     <th className="px-2 py-1.5 text-[10px]  text-black tracking-widest text-center">{t("actions")}</th>
                   </tr>
                 </thead>
-                <tbody>
-                  {customers.filter(c => (c.name || "").toLowerCase().includes(search.toLowerCase())).map(customer => {
+                <tbody style={{ height: `${rowVirtualizer.getTotalSize()}px`, position: 'relative' }}>
+                  {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                    const customer = filteredCustomers[virtualRow.index];
                     const isDeactivated = customer.isActive === false;
                     return (
-                      <tr key={customer.id} className={`border-b border-slate-50 hover:bg-slate-50 transition-colors ${isDeactivated ? 'opacity-75 grayscale bg-slate-50/50' : ''}`}>
+                      <tr key={customer.id} 
+                        style={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          width: '100%',
+                          height: `${virtualRow.size}px`,
+                          transform: `translateY(${virtualRow.start}px)`
+                        }}
+                        className={`border-b border-slate-50 hover:bg-slate-50 transition-colors ${isDeactivated ? 'opacity-75 grayscale bg-slate-50/50' : ''}`}
+                      >
                         <td className="px-2 py-1.5">
                           <span className="text-xs  text-black">#{customer.sequence || '?'}</span>
                         </td>
@@ -634,7 +663,8 @@ export default function Customers() {
                 </tbody>
               </table>
             </div>
-          )}
+            );
+          })()}
 
           {customers.length === 0 && (
             <div className="py-12 text-center bg-white border border-slate-100 rounded-none">

@@ -181,7 +181,7 @@ export default function FarmerDashboard() {
                 <p className="text-emerald-100 mb-1 uppercase tracking-widest text-[10px]">Welcome</p>
                 <h1 className="text-2xl font-bold">{farmerData.name}</h1>
               </div>
-              <button onClick={logout} className="p-2 bg-emerald-700 border border-emerald-600"><LogOut className="w-5 h-5" /></button>
+              <button onClick={logout} aria-label="Logout" className="p-2 bg-emerald-700 border border-emerald-600"><LogOut className="w-5 h-5" /></button>
            </div>
          </div>
 
