@@ -692,12 +692,12 @@ export default function Farmers() {
               <table className="w-full text-left border-collapse min-w-[800px] relative">
                 <thead className="sticky top-0 z-10 bg-slate-50 border-b border-slate-100 shadow-sm">
                   <tr className="bg-slate-50 border-b border-slate-100">
-                    <th className="px-2 md:px-6 py-1.5 md:py-2 text-[10px] text-black tracking-widest w-16 text-center whitespace-nowrap">{t("seq_no")}</th>
-                    <th className="px-2 md:px-6 py-1.5 md:py-2 text-[10px] text-black tracking-widest">{t('farmer')}</th>
-                    <th className="px-2 md:px-6 py-1.5 md:py-2 text-[10px] text-black tracking-widest">{t("contact")}</th>
-                    <th className="px-2 md:px-6 py-1.5 md:py-2 text-[10px] text-black tracking-widest">{t('village')}</th>
-                    <th className="px-2 md:px-6 py-1.5 md:py-2 text-[10px] text-black tracking-widest text-right">{t('balance')}</th>
-                    <th className="px-2 md:px-6 py-1.5 md:py-2 text-[10px] text-black tracking-widest text-center">{t("actions")}</th>
+                    <th className="px-2 md:px-6 py-3 md:py-4 text-[10px] text-black font-normal capitalize tracking-widest whitespace-nowrap">{t("seq_no")}</th>
+                    <th className="px-2 md:px-6 py-3 md:py-4 text-[10px] text-black font-normal capitalize tracking-widest whitespace-nowrap">{t('farmer')}</th>
+                    <th className="px-2 md:px-6 py-3 md:py-4 text-[10px] text-black font-normal capitalize tracking-widest whitespace-nowrap">{t("contact")}</th>
+                    <th className="px-2 md:px-6 py-3 md:py-4 text-[10px] text-black font-normal capitalize tracking-widest whitespace-nowrap">{t('village')}</th>
+                    <th className="px-2 md:px-6 py-3 md:py-4 text-[10px] text-black font-normal capitalize tracking-widest text-right whitespace-nowrap">{t('balance')}</th>
+                    <th className="px-2 md:px-6 py-3 md:py-4 text-[10px] text-black font-normal capitalize tracking-widest text-center whitespace-nowrap">{t("actions")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
