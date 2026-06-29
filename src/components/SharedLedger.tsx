@@ -449,7 +449,7 @@ const SharedLedger = memo(({ person, type, allPersons = [], onClose, onRefresh, 
 
       {showPaymentModal && (
         <div className="fixed inset-0 bg-slate-900/60 z-[100] flex items-start md:items-center justify-center p-0 md:p-4">
-          <div className="bg-white w-full h-[100dvh] md:h-auto md:max-w-md overflow-y-auto border-none md:border border-slate-400 flex flex-col">
+          <div className="bg-white w-full h-[100dvh] md:h-auto md:max-h-[95vh] md:max-w-md overflow-y-auto border-none md:border border-slate-400 flex flex-col relative">
             <div className={`${isFarmer ? 'bg-blue-600 border-blue-700' : 'bg-emerald-600 border-emerald-700'} p-3 text-white flex items-center justify-between border-b sticky top-0 z-10`}>
               <div className="flex items-center gap-2">
                 <button onClick={() => setShowPaymentModal(false)} className={`p-1 ${isFarmer ? 'hover:bg-blue-700' : 'hover:bg-emerald-700'} transition-colors`}>
@@ -460,7 +460,7 @@ const SharedLedger = memo(({ person, type, allPersons = [], onClose, onRefresh, 
             </div>
             <div className="p-4 md:p-6 flex-1 flex flex-col max-w-xl mx-auto w-full gap-4 md:gap-5">
               <div className="flex justify-between items-center p-3 md:p-4 bg-slate-50 border border-slate-200">
-                <span className="text-black text-[11px] md:text-sm uppercase tracking-tight font-bold">{isFarmer ? 'Current Balance' : 'Current Dues'}</span>
+                <span className="text-black text-[11px] md:text-sm font-bold">{isFarmer ? 'Current Balance' : 'Current Dues'}</span>
                 <div className="flex items-center gap-3">
                   <span className={`text-lg md:text-xl font-bold ${isFarmer ? (localBalance >= 0 ? 'text-emerald-600' : 'text-red-600') : (localBalance > 0 ? 'text-red-500' : 'text-emerald-500')}`}>
                     ₹ {Math.abs(localBalance).toLocaleString()} {isFarmer ? (localBalance >= 0 ? '(Dr)' : '(Cr)') : (localBalance > 0 ? '(Dr)' : '(Cr)')}
@@ -476,7 +476,7 @@ const SharedLedger = memo(({ person, type, allPersons = [], onClose, onRefresh, 
                           description: 'Full Balance Settlement'
                         });
                       }}
-                      className={`px-3 py-1.5 ${isFarmer ? 'bg-blue-100 text-blue-700 hover:bg-blue-200 border-blue-200' : 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200 border-emerald-200'} text-xs uppercase tracking-widest border font-bold shadow-sm`}
+                      className={`px-3 py-1.5 ${isFarmer ? 'bg-blue-100 text-blue-700 hover:bg-blue-200 border-blue-200' : 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200 border-emerald-200'} text-xs border font-bold shadow-sm`}
                     >
                       Settle All
                     </button>
@@ -485,13 +485,13 @@ const SharedLedger = memo(({ person, type, allPersons = [], onClose, onRefresh, 
               </div>
 
               <div className="flex bg-slate-100 p-1.5 shadow-inner">
-                <button onClick={() => setPaymentData({...paymentData, type: 'credit'})} className={`flex-1 py-3 text-xs md:text-sm uppercase tracking-widest font-bold border shadow-sm ${paymentData.type === 'credit' ? 'bg-emerald-600 text-white border-emerald-600' : 'text-black bg-transparent border-transparent hover:bg-slate-200 shadow-none'}`}>Received (+)</button>
-                <button onClick={() => setPaymentData({...paymentData, type: 'debit'})} className={`flex-1 py-3 text-xs md:text-sm uppercase tracking-widest font-bold border shadow-sm ${paymentData.type === 'debit' ? 'bg-red-600 text-white border-red-600' : 'text-black bg-transparent border-transparent hover:bg-slate-200 shadow-none'}`}>Paid (-)</button>
+                <button onClick={() => setPaymentData({...paymentData, type: 'credit'})} className={`flex-1 py-3 text-xs md:text-sm font-bold border shadow-sm ${paymentData.type === 'credit' ? 'bg-emerald-600 text-white border-emerald-600' : 'text-black bg-transparent border-transparent hover:bg-slate-200 shadow-none'}`}>Received (+)</button>
+                <button onClick={() => setPaymentData({...paymentData, type: 'debit'})} className={`flex-1 py-3 text-xs md:text-sm font-bold border shadow-sm ${paymentData.type === 'debit' ? 'bg-red-600 text-white border-red-600' : 'text-black bg-transparent border-transparent hover:bg-slate-200 shadow-none'}`}>Paid (-)</button>
               </div>
 
               <div className="flex-1 flex flex-col gap-4 mt-2">
                 <div className="space-y-1.5">
-                  <label className="text-xs text-black uppercase tracking-widest font-bold block">Amount (₹)</label>
+                  <label className="text-sm text-black font-bold block">Amount (₹)</label>
                   <input 
                     type="number" inputMode="decimal" pattern="[0-9]*" 
                     className="w-full text-2xl text-blue-600 border-2 border-slate-300 px-4 py-3 outline-none focus:border-blue-500 font-bold bg-white" 
@@ -502,7 +502,7 @@ const SharedLedger = memo(({ person, type, allPersons = [], onClose, onRefresh, 
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="text-xs text-black uppercase tracking-widest font-bold block">Method</label>
+                    <label className="text-sm text-black font-bold block">Method</label>
                     <select className="w-full border-2 border-slate-300 px-4 py-3 outline-none focus:border-blue-500 text-base font-bold bg-white" value={paymentData.method} onChange={e => setPaymentData({...paymentData, method: e.target.value})}>
                       <option value="Cash">Cash</option>
                       <option value="Bank Transfer">Bank Transfer</option>
@@ -511,28 +511,28 @@ const SharedLedger = memo(({ person, type, allPersons = [], onClose, onRefresh, 
                     </select>
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-xs text-black uppercase tracking-widest font-bold block">Date</label>
+                    <label className="text-sm text-black font-bold block">Date</label>
                     <input type="date" className="w-full border-2 border-slate-300 px-4 py-3 outline-none focus:border-blue-500 text-base font-bold bg-white" value={paymentData.date} onChange={e => setPaymentData({...paymentData, date: e.target.value})} />
                   </div>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs text-black uppercase tracking-widest font-bold block">Description / Note</label>
+                  <label className="text-sm text-black font-bold block">Description / Note</label>
                   <input type="text" className="w-full border-2 border-slate-300 px-4 py-3 outline-none focus:border-blue-500 text-base bg-white" value={paymentData.description} onChange={e => setPaymentData({...paymentData, description: e.target.value})} placeholder="Optional" />
                 </div>
               </div>
 
               <div className="flex flex-col gap-3 mt-auto pt-6 pb-6 md:pb-0">
                 <div className="flex gap-3">
-                  <button disabled={isSaving} onClick={() => setShowPaymentModal(false)} className="flex-1 px-4 py-3.5 bg-slate-100 text-black hover:bg-slate-200 border-2 border-slate-300 text-sm tracking-widest uppercase font-bold shadow-sm">
+                  <button disabled={isSaving} onClick={() => setShowPaymentModal(false)} className="flex-1 px-4 py-3.5 bg-slate-100 text-black hover:bg-slate-200 border-2 border-slate-300 text-sm font-bold shadow-sm">
                     Cancel
                   </button>
-                  <button onClick={() => handleSavePayment(false)} disabled={!paymentData.amount || isSaving} className="flex-1 px-4 py-3.5 bg-blue-600 text-white hover:bg-blue-700 border-2 border-blue-700 disabled:opacity-50 text-sm tracking-widest uppercase font-bold shadow-md">
+                  <button onClick={() => handleSavePayment(false)} disabled={!paymentData.amount || isSaving} className="flex-1 px-4 py-3.5 bg-blue-600 text-white hover:bg-blue-700 border-2 border-blue-700 disabled:opacity-50 text-sm font-bold shadow-md">
                     {isSaving ? 'Saving...' : 'Save'}
                   </button>
                 </div>
                 {allPersons && allPersons.length > 0 && onNavigateToPerson && (
-                  <button onClick={() => handleSavePayment(true)} disabled={!paymentData.amount || isSaving} className="w-full px-4 py-3.5 bg-emerald-600 text-white hover:bg-emerald-700 border-2 border-emerald-700 disabled:opacity-50 text-sm tracking-widest uppercase font-bold shadow-md whitespace-nowrap">
+                  <button onClick={() => handleSavePayment(true)} disabled={!paymentData.amount || isSaving} className="w-full px-4 py-3.5 bg-emerald-600 text-white hover:bg-emerald-700 border-2 border-emerald-700 disabled:opacity-50 text-sm font-bold shadow-md whitespace-nowrap">
                     {isSaving ? 'Saving...' : 'Save & Next'}
                   </button>
                 )}

@@ -610,7 +610,7 @@ export default function CustomerDashboard() {
       {/* Payment Modal */}
       {showPaymentForm && (
         <div className="fixed inset-0 bg-slate-900/60 z-50 flex items-end md:items-center justify-center md:p-4">
-          <div className="bg-white w-full h-dvh md:h-auto md:max-w-sm border border-slate-400 pb-safe overflow-y-auto flex flex-col">
+          <div className="bg-white w-full h-dvh md:h-auto md:max-h-[95vh] md:max-w-sm border border-slate-400 pb-safe overflow-y-auto flex flex-col">
             <div className="p-4 space-y-4 flex-1">
               <div className="flex justify-between items-center relative">
                 <div className="flex items-center gap-2">
