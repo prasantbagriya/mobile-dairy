@@ -46,18 +46,13 @@ export default function Dashboard({ onNavigate }: { onNavigate: (view: string) =
       }
     });
 
-    // Fetch aggregates directly without keeping active raw subscriptions
-    getAggregateFromServer(query(collection(db, 'farmers'), where('userId', '==', tenantId)), {
-      totalBalance: sum('balance')
-    }).then(snap => {
-      setFarmers([{ balance: snap.data().totalBalance || 0 }]);
-    }).catch(console.error);
+    const unsubFarmers = onSnapshot(query(collection(db, 'farmers'), where('userId', '==', tenantId)), (snap) => {
+      setFarmers(snap.docs.map(d => ({ id: d.id, ...d.data() } as any)));
+    });
 
-    getAggregateFromServer(query(collection(db, 'customers'), where('userId', '==', tenantId)), {
-      totalBalance: sum('balance')
-    }).then(snap => {
-      setCustomers([{ balance: snap.data().totalBalance || 0 }]);
-    }).catch(console.error);
+    const unsubCustomers = onSnapshot(query(collection(db, 'customers'), where('userId', '==', tenantId)), (snap) => {
+      setCustomers(snap.docs.map(d => ({ id: d.id, ...d.data() } as any)));
+    });
 
     const transStartDate = new Date();
     transStartDate.setDate(transStartDate.getDate() - 30);
