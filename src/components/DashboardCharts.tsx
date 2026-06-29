@@ -53,7 +53,7 @@ const DashboardCharts: React.FC<DashboardChartsProps> = memo(({
   return (
     <>
       {/* Collection Trend */}
-      <div className="bg-white p-4 border border-slate-200">
+      <div className="bg-white p-4 border border-slate-200 col-span-2 md:col-span-1">
         <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
           <h3 className="text-xs sm:text-sm text-slate-900 tracking-wide font-bold flex-1">{t("collection_vs_sales")} (L)</h3>
           <select
@@ -93,7 +93,7 @@ const DashboardCharts: React.FC<DashboardChartsProps> = memo(({
       </div>
 
       {/* Milk Quality Trend (New) */}
-      <div className="bg-white p-4 border border-slate-200">
+      <div className="bg-white p-4 border border-slate-200 col-span-2 md:col-span-1">
         <div className="flex items-center justify-between gap-2 mb-4">
           <h3 className="text-xs sm:text-sm text-slate-900 tracking-wide font-bold">{t("milk_quality_trend", "Milk Quality Trend")} (FAT & SNF)</h3>
         </div>
@@ -124,7 +124,7 @@ const DashboardCharts: React.FC<DashboardChartsProps> = memo(({
       </div>
 
       {/* Revenue vs Expenses */}
-      <div className="bg-white p-4 border border-slate-200">
+      <div className="bg-white p-4 border border-slate-200 col-span-2 md:col-span-1">
         <div className="flex items-center justify-between gap-2 mb-4">
           <h3 className="text-xs sm:text-sm text-slate-900 tracking-wide font-bold">Revenue vs Expenses (₹)</h3>
         </div>
@@ -279,90 +279,6 @@ const DashboardCharts: React.FC<DashboardChartsProps> = memo(({
         </div>
       </div>
 
-      {/* New Card 1: Expense Distribution (Circle / Donut Chart) */}
-      <div className="bg-white p-4 border border-slate-200">
-        <div className="flex items-center justify-between gap-2 mb-4">
-          <h3 className="text-xs sm:text-sm text-slate-900 tracking-wide font-bold">Expense Distribution</h3>
-        </div>
-        <div className="h-60 flex flex-col items-center justify-center">
-          {expenseChartData.length > 0 ? (
-            <div className="relative w-48 h-48 flex items-center justify-center">
-              <svg viewBox="0 0 100 100" className="w-full h-full transform -rotate-90">
-                {(() => {
-                  const total = expenseChartData.reduce((sum, item) => sum + item.value, 0);
-                  let currentOffset = 0;
-                  const radius = 40;
-                  const circumference = 2 * Math.PI * radius; // ~251.327
-                  
-                  return [...expenseChartData].sort((a, b) => b.value - a.value).map((item, index) => {
-                    const percentage = item.value / total;
-                    const strokeDasharray = `${percentage * circumference} ${circumference}`;
-                    const offset = currentOffset;
-                    currentOffset += percentage * circumference;
-                    
-                    return (
-                      <circle
-                        key={index}
-                        cx="50"
-                        cy="50"
-                        r={radius}
-                        fill="transparent"
-                        stroke={COLORS[index % COLORS.length]}
-                        strokeWidth="20"
-                        strokeDasharray={strokeDasharray}
-                        strokeDashoffset={-offset}
-                        className="transition-all duration-500 ease-in-out"
-                      />
-                    );
-                  });
-                })()}
-              </svg>
-              <div className="absolute flex flex-col items-center justify-center text-center">
-                <span className="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Total</span>
-                <span className="text-sm font-bold text-slate-900">
-                  ₹{expenseChartData.reduce((s, i) => s + i.value, 0).toLocaleString()}
-                </span>
-              </div>
-            </div>
-          ) : (
-             <div className="text-center text-black text-xs tracking-widest">No expenses recorded</div>
-          )}
-        </div>
-      </div>
-
-      {/* New Card 2: Profit Trend (Line Graph) */}
-      <div className="bg-white p-4 border border-slate-200">
-        <div className="flex items-center justify-between gap-2 mb-4">
-          <h3 className="text-xs sm:text-sm text-slate-900 tracking-wide font-bold">Profit Margin Trend (₹)</h3>
-        </div>
-        <div className="h-auto">
-          <ResponsiveUplot 
-            data={(() => {
-              if (!financialChartData.length) return [[], []];
-              return [
-                financialChartData.map((_, i) => i),
-                financialChartData.map(d => (d.revenue || 0) - (d.expense || 0))
-              ];
-            })()}
-            options={{
-              scales: { x: { time: false } },
-              axes: [
-                { values: (u, vals) => vals.map(v => financialChartData[v]?.name || ''), grid: { show: false }, font: '10px Arial' },
-                { grid: { stroke: '#e2e8f0', dash: [3, 3] }, font: '10px Arial' }
-              ],
-              series: [
-                {},
-                { 
-                  label: "Net Profit", 
-                  stroke: '#0ea5e9', 
-                  width: 2,
-                  fill: 'rgba(14, 165, 233, 0.1)'
-                }
-              ]
-            }}
-          />
-        </div>
-      </div>
     </>
   );
 });
