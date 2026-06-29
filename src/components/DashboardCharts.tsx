@@ -1,35 +1,6 @@
-import React, { memo, useEffect, useRef, useState } from 'react';
-import UplotReact from 'uplot-react';
-import uPlot from 'uplot';
-import 'uplot/dist/uPlot.min.css';
-
-const ResponsiveUplot = ({ options, data }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [size, setSize] = useState({ width: 0, height: 0 });
-
-  useEffect(() => {
-    if (!containerRef.current) return;
-    const observer = new ResizeObserver((entries) => {
-      for (let entry of entries) {
-        setSize({ width: entry.contentRect.width, height: entry.contentRect.height });
-      }
-    });
-    observer.observe(containerRef.current);
-    return () => observer.disconnect();
-  }, []);
-  return (
-    <div ref={containerRef} className="w-full h-full relative min-h-[200px]">
-      {size.width > 0 && size.height > 0 && (
-        <div className="absolute top-0 left-0 w-full h-full">
-          <UplotReact options={{ ...options, width: size.width, height: size.height }} data={data} />
-        </div>
-      )}
-    </div>
-  );
-};
+import React, { memo } from 'react';
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6'];
-const BALANCE_COLORS = ['#f43f5e', '#10b981']; // Red for payable, Green for receivable
 
 const formatYValue = (v: number) => {
   if (Math.abs(v) >= 10000000) return (v / 10000000).toFixed(1) + 'Cr';
@@ -37,7 +8,62 @@ const formatYValue = (v: number) => {
   if (Math.abs(v) >= 1000) return (v / 1000).toFixed(1) + 'K';
   return v;
 };
-const formatYAxis = (u: any, vals: any[]) => vals.map(formatYValue);
+
+const DonutChart = ({ data, title, formatValue, customTotal }: any) => {
+  const dataTotal = data.reduce((sum: number, item: any) => sum + item.value, 0);
+  const displayTotal = customTotal !== undefined ? customTotal : dataTotal;
+  let currentOffset = 0;
+  const radius = 40;
+  const circumference = 2 * Math.PI * radius;
+  return (
+    <div className="flex-1 min-h-0 flex flex-col items-center justify-center relative pb-8 md:pb-0">
+      {data.length > 0 && dataTotal > 0 ? (
+        <div className="relative w-full max-w-[160px] aspect-square flex items-center justify-center mx-auto">
+          <svg viewBox="0 0 100 100" className="w-full h-full transform -rotate-90">
+            {data.sort((a: any, b: any) => b.value - a.value).map((item: any, index: number) => {
+              const percentage = item.value / dataTotal;
+              const strokeDasharray = `${percentage * circumference} ${circumference}`;
+              const offset = currentOffset;
+              currentOffset += percentage * circumference;
+              return (
+                <circle
+                  key={index}
+                  cx="50"
+                  cy="50"
+                  r={radius}
+                  fill="transparent"
+                  stroke={item.color || COLORS[index % COLORS.length]}
+                  strokeWidth="15"
+                  strokeDasharray={strokeDasharray}
+                  strokeDashoffset={-offset}
+                  className="transition-all duration-500 ease-in-out"
+                />
+              );
+            })}
+          </svg>
+          <div className="absolute flex flex-col items-center justify-center text-center">
+            <span className="text-[9px] text-slate-500 uppercase font-bold tracking-widest leading-tight">{title}</span>
+            <span className="text-sm font-bold text-slate-900">
+              {formatValue ? formatValue(displayTotal) : displayTotal.toLocaleString()}
+            </span>
+          </div>
+        </div>
+      ) : (
+         <div className="text-center text-black text-[10px] tracking-widest">No data</div>
+      )}
+      {data.length > 0 && (
+        <div className="w-full mt-2 sm:mt-4 flex flex-wrap gap-1 sm:gap-2 justify-center max-h-[60px] overflow-y-auto no-scrollbar pb-2">
+          {data.map((entry: any, index: number) => (
+            <div key={index} className="flex items-center gap-1 text-[8px] font-bold text-slate-700">
+              <div className="w-2 h-2" style={{ backgroundColor: entry.color || COLORS[index % COLORS.length] }}></div>
+              {entry.name}: {formatValue ? formatValue(entry.value) : entry.value.toLocaleString()}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
 interface DashboardChartsProps {
   t: (key: string) => string;
@@ -60,6 +86,28 @@ const DashboardCharts: React.FC<DashboardChartsProps> = memo(({
   balanceChartData,
   expenseChartData
 }) => {
+
+  const colTotal = chartData.reduce((acc, curr) => acc + (curr.collection || 0), 0);
+  const salesTotal = chartData.reduce((acc, curr) => acc + (curr.sales || 0), 0);
+  const colSalesData = [
+    { name: t("collection_vs_sales"), value: colTotal, color: '#3b82f6' },
+    { name: t("today_sales"), value: salesTotal, color: '#10b981' }
+  ].filter(d => d.value > 0);
+
+  const fatAvg = qualityChartData.length ? qualityChartData.reduce((acc, curr) => acc + (curr.fat || 0), 0) / qualityChartData.length : 0;
+  const snfAvg = qualityChartData.length ? qualityChartData.reduce((acc, curr) => acc + (curr.snf || 0), 0) / qualityChartData.length : 0;
+  const qualData = [
+    { name: "Avg FAT", value: parseFloat(fatAvg.toFixed(1)), color: '#f59e0b' },
+    { name: "Avg SNF", value: parseFloat(snfAvg.toFixed(1)), color: '#8b5cf6' }
+  ].filter(d => d.value > 0);
+
+  const revTotal = financialChartData.reduce((acc, curr) => acc + (curr.revenue || 0), 0);
+  const expTotal = financialChartData.reduce((acc, curr) => acc + (curr.expense || 0), 0);
+  const finData = [
+    { name: "Revenue", value: revTotal, color: '#10b981' },
+    { name: "Expenses", value: expTotal, color: '#ef4444' }
+  ].filter(d => d.value > 0);
+
   return (
     <>
       {/* Collection Trend */}
@@ -76,30 +124,7 @@ const DashboardCharts: React.FC<DashboardChartsProps> = memo(({
             <option value="monthly">{t("monthly")}</option>
           </select>
         </div>
-        <div className="flex-1 min-h-0">
-          <ResponsiveUplot 
-            data={(() => {
-              if (!chartData.length) return [[], [], []];
-              return [
-                chartData.map((_, i) => i),
-                chartData.map(d => d.collection || 0),
-                chartData.map(d => d.sales || 0)
-              ];
-            })()}
-            options={{
-              scales: { x: { time: false } },
-              axes: [
-                { values: (u, vals) => vals.map(v => chartData[v]?.name || ''), grid: { show: false }, font: '10px Arial' },
-                { values: formatYAxis, grid: { stroke: '#e2e8f0', dash: [3, 3] }, font: '10px Arial' }
-              ],
-              series: [
-                {},
-                { label: t("collection_vs_sales"), stroke: '#3b82f6', fill: '#3b82f680', width: 2, paths: uPlot.paths.bars() },
-                { label: t("today_sales"), stroke: '#10b981', fill: '#10b98180', width: 2, paths: uPlot.paths.bars() }
-              ]
-            }}
-          />
-        </div>
+        <DonutChart data={colSalesData} title="Total" formatValue={(v: number) => v.toLocaleString() + " L"} />
       </div>
 
       {/* Milk Quality Trend (New) */}
@@ -107,30 +132,7 @@ const DashboardCharts: React.FC<DashboardChartsProps> = memo(({
         <div className="shrink-0 flex items-center justify-between gap-2 mb-2 sm:mb-4">
           <h3 className="text-xs sm:text-sm text-slate-900 tracking-wide font-bold">{t("milk_quality_trend", "Milk Quality Trend")} (FAT & SNF)</h3>
         </div>
-        <div className="flex-1 min-h-0">
-          <ResponsiveUplot 
-            data={(() => {
-              if (!qualityChartData.length) return [[], [], []];
-              return [
-                qualityChartData.map((_, i) => i),
-                qualityChartData.map(d => d.fat || 0),
-                qualityChartData.map(d => d.snf || 0)
-              ];
-            })()}
-            options={{
-              scales: { x: { time: false } },
-              axes: [
-                { values: (u, vals) => vals.map(v => qualityChartData[v]?.name || ''), grid: { show: false }, font: '10px Arial' },
-                { values: formatYAxis, grid: { stroke: '#e2e8f0', dash: [3, 3] }, font: '10px Arial' }
-              ],
-              series: [
-                {},
-                { label: "Avg FAT", stroke: '#f59e0b', fill: '#f59e0b80', width: 2, paths: uPlot.paths.bars() },
-                { label: "Avg SNF", stroke: '#8b5cf6', fill: '#8b5cf680', width: 2, paths: uPlot.paths.bars() }
-              ]
-            }}
-          />
-        </div>
+        <DonutChart data={qualData} title="Quality" customTotal="Avg" formatValue={(v: any) => v} />
       </div>
 
       {/* Revenue vs Expenses */}
@@ -138,95 +140,16 @@ const DashboardCharts: React.FC<DashboardChartsProps> = memo(({
         <div className="shrink-0 flex items-center justify-between gap-2 mb-2 sm:mb-4">
           <h3 className="text-xs sm:text-sm text-slate-900 tracking-wide font-bold">Revenue vs Expenses (₹)</h3>
         </div>
-        <div className="flex-1 min-h-0">
-          <ResponsiveUplot 
-            data={(() => {
-              if (!financialChartData.length) return [[], [], []];
-              return [
-                financialChartData.map((_, i) => i),
-                financialChartData.map(d => d.revenue || 0),
-                financialChartData.map(d => d.expense || 0)
-              ];
-            })()}
-            options={{
-              scales: { x: { time: false } },
-              axes: [
-                { values: (u, vals) => vals.map(v => financialChartData[v]?.name || ''), grid: { show: false }, font: '10px Arial' },
-                { values: formatYAxis, grid: { stroke: '#e2e8f0', dash: [3, 3] }, font: '10px Arial' }
-              ],
-              series: [
-                {},
-                { label: "Revenue", stroke: '#10b981', fill: '#10b98180', width: 2, paths: uPlot.paths.bars() },
-                { label: "Expenses", stroke: '#ef4444', fill: '#ef444480', width: 2, paths: uPlot.paths.bars() }
-              ]
-            }}
-          />
-        </div>
+        <DonutChart data={finData} title="Total" formatValue={(v: number) => "₹" + formatYValue(v)} />
       </div>
-
-
 
       {/* Expenses Breakdown */}
       <div className="bg-white p-2 sm:p-4 border border-slate-200 col-span-2 lg:col-span-1 flex flex-col h-[300px]">
         <div className="shrink-0 flex items-center justify-between gap-2 mb-2 sm:mb-4">
           <h3 className="text-xs sm:text-sm text-slate-900 tracking-wide font-bold">Expenses Breakdown</h3>
         </div>
-        <div className="flex-1 min-h-0 flex flex-col items-center justify-center relative pb-8 md:pb-0">
-          {expenseChartData.length > 0 ? (
-            <div className="relative w-full max-w-[160px] aspect-square flex items-center justify-center mx-auto">
-              <svg viewBox="0 0 100 100" className="w-full h-full transform -rotate-90">
-                {(() => {
-                  const total = expenseChartData.reduce((sum, item) => sum + item.value, 0);
-                  let currentOffset = 0;
-                  const radius = 40;
-                  const circumference = 2 * Math.PI * radius;
-                  
-                  return [...expenseChartData].sort((a, b) => b.value - a.value).map((item, index) => {
-                    const percentage = item.value / total;
-                    const strokeDasharray = `${percentage * circumference} ${circumference}`;
-                    const offset = currentOffset;
-                    currentOffset += percentage * circumference;
-                    
-                    return (
-                      <circle
-                        key={index}
-                        cx="50"
-                        cy="50"
-                        r={radius}
-                        fill="transparent"
-                        stroke={COLORS[index % COLORS.length]}
-                        strokeWidth="15"
-                        strokeDasharray={strokeDasharray}
-                        strokeDashoffset={-offset}
-                        className="transition-all duration-500 ease-in-out"
-                      />
-                    );
-                  });
-                })()}
-              </svg>
-              <div className="absolute flex flex-col items-center justify-center text-center">
-                <span className="text-[9px] text-slate-500 uppercase font-bold tracking-widest leading-tight">Expenses</span>
-                <span className="text-sm font-bold text-slate-900">
-                  ₹{expenseChartData.reduce((s, i) => s + i.value, 0).toLocaleString()}
-                </span>
-              </div>
-            </div>
-          ) : (
-             <div className="text-center text-black text-[10px] tracking-widest">No expenses recorded</div>
-          )}
-          {expenseChartData.length > 0 && (
-            <div className="w-full mt-2 sm:mt-4 flex flex-wrap gap-1 sm:gap-2 justify-center max-h-[60px] overflow-y-auto no-scrollbar pb-2">
-              {[...expenseChartData].sort((a, b) => b.value - a.value).map((entry, index) => (
-                <div key={index} className="flex items-center gap-1 text-[8px] font-bold text-slate-700">
-                  <div className="w-2 h-2" style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
-                  {entry.name}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        <DonutChart data={expenseChartData.map((d: any, i: number) => ({...d, color: COLORS[i % COLORS.length]}))} title="Expenses" formatValue={(v: number) => "₹" + formatYValue(v)} />
       </div>
-
     </>
   );
 });
