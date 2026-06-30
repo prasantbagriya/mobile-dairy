@@ -1,7 +1,6 @@
 import { useState, useEffect, Suspense, lazy } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { useAuth } from './lib/auth';
-import { useMessaging } from './lib/useMessaging';
 import { useI18n } from './lib/i18n';
 import Layout from './components/Layout';
 import ReloadPrompt from './components/ReloadPrompt';
@@ -37,7 +36,6 @@ const FullPageLoader = () => (
 
 export default function App() {
   const { user, role, loading, logout } = useAuth();
-  useMessaging();
   const { t } = useI18n();
   const [activeView, setActiveView] = useState('dashboard');
   const [pinVerified, setPinVerified] = useState(false);

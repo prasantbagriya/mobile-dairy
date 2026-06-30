@@ -46,23 +46,3 @@ if (typeof window !== 'undefined') {
   });
 }
 
-// Initialize Messaging (Push Notifications) safely
-let messagingInstance: any = null;
-let messagingInitialized = false;
-
-export const messaging = async () => {
-  if (messagingInitialized) return messagingInstance;
-  
-  try {
-    const { getMessaging, isSupported } = await import('firebase/messaging');
-    const supported = await isSupported();
-    if (supported) {
-      messagingInstance = getMessaging(app);
-    }
-  } catch (e) {
-    console.error("Error initializing messaging:", e);
-  }
-  
-  messagingInitialized = true;
-  return messagingInstance;
-};
