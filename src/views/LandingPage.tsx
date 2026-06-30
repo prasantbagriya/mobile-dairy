@@ -51,6 +51,12 @@ export default function LandingPage() {
               </div>
             </button>
           </div>
+
+          <div className="mt-12 flex gap-4 text-xs font-medium text-slate-500">
+            <a href="/privacy-policy" className="hover:text-blue-600 transition-colors">Privacy Policy</a>
+            <span>&bull;</span>
+            <a href="/terms-of-service" className="hover:text-blue-600 transition-colors">Terms of Service</a>
+          </div>
         </div>
       </div>
 
