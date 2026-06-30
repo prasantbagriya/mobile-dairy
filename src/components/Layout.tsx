@@ -133,61 +133,61 @@ export default function Layout({ children, activeView, setActiveView }: LayoutPr
               </button>
             );
           })}
-        </nav>
-        <div className="mt-auto pt-4 pb-2 border-t border-slate-800 space-y-2 shrink-0">
-          <button 
-            onClick={() => handleNavClick('help_support')}
-            className={`w-full flex items-center gap-4 px-4 py-3.5 text-white hover:bg-indigo-500/10 hover:text-indigo-400 text-[13px] ${isCollapsed ? 'justify-center' : ''}`}
-            title={isCollapsed ? "Help & Support" : ''}
-          >
-            <LifeBuoy className="w-5 h-5" />
-            {!isCollapsed && <span>Help & Support</span>}
-          </button>
-          
-          <a
-            href={import.meta.env.VITE_APK_DOWNLOAD_URL || "/milkmaster.apk"}
-            download="milkmaster.apk"
-            rel="noopener noreferrer"
-            className={`w-full flex items-center gap-4 px-4 py-3.5 text-white hover:bg-emerald-500/10 hover:text-emerald-400 text-[13px] ${isCollapsed ? 'justify-center' : ''}`}
-            title={isCollapsed ? "Download App" : ''}
-          >
-            <Download className="w-5 h-5" />
-            {!isCollapsed && <span>Download App</span>}
-          </a>
-
-          {!isCollapsed ? (
-            <div className="flex items-center gap-4 px-4 py-3 text-white bg-slate-800/30 border border-slate-800/50 group">
-              <Languages className="w-5 h-5 text-white group-hover:text-blue-400" />
-              <select 
-                value={lang} 
-                onChange={(e) => setLang(e.target.value as any)}
-                className="bg-transparent text-[13px] focus:outline-none cursor-pointer flex-1"
-              >
-                <option value="en" className="bg-slate-900">English Language</option>
-                <option value="hi" className="bg-slate-900">हिन्दी भाषा</option>
-                <option value="gu" className="bg-slate-900">ગુજરાતી</option>
-                <option value="mr" className="bg-slate-900">मराठी</option>
-              </select>
-            </div>
-          ) : (
+          <div className="pt-4 mt-4 border-t border-slate-800 space-y-2 shrink-0 px-2 pb-4">
             <button 
-              onClick={() => setLang(lang === 'hi' ? 'en' : 'hi')}
-              className="w-full flex justify-center py-3 text-white hover:text-blue-400"
-              title="Change Language"
+              onClick={() => handleNavClick('help_support')}
+              className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-white hover:bg-indigo-500/10 hover:text-indigo-400 text-[13px] ${isCollapsed ? 'justify-center' : ''}`}
+              title={isCollapsed ? "Help & Support" : ''}
             >
-              <Languages className="w-5 h-5" />
+              <LifeBuoy className="w-5 h-5" />
+              {!isCollapsed && <span>Help & Support</span>}
             </button>
-          )}
+            
+            <a
+              href={import.meta.env.VITE_APK_DOWNLOAD_URL || "/milkmaster.apk"}
+              download="milkmaster.apk"
+              rel="noopener noreferrer"
+              className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-white hover:bg-emerald-500/10 hover:text-emerald-400 text-[13px] ${isCollapsed ? 'justify-center' : ''}`}
+              title={isCollapsed ? "Download App" : ''}
+            >
+              <Download className="w-5 h-5" />
+              {!isCollapsed && <span>Download App</span>}
+            </a>
 
-          <button 
-            onClick={logout}
-            className={`w-full flex items-center gap-4 px-4 py-3.5 text-white hover:bg-red-500/10 hover:text-red-400 text-[13px] ${isCollapsed ? 'justify-center' : ''}`}
-            title={isCollapsed ? t('logout') : ''}
-          >
-            <LogOut className="w-5 h-5" />
-            {!isCollapsed && <span>{t('logout')}</span>}
-          </button>
-        </div>
+            {!isCollapsed ? (
+              <div className="flex items-center gap-4 px-4 py-3 text-white bg-slate-800/30 border border-slate-800/50 rounded-xl group mx-2">
+                <Languages className="w-5 h-5 text-white group-hover:text-blue-400" />
+                <select 
+                  value={lang} 
+                  onChange={(e) => setLang(e.target.value as any)}
+                  className="bg-transparent text-[13px] focus:outline-none cursor-pointer flex-1"
+                >
+                  <option value="en" className="bg-slate-900">English Language</option>
+                  <option value="hi" className="bg-slate-900">हिन्दी भाषा</option>
+                  <option value="gu" className="bg-slate-900">ગુજરાતી</option>
+                  <option value="mr" className="bg-slate-900">मराठी</option>
+                </select>
+              </div>
+            ) : (
+              <button 
+                onClick={() => setLang(lang === 'hi' ? 'en' : 'hi')}
+                className="w-full flex justify-center py-3 rounded-xl text-white hover:text-blue-400"
+                title="Change Language"
+              >
+                <Languages className="w-5 h-5" />
+              </button>
+            )}
+
+            <button 
+              onClick={logout}
+              className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-white hover:bg-red-500/10 hover:text-red-400 text-[13px] ${isCollapsed ? 'justify-center' : ''}`}
+              title={isCollapsed ? t('logout') : ''}
+            >
+              <LogOut className="w-5 h-5" />
+              {!isCollapsed && <span>{t('logout')}</span>}
+            </button>
+          </div>
+        </nav>
       </aside>
 
       {/* Header - Mobile */}
@@ -234,7 +234,7 @@ export default function Layout({ children, activeView, setActiveView }: LayoutPr
                 </button>
               ))}
             {/* Fixed bottom section moved into scrollable area */}
-            <div className="shrink-0 bg-slate-900 border-t border-slate-800 space-y-1 pb-4 px-4 pt-3 mt-4 relative z-20">
+            <div className="shrink-0 space-y-1 pb-4 pt-3 mt-4 border-t border-slate-800">
               <div className="flex items-center gap-4 px-4 py-2 text-white">
                 <Languages className="w-5 h-5" />
                 <select 
@@ -250,7 +250,7 @@ export default function Layout({ children, activeView, setActiveView }: LayoutPr
               </div>
               <button 
                 onClick={() => handleNavClick('help_support')}
-                className="w-full flex items-center gap-4 px-4 py-3 rounded-none text-white hover:text-indigo-400 hover:bg-indigo-400/10 text-[13px]"
+                className={`w-full flex items-center gap-4 px-4 py-3 rounded-none text-white hover:text-indigo-400 hover:bg-indigo-400/10 text-[13px] ${activeView === 'help_support' ? 'bg-indigo-500/20 text-indigo-400' : ''}`}
               >
                 <LifeBuoy className="w-5 h-5" />
                 <span>Help & Support</span>
