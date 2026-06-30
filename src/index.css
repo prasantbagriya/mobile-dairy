@@ -4,6 +4,12 @@
 @theme {
   --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --color-whatsapp: #25D366;
+  --color-whatsapp-dark: #128C7E;
+  --color-linkedin: #0077b5;
+  --color-instagram: #E1306C;
+  --color-facebook: #1877F2;
+  --color-youtube: #FF0000;
 }
 
 @layer base {
@@ -12,7 +18,7 @@
   }
 
   body {
-    @apply bg-[#F8FAFC] text-slate-900 antialiased selection:bg-blue-100 selection:text-blue-900;
+    @apply bg-slate-50 text-slate-900 antialiased selection:bg-blue-100 selection:text-blue-900;
   }
 
   /* Hide Scrollbar Globally but keep functionality */
@@ -48,17 +54,7 @@
   animation: shake 0.4s ease-in-out;
 }
 
-.glass {
-  @apply bg-white border border-slate-200;
-}
 
-.shadow-premium {
-  @apply border border-slate-200;
-}
-
-.card-hover {
-  @apply border border-slate-200;
-}
 
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {

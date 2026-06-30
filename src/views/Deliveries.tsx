@@ -538,7 +538,7 @@ export default function Deliveries() {
                              <div className="flex items-center justify-center gap-2">
                                <button 
                                  onClick={() => handleWhatsAppShare(del)}
-                                 className="p-1.5 bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#128C7E] transition-colors rounded-none"
+                                 className="p-1.5 bg-whatsapp/10 hover:bg-whatsapp/20 text-whatsapp-dark transition-colors rounded-none"
                                  title="Share via WhatsApp"
                                >
                                  <MessageCircle className="w-3.5 h-3.5" />

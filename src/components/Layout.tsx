@@ -85,7 +85,7 @@ export default function Layout({ children, activeView, setActiveView }: LayoutPr
   };
 
   return (
-    <div className="h-dvh overflow-hidden bg-[#F8FAFC] flex flex-col md:flex-row font-sans selection:bg-blue-100 selection:text-blue-900">
+    <div className="h-dvh overflow-hidden bg-slate-50 flex flex-col md:flex-row font-sans selection:bg-blue-100 selection:text-blue-900">
       {/* Sidebar - Desktop */}
       <aside className={`hidden md:flex flex-col ${isCollapsed ? 'w-20' : 'w-72'} bg-slate-900 text-white p-4 shrink-0 relative z-10 border-r border-white/5`}>
         <button 

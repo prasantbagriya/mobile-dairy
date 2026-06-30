@@ -650,7 +650,7 @@ const SharedLedger = memo(({ person, type, allPersons = [], onClose, onRefresh, 
               </div>
 
               <div className="flex flex-col gap-2 pt-2">
-                <button onClick={() => executeShare('whatsapp')} className="w-full py-2.5 bg-[#25D366] text-white hover:bg-[#128C7E] font-bold text-sm flex items-center justify-center gap-2 rounded-lg">
+                <button onClick={() => executeShare('whatsapp')} className="w-full py-2.5 bg-whatsapp text-white hover:bg-whatsapp-dark font-bold text-sm flex items-center justify-center gap-2 rounded-lg">
                   <MessageCircle className="w-5 h-5" /> Share via WhatsApp
                 </button>
                 <div className="grid grid-cols-2 gap-2">

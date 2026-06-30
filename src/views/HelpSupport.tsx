@@ -67,19 +67,19 @@ export default function HelpSupport() {
           </p>
 
           <div className="grid grid-cols-2 gap-3">
-            <a href="https://www.linkedin.com/in/prasantbagriya/" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center justify-center p-4 bg-slate-50 hover:bg-[#0077b5]/10 hover:text-[#0077b5] border border-slate-100 transition-colors text-slate-600">
+            <a href="https://www.linkedin.com/in/prasantbagriya/" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center justify-center p-4 bg-slate-50 hover:bg-linkedin/10 hover:text-linkedin border border-slate-100 transition-colors text-slate-600">
               <Linkedin className="w-6 h-6 mb-2" />
-              <span className="text-xs font-semibold">LinkedIn</span>
+              <span className="text-xs font-bold tracking-wide">LinkedIn</span>
             </a>
-            <a href="https://www.instagram.com/prasantbagriya/" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center justify-center p-4 bg-slate-50 hover:bg-[#E1306C]/10 hover:text-[#E1306C] border border-slate-100 transition-colors text-slate-600">
+            <a href="https://www.instagram.com/prasantbagriya/" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center justify-center p-4 bg-slate-50 hover:bg-instagram/10 hover:text-instagram border border-slate-100 transition-colors text-slate-600">
               <Instagram className="w-6 h-6 mb-2" />
-              <span className="text-xs font-semibold">Instagram</span>
+              <span className="text-xs font-bold tracking-wide">Instagram</span>
             </a>
-            <a href="https://www.facebook.com/prasantbagariya" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center justify-center p-4 bg-slate-50 hover:bg-[#1877F2]/10 hover:text-[#1877F2] border border-slate-100 transition-colors text-slate-600">
+            <a href="https://www.facebook.com/prasantbagariya" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center justify-center p-4 bg-slate-50 hover:bg-facebook/10 hover:text-facebook border border-slate-100 transition-colors text-slate-600">
               <Facebook className="w-6 h-6 mb-2" />
-              <span className="text-xs font-semibold">Facebook</span>
+              <span className="text-xs font-bold tracking-wide">Facebook</span>
             </a>
-            <a href="https://www.youtube.com/@prasantbagriya" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center justify-center p-4 bg-slate-50 hover:bg-[#FF0000]/10 hover:text-[#FF0000] border border-slate-100 transition-colors text-slate-600">
+            <a href="https://www.youtube.com/@prasantbagriya" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center justify-center p-4 bg-slate-50 hover:bg-youtube/10 hover:text-youtube border border-slate-100 transition-colors text-slate-600">
               <Youtube className="w-6 h-6 mb-2" />
               <span className="text-xs font-semibold">YouTube</span>
             </a>
