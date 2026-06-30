@@ -7,7 +7,6 @@ import { collection, getDocs, query, orderBy, where } from 'firebase/firestore';
 import { Sparkles, Filter, FileText, Download, Table as TableIcon, ChevronDown, TrendingUp, TrendingDown, Package } from 'lucide-react';
 import dayjs from 'dayjs';
 import InfoTooltip from '../components/InfoTooltip';
-import { DonutChart, COLORS } from '../components/DashboardCharts';
 
 export default function Reports() {
   const { t } = useI18n();
@@ -280,54 +279,6 @@ export default function Reports() {
             <p className="text-[9px] text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-1"><Package className="w-3 h-3"/> Current Stock Value</p>
             <h3 className="text-xl font-bold">₹ {inventoryStats.currentStockValue.toLocaleString()}</h3>
           </div>
-        </div>
-      )}
-
-      {/* Dynamic Report Chart */}
-      {reportType !== 'inventory' && data.length > 0 && (
-        <div className="bg-white p-4 border border-slate-200 mb-4 h-[250px] flex flex-col">
-          <h3 className="text-xs text-slate-900 font-bold mb-2 tracking-widest capitalize">
-            {reportType === 'collections' ? 'Milk Collection (By Session)' : 
-             reportType === 'deliveries' ? 'Top 5 Delivery Customers' : 
-             reportType === 'transactions' ? 'Transactions (Credit vs Debit)' : 'Dairy Sales Data'}
-          </h3>
-          {(() => {
-            let chartData: any[] = [];
-            let formatVal = (v: number) => v.toLocaleString();
-            
-            if (reportType === 'collections') {
-              const morn = data.filter(d => d.session === 'morning').reduce((sum, d) => sum + (d.quantity || 0), 0);
-              const eve = data.filter(d => d.session === 'evening').reduce((sum, d) => sum + (d.quantity || 0), 0);
-              chartData = [
-                { name: 'Morning', value: morn, color: '#f59e0b' },
-                { name: 'Evening', value: eve, color: '#3b82f6' }
-              ].filter(d => d.value > 0);
-              formatVal = (v: number) => v.toLocaleString() + ' L';
-            } else if (reportType === 'deliveries') {
-               const cusMap = new Map();
-               data.forEach(d => {
-                 const name = d.customerName || 'Unknown';
-                 cusMap.set(name, (cusMap.get(name) || 0) + (d.quantity || 0));
-               });
-               chartData = Array.from(cusMap.entries()).sort((a: any, b: any) => b[1] - a[1]).slice(0, 5).map(([name, value], i) => ({ name, value, color: COLORS[i % COLORS.length] }));
-               formatVal = (v: number) => v.toLocaleString() + ' L';
-            } else if (reportType === 'transactions') {
-               const credit = data.filter(d => d.type === 'credit').reduce((sum, d) => sum + (d.amount || 0), 0);
-               const debit = data.filter(d => d.type === 'debit').reduce((sum, d) => sum + (d.amount || 0), 0);
-               chartData = [
-                 { name: 'Credit (+)', value: credit, color: '#10b981' },
-                 { name: 'Debit (-)', value: debit, color: '#ef4444' }
-               ].filter(d => d.value > 0);
-               formatVal = (v: number) => '₹' + (v >= 100000 ? (v/100000).toFixed(1) + 'L' : v >= 1000 ? (v/1000).toFixed(1) + 'K' : v);
-            } else if (reportType === 'dairy_sales') {
-               const amts = data.reduce((sum, d) => sum + (d.amount || 0), 0);
-               chartData = [{ name: 'Total Sales', value: amts, color: '#ec4899' }];
-               formatVal = (v: number) => '₹' + v.toLocaleString();
-            }
-
-            if (chartData.length === 0) return <div className="flex-1 flex items-center justify-center text-[10px] tracking-widest text-slate-400">Not enough data to chart</div>;
-            return <DonutChart data={chartData} title="Summary" formatValue={formatVal} />;
-          })()}
         </div>
       )}
 
