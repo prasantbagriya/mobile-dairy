@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { FileOpener } from '@capawesome-team/capacitor-file-opener';
 import { Capacitor } from '@capacitor/core';
+import { App } from '@capacitor/app';
 import { Download, AlertCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import packageJson from '../../package.json';
@@ -22,7 +23,16 @@ export function AutoUpdater() {
         const res = await fetch(UPDATE_URL + '?t=' + new Date().getTime());
         const data = await res.json();
         
-        const currentVersion = packageJson.version;
+        let currentVersion = packageJson.version;
+        if (Capacitor.isNativePlatform() && Capacitor.isPluginAvailable('App')) {
+          try {
+            const info = await App.getInfo();
+            currentVersion = info.version;
+          } catch (e) {
+            console.log('Failed to get native app info', e);
+          }
+        }
+
         if (isNewerVersion(currentVersion, data.version)) {
           setUpdateInfo(data);
           setUpdateAvailable(true);
