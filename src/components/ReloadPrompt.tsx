@@ -1,6 +1,7 @@
 import { useRegisterSW } from 'virtual:pwa-register/react';
 import { RefreshCw, X } from 'lucide-react';
 import { useEffect } from 'react';
+import { Capacitor } from '@capacitor/core';
 
 export default function ReloadPrompt() {
   const {
@@ -15,7 +16,7 @@ export default function ReloadPrompt() {
     },
   });
 
-  if (!needRefresh) return null;
+  if (!needRefresh || Capacitor.isNativePlatform()) return null;
 
   return (
     <div className="fixed bottom-4 right-4 z-[9999] p-4 bg-white border border-slate-200 shadow-2xl rounded-xl flex items-center gap-4 animate-in fade-in slide-in-from-bottom-5">
