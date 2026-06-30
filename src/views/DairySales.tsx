@@ -13,6 +13,7 @@ export default function DairySales() {
   const { user , tenantId } = useAuth();
   const [sales, setSales] = useState<any[]>([]);
   const [showForm, setShowForm] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     dairyName: '',
@@ -37,6 +38,8 @@ export default function DairySales() {
   }, [formData.quantity, formData.rate]);
 
   async function handleSave() {
+    if (isSaving) return;
+    setIsSaving(true);
     const now = new Date().toISOString();
     try {
       const dataToSave = {
@@ -63,6 +66,8 @@ export default function DairySales() {
     } catch (e) {
       console.error(e);
       toast.error("Dairy Sale Error: " + (e as any).message);
+    } finally {
+      setIsSaving(false);
     }
   }
 
@@ -113,8 +118,8 @@ export default function DairySales() {
           </div>
           
           <div className="mt-8 flex gap-3">
-             <button onClick={() => setShowForm(false)} className="flex-1 py-3 text-slate-700 bg-slate-100 hover:bg-slate-200 text-sm transition-colors">{t('cancel')}</button>
-             <button onClick={handleSave} className="flex-1 py-3 bg-blue-600 text-white hover:bg-blue-700 rounded-none text-sm transition-colors flex items-center justify-center gap-2">
+             <button disabled={isSaving} onClick={() => setShowForm(false)} className="flex-1 py-3 text-slate-700 bg-slate-100 hover:bg-slate-200 text-sm transition-colors disabled:opacity-50">{t('cancel')}</button>
+             <button disabled={isSaving} onClick={handleSave} className="flex-1 py-3 bg-blue-600 text-white hover:bg-blue-700 rounded-none text-sm transition-colors flex items-center justify-center gap-2 disabled:opacity-50">
                 <Save className="w-4 h-4" />
                 {editingId ? t('update_sale') : t('save_sale')}
              </button>
@@ -145,7 +150,8 @@ export default function DairySales() {
       </div>
 
       <div className="bg-white rounded-none border border-slate-200 overflow-hidden">
-        <table className="w-full text-left">
+        <div className="overflow-x-auto">
+        <table className="w-full text-left min-w-[600px]">
           <thead className="bg-slate-50/50 text-black text-[9px] capitalize tracking-widest sticky top-0 z-10 backdrop-blur-sm">
             <tr>
               <th className="px-4 py-3">{t('date')}</th>
@@ -165,19 +171,26 @@ export default function DairySales() {
                 <td className="px-4 py-3 whitespace-nowrap">{s.fat}</td>
                 <td className="px-4 py-3 whitespace-nowrap font-mono text-emerald-600">₹ {s.amount}</td>
                 <td className="px-4 py-3 text-right whitespace-nowrap">
-                  <div className="flex items-center justify-end gap-2">
-                    <button onClick={() => handleEditClick(s)} className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-colors">
-                      <Edit2 className="w-4 h-4" />
-                    </button>
-                    <button onClick={() => handleDelete(s.id)} className="p-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 transition-colors">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
+                  {(() => {
+                    const daysOld = dayjs().diff(dayjs(s.date), 'day');
+                    if (daysOld > 10) return <span className="text-[10px] text-slate-400">Locked</span>;
+                    return (
+                      <div className="flex items-center justify-end gap-2">
+                        <button onClick={() => handleEditClick(s)} className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-colors">
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                        <button onClick={() => handleDelete(s.id)} className="p-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 transition-colors">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    );
+                  })()}
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+        </div>
         {sales.length === 0 && (
           <div className="p-8 text-center text-slate-500 text-sm">{t('no_dairy_sales_recorded')}</div>
         )}

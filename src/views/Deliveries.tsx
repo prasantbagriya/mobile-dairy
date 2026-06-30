@@ -6,7 +6,7 @@ import { db } from '../lib/db';
 import { useAuth } from '../lib/auth';
 import { collection, addDoc, getDocs, onSnapshot, query, orderBy, limit, deleteDoc, doc, where, increment, updateDoc, writeBatch } from 'firebase/firestore';
 import { Customer, MilkDelivery } from '../types';
-import { Plus, History, Sun, Moon, Save, Search, Edit2, X, Filter } from 'lucide-react';
+import { Plus, History, Sun, Moon, Save, Search, Edit2, X, Filter, MessageCircle, Trash2 } from 'lucide-react';
 import dayjs from 'dayjs';
 import InfoTooltip from '../components/InfoTooltip';
 import EditDeliveryModal from '../components/EditDeliveryModal';
@@ -18,6 +18,7 @@ export default function Deliveries() {
   const [recentDeliveries, setRecentDeliveries] = useState<MilkDelivery[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [formData, setFormData] = useState({
     customerId: '',
     date: dayjs().format('YYYY-MM-DD'),
@@ -156,9 +157,25 @@ export default function Deliveries() {
     setFormData(prev => ({ ...prev, amount: parseFloat(((parseFloat(prev.quantity) || 0) * (parseFloat(prev.rate) || 0)).toFixed(2)) }));
   }, [formData.quantity, formData.rate]);
 
+  async function handleDeleteCashSale(id: string) {
+    if (!window.confirm("Are you sure you want to delete this cash sale?")) return;
+    try {
+      await deleteDoc(doc(db, 'milk_deliveries', id));
+      toast.success("Cash sale deleted.");
+    } catch (e: any) {
+      console.error(e);
+      toast.error("Error deleting cash sale: " + e.message);
+    }
+  }
+
   async function handleSave(moveToNext = true) {
+    if (isSaving) return;
+    setIsSaving(true);
     if (viewMode === 'cash') {
-      if (!formData.quantity) return;
+      if (!formData.quantity) {
+        setIsSaving(false);
+        return;
+      }
       try {
         const data = {
           ...formData,
@@ -180,15 +197,19 @@ export default function Deliveries() {
         });
         setShowForm(false);
         toast.success('Cash sale saved!');
-        return;
       } catch (e) {
         console.error(e);
         toast.error("Error saving cash sale: " + (e as any).message);
-        return;
+      } finally {
+        setIsSaving(false);
       }
+      return;
     }
 
-    if (!formData.customerId || !formData.quantity) return;
+    if (!formData.customerId || !formData.quantity) {
+      setIsSaving(false);
+      return;
+    }
     try {
       // Final duplicate check
       const customerSessions = existingSessions[formData.customerId] || new Set();
@@ -237,8 +258,28 @@ export default function Deliveries() {
     } catch (e) { 
       console.error(e);
       toast.error("Error saving delivery: " + (e as any).message);
+    } finally {
+      setIsSaving(false);
     }
   }
+
+  const handleWhatsAppShare = (del: MilkDelivery) => {
+    const c = customers.find(cus => cus.id === del.customerId);
+    if (!c || !c.mobile) {
+      toast.error("Mobile number not found for this customer.");
+      return;
+    }
+    const text = `*Daily Milk Delivery*\n\n` +
+      `Name: ${del.customerName}\n` +
+      `Date: ${del.date}\n` +
+      `Session: ${del.session === 'morning' ? 'Morning' : 'Evening'}\n` +
+      `Milk: ${del.quantity} L\n` +
+      `Amount: ₹${del.amount.toFixed(2)}\n\n` +
+      `Thank you!`;
+    const phoneStr = c.mobile.replace(/\D/g, '');
+    const finalPhone = phoneStr.length === 10 ? `91${phoneStr}` : phoneStr;
+    window.open(`https://wa.me/${finalPhone}?text=${encodeURIComponent(text)}`, '_blank');
+  };
 
   useEffect(() => {
     if (formData.customerId) {
@@ -391,15 +432,15 @@ export default function Deliveries() {
               </div>
 
               {viewMode === 'cash' ? (
-                <button onClick={() => handleSave(true)} className="w-full px-4 py-4 rounded-none text-xs tracking-wider transition flex items-center justify-center gap-3 bg-violet-600 hover:bg-violet-700 text-white">
+                <button disabled={isSaving} onClick={() => handleSave(true)} className="w-full px-4 py-4 rounded-none text-xs tracking-wider transition flex items-center justify-center gap-3 bg-violet-600 hover:bg-violet-700 text-white disabled:opacity-50">
                   <Save className="w-5 h-5" /> {t('save_cash_sale')}
                 </button>
               ) : (
                 <div className="flex gap-2">
-                  <button onClick={() => handleSave(false)} className="flex-1 px-4 py-3 rounded-none text-xs tracking-wider border border-slate-200 text-slate-700 hover:bg-slate-50 transition flex items-center justify-center gap-2 font-medium">
+                  <button disabled={isSaving} onClick={() => handleSave(false)} className="flex-1 px-4 py-3 rounded-none text-xs tracking-wider border border-slate-200 text-slate-700 hover:bg-slate-50 transition flex items-center justify-center gap-2 font-medium disabled:opacity-50">
                     <Save className="w-4 h-4" /> {t('save')}
                   </button>
-                  <button onClick={() => handleSave(true)} className="flex-2 px-4 py-3 rounded-none text-xs tracking-wider bg-slate-900 text-white hover:bg-black transition flex items-center justify-center gap-2 font-medium">
+                  <button disabled={isSaving} onClick={() => handleSave(true)} className="flex-2 px-4 py-3 rounded-none text-xs tracking-wider bg-slate-900 text-white hover:bg-black transition flex items-center justify-center gap-2 font-medium disabled:opacity-50">
                     <Save className="w-4 h-4" /> {t('save_next')}
                   </button>
                 </div>
@@ -436,7 +477,7 @@ export default function Deliveries() {
                     <th className="px-6 py-4 whitespace-nowrap">{t('customer')}</th>
                     <th className="px-6 py-4 text-center whitespace-nowrap">{t('session_qty')}</th>
                     <th className="px-6 py-4 text-right whitespace-nowrap">{t('amount')}</th>
-                    {user?.role === 'admin' && <th className="px-6 py-4 text-center whitespace-nowrap">{t('action')}</th>}
+                    <th className="px-6 py-4 text-center whitespace-nowrap">{t('action')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50 text-black">
@@ -465,30 +506,55 @@ export default function Deliveries() {
                           <span className="text-[9px]  text-black tracking-wider">@ ₹{del.rate}/L</span>
                         </div>
                       </td>
-                      {user?.role === 'admin' && (
-                        <td className="px-6 py-4 text-center whitespace-nowrap">
-                          {(() => {
-                             const c = customers.find(cus => cus.id === del.customerId);
-                             const isSettled = c?.lastSettledDate && del.date <= c.lastSettledDate;
-                             
-                             if (del.customerId === 'CASH_SALE') {
-                                return <span className="text-[10px] text-black opacity-50 uppercase">{t('no_edit', 'No Edit')}</span>;
-                             }
-                             if (isSettled) {
-                                return <span className="text-[10px] text-amber-600 uppercase">{t('settled', 'Settled')}</span>;
-                             }
-                             return (
-                                <button 
-                                  onClick={() => setEditingDelivery(del)}
-                                  disabled={(del.editCount || 0) >= 2}
-                                  className="p-2 bg-slate-100 text-black hover:bg-slate-200 disabled:opacity-30"
-                                >
-                                  <Edit2 className="w-3.5 h-3.5" />
-                                </button>
-                             );
-                          })()}
-                        </td>
-                      )}
+                      <td className="px-6 py-4 text-center whitespace-nowrap">
+                        {(() => {
+                           const c = customers.find(cus => cus.id === del.customerId);
+                           const isSettled = c?.lastSettledDate && del.date <= c.lastSettledDate;
+                           const daysOld = dayjs().diff(dayjs(del.date), 'day');
+                           
+                           if (del.customerId === 'CASH_SALE') {
+                              if (daysOld <= 5) {
+                                return (
+                                  <div className="flex items-center justify-center">
+                                    <button 
+                                      onClick={() => handleDeleteCashSale(del.id!)}
+                                      className="p-1.5 bg-red-50 text-red-500 hover:bg-red-100 transition-colors rounded-none"
+                                      title="Delete Cash Sale"
+                                    >
+                                      <Trash2 className="w-3.5 h-3.5" />
+                                    </button>
+                                  </div>
+                                );
+                              }
+                              return <span className="text-[10px] text-slate-400 capitalize">Locked</span>;
+                           }
+                           if (isSettled) {
+                              return <span className="text-[10px] text-amber-600 capitalize">{t('settled', 'Settled')}</span>;
+                           }
+                           if (daysOld > 10) {
+                              return <span className="text-[10px] text-slate-400 capitalize">Locked</span>;
+                           }
+                           return (
+                             <div className="flex items-center justify-center gap-2">
+                               <button 
+                                 onClick={() => handleWhatsAppShare(del)}
+                                 className="p-1.5 bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#128C7E] transition-colors rounded-none"
+                                 title="Share via WhatsApp"
+                               >
+                                 <MessageCircle className="w-3.5 h-3.5" />
+                               </button>
+                               <button 
+                                 onClick={() => setEditingDelivery(del)}
+                                 disabled={(del.editCount || 0) >= 2}
+                                 className="p-1.5 bg-slate-100 text-black hover:bg-slate-200 disabled:opacity-30 rounded-none"
+                                 title="Edit Entry"
+                               >
+                                 <Edit2 className="w-3.5 h-3.5" />
+                               </button>
+                             </div>
+                           );
+                        })()}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -541,8 +607,8 @@ export default function Deliveries() {
             
             {(() => {
               return (
-                <div ref={tableContainerRef} className="overflow-auto no-scrollbar h-[calc(100vh-250px)] min-h-[400px]">
-                  <table className="w-full text-left relative">
+                <div ref={tableContainerRef} className="overflow-x-auto overflow-y-auto no-scrollbar h-[calc(100vh-250px)] min-h-[400px]">
+                  <table className="w-full text-left relative min-w-[600px]">
                     <thead className="sticky top-0 z-10 bg-slate-100 text-black text-[10px] md:text-[11px] border-b border-slate-200 shadow-sm">
                       <tr>
                         <th className="px-3 md:px-6 py-4 md:py-5 whitespace-nowrap">{t('seq_no', '#Seq')}</th>

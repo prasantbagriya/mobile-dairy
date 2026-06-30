@@ -4,6 +4,10 @@ const config: CapacitorConfig = {
   appId: 'app.milkmaster.com',
   appName: 'Mobile Dairy',
   webDir: 'dist',
+  server: {
+    url: 'https://milk-master-app.web.app',
+    cleartext: true
+  },
   plugins: {
     FirebaseAuthentication: {
       skipNativeAuth: false,

@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 
-const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6'];
+export const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6'];
 
 const formatYValue = (v: number) => {
   if (Math.abs(v) >= 10000000) return (v / 10000000).toFixed(1) + 'Cr';
@@ -9,7 +9,7 @@ const formatYValue = (v: number) => {
   return v;
 };
 
-const DonutChart = ({ data, title, formatValue, customTotal }: any) => {
+export const DonutChart = ({ data, title, formatValue, customTotal }: any) => {
   const dataTotal = data.reduce((sum: number, item: any) => sum + item.value, 0);
   const displayTotal = customTotal !== undefined ? customTotal : dataTotal;
   let currentOffset = 0;

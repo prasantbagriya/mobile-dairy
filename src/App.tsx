@@ -4,6 +4,7 @@ import { useAuth } from './lib/auth';
 import { useMessaging } from './lib/useMessaging';
 import { useI18n } from './lib/i18n';
 import Layout from './components/Layout';
+import ReloadPrompt from './components/ReloadPrompt';
 import { Milk } from 'lucide-react';
 
 const Dashboard = lazy(() => import('./views/Dashboard'));
@@ -18,6 +19,7 @@ const ProfitLoss = lazy(() => import('./views/ProfitLoss'));
 const DairySales = lazy(() => import('./views/DairySales'));
 const Inventory = lazy(() => import('./views/Inventory'));
 const Admin = lazy(() => import('./views/Admin'));
+const HelpSupport = lazy(() => import('./views/HelpSupport'));
 const FarmerDashboard = lazy(() => import('./views/FarmerDashboard'));
 const CustomerDashboard = lazy(() => import('./views/CustomerDashboard'));
 const PinLock = lazy(() => import('./components/PinLock'));
@@ -79,6 +81,7 @@ export default function App() {
         case 'dairy_sales': return <DairySales />;
         case 'inventory': return <Inventory />;
         case 'admin': return <Admin />;
+        case 'help_support': return <HelpSupport />;
         default: return <Dashboard onNavigate={setActiveView} />;
       }
     };
@@ -93,6 +96,7 @@ export default function App() {
   return (
     <>
       <Toaster position="top-right" toastOptions={{ duration: 1000 }} />
+      <ReloadPrompt />
       <Suspense fallback={<FullPageLoader />}>
         {renderContent()}
       </Suspense>

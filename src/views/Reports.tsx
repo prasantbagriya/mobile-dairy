@@ -4,9 +4,10 @@ import { useI18n } from '../lib/i18n';
 import { useAuth } from '../lib/auth';
 import { db } from '../lib/db';
 import { collection, getDocs, query, orderBy, where } from 'firebase/firestore';
-import { Sparkles, Filter, FileText, Download, Table as TableIcon, ChevronDown } from 'lucide-react';
+import { Sparkles, Filter, FileText, Download, Table as TableIcon, ChevronDown, TrendingUp, TrendingDown, Package } from 'lucide-react';
 import dayjs from 'dayjs';
 import InfoTooltip from '../components/InfoTooltip';
+import { DonutChart, COLORS } from '../components/DashboardCharts';
 
 export default function Reports() {
   const { t } = useI18n();
@@ -16,12 +17,16 @@ export default function Reports() {
     start: dayjs().startOf('month').format('YYYY-MM-DD'),
     end: dayjs().format('YYYY-MM-DD')
   });
+  const [searchFilter, setSearchFilter] = useState('');
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [analysis, setAnalysis] = useState<string | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [showActions, setShowActions] = useState(false);
+  
+  const [inventoryStats, setInventoryStats] = useState({ bought: 0, sold: 0, currentStockValue: 0 });
+
   async function loadReportData() {
     if (!tenantId) return;
     setLoading(true);
@@ -66,7 +71,32 @@ export default function Reports() {
         }));
       }
 
-      fetchedData.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      fetchedData.sort((a, b) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime());
+      
+      if (searchFilter) {
+        const lowerSearch = searchFilter.toLowerCase();
+        fetchedData = fetchedData.filter(item => 
+          (item.farmerName || '').toLowerCase().includes(lowerSearch) ||
+          (item.customerName || '').toLowerCase().includes(lowerSearch) ||
+          (item.personName || '').toLowerCase().includes(lowerSearch) ||
+          (item.dairyName || '').toLowerCase().includes(lowerSearch) ||
+          (item.itemName || '').toLowerCase().includes(lowerSearch)
+        );
+      }
+      
+      if (reportType === 'inventory') {
+        const trSnap = await getDocs(query(collection(db, 'transactions'), where('userId', '==', tenantId), where('method', '==', 'Item Sale')));
+        let sold = 0;
+        trSnap.docs.forEach(doc => { sold += (doc.data().amount || 0); });
+        
+        const expSnap = await getDocs(query(collection(db, 'expenses'), where('userId', '==', tenantId), where('category', '==', 'Inventory Purchase')));
+        let bought = 0;
+        expSnap.docs.forEach(doc => { bought += (doc.data().amount || 0); });
+        
+        const currentVal = fetchedData.reduce((sum, item) => sum + ((item.quantity || 0) * (item.rate || 0)), 0);
+        setInventoryStats({ bought, sold, currentStockValue: currentVal });
+      }
+
       setData(fetchedData);
     } catch (e: any) {
       console.error(e);
@@ -80,7 +110,7 @@ export default function Reports() {
     if (tenantId) {
       loadReportData();
     }
-  }, [reportType, dateRange, tenantId]);
+  }, [reportType, dateRange, tenantId, searchFilter]);
 
   const exportPDF = () => {
     window.print();
@@ -150,30 +180,33 @@ export default function Reports() {
     <div className="space-y-4">
       <div className="flex flex-col gap-4">
         {/* Header Section: Title and Buttons */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <h2 className="text-lg md:text-xl text-slate-900 capitalize tracking-tight flex items-center gap-2">{t('reports')} <InfoTooltip text="View, analyze, and export business data as PDF/Excel." /></h2>
+        <div className="flex items-center justify-between gap-2 md:gap-4">
+          <div className="flex items-center">
+            <h2 className="text-base md:text-xl text-slate-900 capitalize tracking-tight flex items-center gap-1 md:gap-2 m-0 leading-none whitespace-nowrap">
+              {t('reports')} 
+              <span className="hidden md:inline"><InfoTooltip text="View, analyze, and export business data as PDF/Excel." /></span>
+            </h2>
           </div>
-          <div className="flex w-full md:w-auto items-center justify-end gap-2">
-            {/* Filter Toggle Button for mobile */}
+          <div className="flex items-stretch justify-end gap-2 flex-1 md:flex-none">
+            {/* Filter Toggle Button for mobile and desktop */}
             <button 
               onClick={() => setShowFilters(!showFilters)}
-              className="md:hidden flex shrink-0 items-center gap-1 bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-300 px-3 py-2 rounded-none text-[10px] capitalize font-semibold"
+              className="flex shrink-0 items-center gap-1 bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-300 px-2 md:px-3 py-2 rounded-none text-[10px] capitalize font-semibold transition-colors"
             >
-              <Filter className="w-3.5 h-3.5" /> Filter
+              <Filter className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Filter</span>
             </button>
             
             {/* Actions Dropdown */}
-            <div className="relative w-full md:w-auto shrink-0 mt-2 md:mt-0">
+            <div className="relative shrink-0 flex items-stretch">
               <button 
                 onClick={() => setShowActions(!showActions)} 
-                className="w-full md:w-auto flex items-center justify-between gap-2 bg-slate-900 text-white px-4 py-2 border border-slate-900 hover:bg-slate-800 text-[10px] capitalize font-bold tracking-widest transition-colors"
+                className="h-full flex items-center justify-between gap-1 md:gap-2 bg-slate-900 text-white px-2 md:px-4 py-2 border border-slate-900 hover:bg-slate-800 text-[10px] capitalize font-bold tracking-widest transition-colors"
               >
-                Actions <ChevronDown className={`w-4 h-4 transition-transform ${showActions ? 'rotate-180' : ''}`} />
+                Actions <ChevronDown className={`w-3 h-3 md:w-4 md:h-4 transition-transform ${showActions ? 'rotate-180' : ''}`} />
               </button>
               
               {showActions && (
-                <div className="absolute right-0 top-full mt-1 w-full md:w-48 bg-white border border-slate-200 shadow-xl z-50 flex flex-col">
+                <div className="absolute right-0 top-full mt-1 w-40 md:w-48 bg-white border border-slate-200 shadow-xl z-50 flex flex-col">
                   <button 
                     onClick={() => { exportPDF(); setShowActions(false); }} 
                     className="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 text-left text-xs capitalize tracking-widest font-bold text-slate-700 border-b border-slate-100"
@@ -200,37 +233,103 @@ export default function Reports() {
         </div>
 
         {/* Filter Section */}
-        <div className={`${showFilters ? 'block' : 'hidden'} md:block`}>
+        <div className={`${showFilters ? 'block' : 'hidden'}`}>
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-3 bg-white p-3 md:p-4 rounded-none border border-slate-200 w-full shadow-sm">
-            <div className="flex flex-col md:flex-row md:items-end gap-3 w-full md:w-auto flex-1">
+            <div className="flex flex-col md:flex-row md:items-end gap-3 w-full flex-1">
               <div className="w-full md:w-48 shrink-0">
                 <label className="text-[9px] text-black capitalize tracking-widest block mb-0.5">Report Type</label>
                 <select className="w-full p-2 bg-slate-50 border border-slate-200 rounded-none outline-none text-xs font-bold" value={reportType} onChange={e => setReportType(e.target.value)}>
                   <option value="collections">{t('collections')}</option>
                   <option value="deliveries">{t('deliveries')}</option>
                   <option value="dairy_sales">Dairy Sales</option>
-                  <option value="transactions">Full Detail</option>
-                  <option value="inventory">Inventory</option>
+                  <option value="transactions">All Transactions</option>
+                  <option value="inventory">Inventory Dashboard</option>
                 </select>
               </div>
               {reportType !== 'inventory' && (
-                <div className="flex items-center gap-2 w-full md:w-auto shrink-0">
-                  <div className="flex-1 md:w-36">
-                    <label className="text-[9px] text-black capitalize tracking-widest block mb-0.5">Start Date</label>
-                    <input type="date" className="w-full p-2 bg-slate-50 border border-slate-200 rounded-none text-xs font-bold" value={dateRange.start} onChange={e => setDateRange({...dateRange, start: e.target.value})} />
-                  </div>
-                  <span className="text-slate-400 self-end mb-2 shrink-0">-</span>
-                  <div className="flex-1 md:w-36">
-                    <label className="text-[9px] text-black capitalize tracking-widest block mb-0.5">End Date</label>
-                    <input type="date" className="w-full p-2 bg-slate-50 border border-slate-200 rounded-none text-xs font-bold" value={dateRange.end} onChange={e => setDateRange({...dateRange, end: e.target.value})} />
+                <div className="w-full md:w-auto shrink-0">
+                  <label className="text-[9px] text-black capitalize tracking-widest block mb-0.5">Date Range</label>
+                  <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 px-2">
+                    <input type="date" className="p-1.5 bg-transparent text-xs font-bold outline-none" value={dateRange.start} onChange={e => setDateRange({...dateRange, start: e.target.value})} />
+                    <span className="text-slate-400 text-xs">-</span>
+                    <input type="date" className="p-1.5 bg-transparent text-xs font-bold outline-none" value={dateRange.end} onChange={e => setDateRange({...dateRange, end: e.target.value})} />
                   </div>
                 </div>
               )}
+              <div className="w-full md:w-auto flex-1">
+                <label className="text-[9px] text-black capitalize tracking-widest block mb-0.5">Individual Filter (Search)</label>
+                <input type="text" placeholder="Farmer/Customer/Item Name..." className="w-full p-2 bg-slate-50 border border-slate-200 rounded-none text-xs font-bold outline-none focus:border-blue-500" value={searchFilter} onChange={e => setSearchFilter(e.target.value)} />
+              </div>
             </div>
 
           </div>
         </div>
       </div>
+
+      {reportType === 'inventory' && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+          <div className="bg-white border border-slate-200 p-4 border-l-4 border-l-emerald-500">
+            <p className="text-[9px] text-slate-500 uppercase tracking-widest mb-1 flex items-center gap-1"><TrendingUp className="w-3 h-3"/> Total Sold</p>
+            <h3 className="text-xl text-slate-900 font-bold">₹ {inventoryStats.sold.toLocaleString()}</h3>
+          </div>
+          <div className="bg-white border border-slate-200 p-4 border-l-4 border-l-red-500">
+            <p className="text-[9px] text-slate-500 uppercase tracking-widest mb-1 flex items-center gap-1"><TrendingDown className="w-3 h-3"/> Total Purchased</p>
+            <h3 className="text-xl text-slate-900 font-bold">₹ {inventoryStats.bought.toLocaleString()}</h3>
+          </div>
+          <div className="bg-slate-900 border border-slate-900 p-4 border-l-4 border-l-blue-400 text-white">
+            <p className="text-[9px] text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-1"><Package className="w-3 h-3"/> Current Stock Value</p>
+            <h3 className="text-xl font-bold">₹ {inventoryStats.currentStockValue.toLocaleString()}</h3>
+          </div>
+        </div>
+      )}
+
+      {/* Dynamic Report Chart */}
+      {reportType !== 'inventory' && data.length > 0 && (
+        <div className="bg-white p-4 border border-slate-200 mb-4 h-[250px] flex flex-col">
+          <h3 className="text-xs text-slate-900 font-bold mb-2 tracking-widest capitalize">
+            {reportType === 'collections' ? 'Milk Collection (By Session)' : 
+             reportType === 'deliveries' ? 'Top 5 Delivery Customers' : 
+             reportType === 'transactions' ? 'Transactions (Credit vs Debit)' : 'Dairy Sales Data'}
+          </h3>
+          {(() => {
+            let chartData: any[] = [];
+            let formatVal = (v: number) => v.toLocaleString();
+            
+            if (reportType === 'collections') {
+              const morn = data.filter(d => d.session === 'morning').reduce((sum, d) => sum + (d.quantity || 0), 0);
+              const eve = data.filter(d => d.session === 'evening').reduce((sum, d) => sum + (d.quantity || 0), 0);
+              chartData = [
+                { name: 'Morning', value: morn, color: '#f59e0b' },
+                { name: 'Evening', value: eve, color: '#3b82f6' }
+              ].filter(d => d.value > 0);
+              formatVal = (v: number) => v.toLocaleString() + ' L';
+            } else if (reportType === 'deliveries') {
+               const cusMap = new Map();
+               data.forEach(d => {
+                 const name = d.customerName || 'Unknown';
+                 cusMap.set(name, (cusMap.get(name) || 0) + (d.quantity || 0));
+               });
+               chartData = Array.from(cusMap.entries()).sort((a: any, b: any) => b[1] - a[1]).slice(0, 5).map(([name, value], i) => ({ name, value, color: COLORS[i % COLORS.length] }));
+               formatVal = (v: number) => v.toLocaleString() + ' L';
+            } else if (reportType === 'transactions') {
+               const credit = data.filter(d => d.type === 'credit').reduce((sum, d) => sum + (d.amount || 0), 0);
+               const debit = data.filter(d => d.type === 'debit').reduce((sum, d) => sum + (d.amount || 0), 0);
+               chartData = [
+                 { name: 'Credit (+)', value: credit, color: '#10b981' },
+                 { name: 'Debit (-)', value: debit, color: '#ef4444' }
+               ].filter(d => d.value > 0);
+               formatVal = (v: number) => '₹' + (v >= 100000 ? (v/100000).toFixed(1) + 'L' : v >= 1000 ? (v/1000).toFixed(1) + 'K' : v);
+            } else if (reportType === 'dairy_sales') {
+               const amts = data.reduce((sum, d) => sum + (d.amount || 0), 0);
+               chartData = [{ name: 'Total Sales', value: amts, color: '#ec4899' }];
+               formatVal = (v: number) => '₹' + v.toLocaleString();
+            }
+
+            if (chartData.length === 0) return <div className="flex-1 flex items-center justify-center text-[10px] tracking-widest text-slate-400">Not enough data to chart</div>;
+            return <DonutChart data={chartData} title="Summary" formatValue={formatVal} />;
+          })()}
+        </div>
+      )}
 
       {analysis && (
         <div className="bg-blue-50 border border-blue-100 p-6 rounded-none relative">

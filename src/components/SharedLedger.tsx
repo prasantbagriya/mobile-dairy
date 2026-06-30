@@ -2,12 +2,13 @@ import { useState, useEffect, useMemo, memo } from 'react';
 import { db } from '../lib/db';
 import { collection, query, where, getDocs, orderBy, writeBatch, doc, onSnapshot, increment } from 'firebase/firestore';
 import { MilkCollection, MilkDelivery, Transaction, Farmer, Customer } from '../types';
-import { ArrowLeft, Calendar, FileText, IndianRupee, Printer, Trash2, ChevronLeft, ChevronRight, Settings, X, Info, Edit2 } from 'lucide-react';
+import { ArrowLeft, Calendar, FileText, IndianRupee, Printer, Trash2, ChevronLeft, ChevronRight, Settings, X, Info, Edit2, MessageCircle } from 'lucide-react';
 import dayjs from 'dayjs';
 import { eachDayOfInterval, addMonths, isSameMonth, isToday } from '../lib/dateUtils';
 import EditMilkModal from './EditMilkModal';
 import toast from 'react-hot-toast';
 import { useAuth } from "../lib/auth";
+import { Share2, Download, MessageSquare } from 'lucide-react';
 
 type Person = Farmer | Customer;
 
@@ -39,6 +40,10 @@ const SharedLedger = memo(({ person, type, allPersons = [], onClose, onRefresh, 
     description: ''
   });
   
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [shareStartDate, setShareStartDate] = useState('');
+  const [shareEndDate, setShareEndDate] = useState('');
+  
   const [localBalance, setLocalBalance] = useState(person.balance || 0);
 
   useEffect(() => {
@@ -49,6 +54,11 @@ const SharedLedger = memo(({ person, type, allPersons = [], onClose, onRefresh, 
     start: dayjs(currentMonth).startOf('month').format('YYYY-MM-DD'),
     end: dayjs(currentMonth).endOf('month').format('YYYY-MM-DD')
   }), [currentMonth]);
+
+  useEffect(() => {
+    setShareStartDate(dateRange.start);
+    setShareEndDate(dateRange.end);
+  }, [dateRange]);
 
   useEffect(() => {
     if (!tenantId || !person.id) return;
@@ -206,6 +216,67 @@ const SharedLedger = memo(({ person, type, allPersons = [], onClose, onRefresh, 
     }
   }
 
+  const shareMilkRecords = useMemo(() => allMilkRecords.filter(m => m.date >= shareStartDate && m.date <= shareEndDate), [allMilkRecords, shareStartDate, shareEndDate]);
+  const shareTransactions = useMemo(() => allTransactions.filter(t => t.date >= shareStartDate && t.date <= shareEndDate), [allTransactions, shareStartDate, shareEndDate]);
+
+  const generateShareText = () => {
+    const totalMilk = shareMilkRecords.reduce((sum, c) => sum + (c.quantity || 0), 0).toFixed(1);
+    const totalAmount = shareMilkRecords.reduce((sum, c) => sum + (c.amount || 0), 0).toLocaleString();
+    const paidAmount = shareTransactions.reduce((sum, t) => sum + (t.type === (isFarmer ? 'debit' : 'credit') ? t.amount : -t.amount), 0).toLocaleString();
+    
+    const sortedMilk = [...shareMilkRecords].sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+    
+    let breakdown = '';
+    if (sortedMilk.length > 0) {
+      breakdown = `*Daily Details:*\n`;
+      sortedMilk.forEach(m => {
+        const session = m.session === 'morning' ? 'M' : 'E';
+        if (isFarmer) {
+          breakdown += `${dayjs(m.date).format('DD-MMM')} ${session}: ${m.quantity}L (F:${m.fat} S:${m.snf}) - ₹${m.amount}\n`;
+        } else {
+          breakdown += `${dayjs(m.date).format('DD-MMM')} ${session}: ${m.quantity}L @₹${m.rate} - ₹${m.amount}\n`;
+        }
+      });
+      breakdown += `----------------\n`;
+    }
+    
+    return `*${isFarmer ? 'Milk Supply Report' : 'Milk Delivery Report'}*\n\n` +
+      `Name: ${person.name}\n` +
+      `Period: ${dayjs(shareStartDate).format('DD MMM')} to ${dayjs(shareEndDate).format('DD MMM YYYY')}\n\n` +
+      breakdown +
+      `Total Milk: ${totalMilk} L\n` +
+      `Milk Value: ₹${totalAmount}\n` +
+      `Payments: ₹${paidAmount}\n\n` +
+      `*Current Balance:* ₹${Math.abs(localBalance).toLocaleString()} ${isFarmer ? (localBalance >= 0 ? '(Dr)' : '(Cr)') : (localBalance > 0 ? '(Dr)' : '(Cr)')}\n\n` +
+      `Thank you!`;
+  };
+
+  const executeShare = async (platform: 'whatsapp' | 'sms' | 'native') => {
+    const text = generateShareText();
+    const encodedText = encodeURIComponent(text);
+    const phoneStr = (person.mobile || '').replace(/\D/g, '');
+    const finalPhone = phoneStr.length === 10 ? `91${phoneStr}` : phoneStr;
+
+    if (platform === 'whatsapp') {
+      window.open(`https://wa.me/${finalPhone}?text=${encodedText}`, '_blank');
+    } else if (platform === 'sms') {
+      window.open(`sms:${person.mobile}?body=${encodedText}`, '_blank');
+    } else if (platform === 'native') {
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: 'Milk Report',
+            text: text
+          });
+        } catch (e) {
+          console.error(e);
+        }
+      } else {
+        toast.error("Native sharing not supported on this browser.");
+      }
+    }
+  };
+
   let daysInMonth: Date[] = [];
   let startDay = 0;
   try {
@@ -245,6 +316,9 @@ const SharedLedger = memo(({ person, type, allPersons = [], onClose, onRefresh, 
               </div>
             </div>
             <div className="flex items-center gap-1.5 md:gap-2">
+               <button onClick={() => setShowShareModal(true)} className="flex items-center gap-1.5 px-3 py-1.5 bg-white text-black hover:bg-slate-100 border border-slate-300 text-[10px] md:text-xs font-bold" title="Share Report">
+                 <Share2 className="w-4 h-4" /> <span className="hidden sm:inline">Share</span>
+               </button>
                <button onClick={() => window.print()} className="p-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 hidden md:block">
                  <Printer className="w-4 h-4" />
                </button>
@@ -538,6 +612,63 @@ const SharedLedger = memo(({ person, type, allPersons = [], onClose, onRefresh, 
                   </button>
                 )}
               </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showShareModal && (
+        <div className="fixed inset-0 bg-slate-900/50 z-[100] flex flex-col items-center justify-center p-4">
+          <div className="bg-white w-full max-w-md flex flex-col rounded-xl overflow-hidden shadow-2xl">
+            <div className="bg-slate-900 w-full p-4 text-white flex items-center justify-between border-b border-slate-700">
+              <h3 className="text-base tracking-tight font-bold flex items-center gap-2"><Share2 className="w-4 h-4"/> Share Report - {person.name}</h3>
+              <button onClick={() => setShowShareModal(false)} className="p-1 hover:bg-slate-800 transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-4 space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-sm font-medium text-black">Start Date</label>
+                  <input type="date" className="w-full border border-slate-300 p-2 text-sm bg-white" value={shareStartDate} onChange={e => setShareStartDate(e.target.value)} />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-sm font-medium text-black">End Date</label>
+                  <input type="date" className="w-full border border-slate-300 p-2 text-sm bg-white" value={shareEndDate} onChange={e => setShareEndDate(e.target.value)} />
+                </div>
+              </div>
+
+              <div className="bg-slate-50 p-3 border border-slate-200">
+                <h4 className="text-xs font-bold uppercase tracking-wider mb-2 text-slate-500">Preview Summary</h4>
+                <div className="space-y-1 text-sm text-black">
+                  <div className="flex justify-between"><span>Total Milk:</span> <strong>{shareMilkRecords.reduce((sum, c) => sum + (c.quantity || 0), 0).toFixed(1)} L</strong></div>
+                  <div className="flex justify-between"><span>Total Amount:</span> <strong>₹ {shareMilkRecords.reduce((sum, c) => sum + (c.amount || 0), 0).toLocaleString()}</strong></div>
+                  <div className="flex justify-between"><span>Total Payments:</span> <strong>₹ {shareTransactions.reduce((sum, t) => sum + (t.type === (isFarmer ? 'debit' : 'credit') ? t.amount : -t.amount), 0).toLocaleString()}</strong></div>
+                  <div className="flex justify-between pt-1 border-t border-slate-200 mt-1"><span>Current Balance:</span> <strong className={localBalance >= 0 ? (isFarmer ? 'text-emerald-600' : 'text-red-500') : (isFarmer ? 'text-red-500' : 'text-emerald-600')}>₹ {Math.abs(localBalance).toLocaleString()} {isFarmer ? (localBalance >= 0 ? '(Dr)' : '(Cr)') : (localBalance > 0 ? '(Dr)' : '(Cr)')}</strong></div>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-2 pt-2">
+                <button onClick={() => executeShare('whatsapp')} className="w-full py-2.5 bg-[#25D366] text-white hover:bg-[#128C7E] font-bold text-sm flex items-center justify-center gap-2 rounded-lg">
+                  <MessageCircle className="w-5 h-5" /> Share via WhatsApp
+                </button>
+                <div className="grid grid-cols-2 gap-2">
+                  <button onClick={() => executeShare('sms')} className="w-full py-2.5 bg-blue-600 text-white hover:bg-blue-700 font-bold text-sm flex items-center justify-center gap-2 rounded-lg">
+                    <MessageSquare className="w-4 h-4" /> SMS
+                  </button>
+                  <button onClick={() => {
+                    setShowShareModal(false);
+                    setTimeout(() => window.print(), 300);
+                  }} className="w-full py-2.5 bg-slate-800 text-white hover:bg-slate-900 font-bold text-sm flex items-center justify-center gap-2 rounded-lg">
+                    <Download className="w-4 h-4" /> Save PDF
+                  </button>
+                </div>
+                {navigator.share && (
+                  <button onClick={() => executeShare('native')} className="w-full py-2 text-slate-600 hover:text-black hover:bg-slate-100 text-sm flex items-center justify-center gap-2 mt-1 rounded-lg">
+                    <Share2 className="w-4 h-4" /> Other Options
+                  </button>
+                )}
               </div>
             </div>
           </div>

@@ -5,7 +5,7 @@ import { useI18n } from '../lib/i18n';
 import { db } from '../lib/db';
 import { collection, addDoc, getDocs, onSnapshot, query, orderBy, limit, doc, increment, updateDoc, getDoc, setDoc, where, writeBatch } from 'firebase/firestore';
 import { Farmer, MilkCollection, AppSettings } from '../types';
-import { Plus, Search, Calendar, Moon, Sun, Calculator, Save, X, Milk, History, Edit, TrendingUp, Clock, Edit2, Filter } from 'lucide-react';
+import { Plus, Search, Calendar, Moon, Sun, Calculator, Save, X, Milk, History, Edit, TrendingUp, Clock, Edit2, Filter, MessageCircle } from 'lucide-react';
 import dayjs from 'dayjs';
 import InfoTooltip from '../components/InfoTooltip';
 import { useAuth } from '../lib/auth';
@@ -20,6 +20,7 @@ export default function Collections() {
   const [loading, setLoading] = useState(true);
   const [showConfig, setShowConfig] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [settings, setSettings] = useState<AppSettings>({
     avgPrice: 52.40,
     peakFatRate: 7.20,
@@ -176,6 +177,8 @@ export default function Collections() {
       alert("Missing required fields");
       return;
     }
+    if (isSaving) return;
+    setIsSaving(true);
 
     try {
       // Final check for duplicates
@@ -250,8 +253,29 @@ export default function Collections() {
     } catch (e) {
       console.error(e);
       toast.error("Error saving collection: " + (e as any).message);
+    } finally {
+      setIsSaving(false);
     }
   }
+
+  const handleWhatsAppShare = (col: MilkCollection) => {
+    const f = farmers.find(far => far.id === col.farmerId);
+    if (!f || !f.mobile) {
+      toast.error("Mobile number not found for this farmer.");
+      return;
+    }
+    const text = `*Daily Milk Receipt*\n\n` +
+      `Name: ${col.farmerName}\n` +
+      `Date: ${col.date}\n` +
+      `Session: ${col.session === 'morning' ? 'Morning' : 'Evening'}\n` +
+      `Milk: ${col.quantity} L\n` +
+      `Fat: ${col.fat} / SNF: ${col.snf}\n` +
+      `Amount: ₹${col.amount.toFixed(2)}\n\n` +
+      `Thank you!`;
+    const phoneStr = f.mobile.replace(/\D/g, '');
+    const finalPhone = phoneStr.length === 10 ? `91${phoneStr}` : phoneStr;
+    window.open(`https://wa.me/${finalPhone}?text=${encodeURIComponent(text)}`, '_blank');
+  };
 
   async function saveSettings() {
     try {
@@ -445,10 +469,10 @@ export default function Collections() {
                 <span className="text-2xl font-bold text-blue-600">₹ {formData.amount.toFixed(2)}</span>
               </div>
               <div className="flex gap-2 mt-4">
-                <button onClick={() => handleSave(false)} className="flex-1 px-4 py-3 rounded-none text-xs tracking-wider border border-slate-200 text-slate-700 hover:bg-slate-50 transition flex items-center justify-center gap-2 font-medium">
+                <button disabled={isSaving} onClick={() => handleSave(false)} className="flex-1 px-4 py-3 rounded-none text-xs tracking-wider border border-slate-200 text-slate-700 hover:bg-slate-50 transition flex items-center justify-center gap-2 font-medium disabled:opacity-50">
                   <Save className="w-4 h-4" /> Save
                 </button>
-                <button onClick={() => handleSave(true)} className="flex-2 px-4 py-3 rounded-none text-xs tracking-wider bg-slate-900 text-white hover:bg-black transition flex items-center justify-center gap-2 font-medium">
+                <button disabled={isSaving} onClick={() => handleSave(true)} className="flex-2 px-4 py-3 rounded-none text-xs tracking-wider bg-slate-900 text-white hover:bg-black transition flex items-center justify-center gap-2 font-medium disabled:opacity-50">
                   <Save className="w-4 h-4" /> Save & Next
                 </button>
               </div>
@@ -484,7 +508,7 @@ export default function Collections() {
                     <th className="px-6 py-4 whitespace-nowrap">{t('farmer')}</th>
                     <th className="px-6 py-4 text-center whitespace-nowrap">{t('qty_quality')}</th>
                     <th className="px-6 py-4 text-right whitespace-nowrap">{t("settlement")}</th>
-                    {role === 'admin' && <th className="px-6 py-4 text-center whitespace-nowrap">{t("action")}</th>}
+                    <th className="px-6 py-4 text-center whitespace-nowrap">{t("action")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50 text-black">
@@ -511,23 +535,37 @@ export default function Collections() {
                           <span className="text-[9px]  text-black tracking-wider">@ ₹{col.rate}/L</span>
                         </div>
                       </td>
-                      {role === 'admin' && (
-                        <td className="px-6 py-4 text-center whitespace-nowrap">
-                          {(() => {
-                             const f = farmers.find(far => far.id === col.farmerId);
-                             const isSettled = f?.lastSettledDate && col.date <= f.lastSettledDate;
-                             return (col.editCount || 0) < 2 && !isSettled && (
-                              <button 
-                                onClick={() => setEditingCollection(col)}
-                                className="p-1.5 bg-slate-100 hover:bg-amber-100 text-black hover:text-amber-600 transition-colors rounded-none"
-                                title="Edit Entry"
-                              >
-                                <Edit2 className="w-3.5 h-3.5" />
-                              </button>
-                             );
-                          })()}
-                        </td>
-                      )}
+                      <td className="px-6 py-4 text-center whitespace-nowrap">
+                        {(() => {
+                           const f = farmers.find(far => far.id === col.farmerId);
+                           const isSettled = f?.lastSettledDate && col.date <= f.lastSettledDate;
+                           const daysOld = dayjs().diff(dayjs(col.date), 'day');
+                           const canEdit = daysOld <= 10 && (col.editCount || 0) < 2 && !isSettled;
+                           
+                           return (
+                             <div className="flex items-center justify-center gap-2">
+                               <button 
+                                 onClick={() => handleWhatsAppShare(col)}
+                                 className="p-1.5 bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#128C7E] transition-colors rounded-none"
+                                 title="Share via WhatsApp"
+                               >
+                                 <MessageCircle className="w-3.5 h-3.5" />
+                               </button>
+                               {canEdit ? (
+                                 <button 
+                                   onClick={() => setEditingCollection(col)}
+                                   className="p-1.5 bg-slate-100 hover:bg-amber-100 text-black hover:text-amber-600 transition-colors rounded-none"
+                                   title="Edit Entry"
+                                 >
+                                   <Edit2 className="w-3.5 h-3.5" />
+                                 </button>
+                               ) : (
+                                 <span className="text-[10px] text-slate-400 capitalize">Locked</span>
+                               )}
+                             </div>
+                           );
+                        })()}
+                      </td>
                     </tr>
                   ))}
                 </tbody>

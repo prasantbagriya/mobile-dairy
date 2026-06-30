@@ -18,7 +18,7 @@ interface AuthContextType {
   loginWithEmail: (e: string, p: string) => Promise<void>;
   signupWithEmail: (e: string, p: string) => Promise<void>;
   resetPassword: (e: string) => Promise<void>;
-  connectGoogle: () => Promise<void>;
+  connectGoogle: () => Promise<string | null>;
   registerFarmerLogin: (mobile: string, farmerId: string, farmerName: string) => Promise<void>;
   loginAsFarmer: (mobile: string, pin: string) => Promise<void>;
   registerCustomerLogin: (mobile: string, customerId: string, customerName: string) => Promise<void>;
@@ -118,7 +118,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const connectGoogle = async () => {
+  const connectGoogle = async (): Promise<string | null> => {
     try {
       if (Capacitor.isNativePlatform()) {
         const nativeResult = await FirebaseAuthentication.signInWithGoogle({
@@ -131,7 +131,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setAccessToken(nativeResult.credential.accessToken);
           localStorage.setItem('g_token', nativeResult.credential.accessToken);
           localStorage.setItem('g_token_time', Date.now().toString());
+          return nativeResult.credential.accessToken;
         }
+        return null;
       } else {
         const provider = new GoogleAuthProvider();
         provider.addScope('https://www.googleapis.com/auth/spreadsheets');
@@ -144,10 +146,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setAccessToken(credential.accessToken);
             localStorage.setItem('g_token', credential.accessToken);
             localStorage.setItem('g_token_time', Date.now().toString());
+            return credential.accessToken;
           }
+          return null;
         } catch (popupErr: any) {
           if (popupErr.code === 'auth/cancelled-popup-request' || popupErr.code === 'auth/popup-blocked') {
             await signInWithRedirect(auth, provider);
+            return null; // Will redirect
           } else {
             throw popupErr;
           }
@@ -158,6 +163,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (e.code !== 'auth/popup-closed-by-user' && e.code !== 'auth/cancelled-popup-request') {
         alert("Google Connection Failed:\n" + (e.message || e));
       }
+      return null;
     }
   };
 

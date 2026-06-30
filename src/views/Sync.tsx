@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 import { useAuth } from '../lib/auth';
 import { db } from '../lib/db';
 import { doc, getDoc, setDoc, collection, getDocs, query, where } from 'firebase/firestore';
@@ -27,10 +28,25 @@ export default function Sync() {
     }
   }
 
-  async function handleSync() {
-    if (!accessToken) {
-      setStatus({ type: 'error', message: 'Not authenticated with Google. Please re-login.' });
-      return;
+  const handleSync = async () => {
+    if (!user || !tenantId) return;
+
+    let currentToken = accessToken;
+    const savedTime = localStorage.getItem('g_token_time');
+    
+    // Auto-refresh token if expired (older than 58 minutes)
+    if (!currentToken || !savedTime || (Date.now() - parseInt(savedTime) >= 3480000)) {
+       try {
+         const newToken = await connectGoogle();
+         if (!newToken) {
+           toast.error("Failed to automatically refresh Google token. Please click 'Reconnect Google'.");
+           return;
+         }
+         currentToken = newToken;
+       } catch (e) {
+         toast.error("Failed to refresh Google token.");
+         return;
+       }
     }
 
     setSyncing(true);
@@ -47,7 +63,8 @@ export default function Sync() {
         { name: 'milk_deliveries', title: 'Deliveries' },
         { name: 'expenses', title: 'Expenses' },
         { name: 'transactions', title: 'Transactions' },
-        { name: 'dairy_sales', title: 'DairySales' }
+        { name: 'dairy_sales', title: 'DairySales' },
+        { name: 'inventory', title: 'Inventory' }
       ];
 
       // 1. Create Spreadsheet if not exists
@@ -67,6 +84,27 @@ export default function Sync() {
         spreadsheetId = result.spreadsheetId;
         await setDoc(doc(db, 'admin_configs', user!.uid), { spreadsheetId }, { merge: true });
         setConfig(prev => prev ? { ...prev, spreadsheetId } : null);
+      }
+
+      // 2. Ensure all collection sheets exist before syncing
+      const initialMetaResp = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}`, {
+        headers: { 'Authorization': `Bearer ${currentToken}` }
+      });
+      if (!initialMetaResp.ok) throw new Error("Failed to fetch spreadsheet metadata before sync.");
+      const initialMeta = await initialMetaResp.json();
+      const existingSheetTitles = initialMeta.sheets?.map((s: any) => s.properties.title) || [];
+      
+      const missingSheets = collections.filter(c => !existingSheetTitles.includes(c.title));
+      if (missingSheets.length > 0) {
+        const batchReqs = missingSheets.map(c => ({
+          addSheet: { properties: { title: c.title } }
+        }));
+        const addResp = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}:batchUpdate`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${currentToken}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ requests: batchReqs })
+        });
+        if (!addResp.ok) throw new Error("Failed to create missing sheets: " + await addResp.text());
       }
 
       // 3. Sync each collection
@@ -95,20 +133,145 @@ export default function Sync() {
         )];
 
         // Ensure sheet exists or clear it
-        // This is a simplified overwrite sync
-        await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${col.title}!A1:Z1000?valueInputOption=RAW`, {
+        const putResp = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${col.title}!A1:Z1000?valueInputOption=RAW`, {
           method: 'PUT',
           headers: {
-            'Authorization': `Bearer ${accessToken}`,
+            'Authorization': `Bearer ${currentToken}`,
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({ values })
         });
+        if (!putResp.ok) console.error(`Failed to sync ${col.title}:`, await putResp.text());
+      }
+
+      // 4. Automatically Generate Summary Report and Chart
+      try {
+        const metaResp = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}`, {
+          headers: { 'Authorization': `Bearer ${currentToken}` }
+        });
+        
+        if (!metaResp.ok) {
+          throw new Error("Failed to fetch spreadsheet metadata. " + await metaResp.text());
+        }
+
+        const meta = await metaResp.json();
+        
+        let reportSheetId = meta.sheets?.find((s: any) => s.properties.title === 'Report' || s.properties.title === 'Dashboard')?.properties.sheetId;
+        const collectionsSheetId = meta.sheets?.find((s: any) => s.properties.title === 'Collections')?.properties.sheetId;
+        
+        if (reportSheetId === undefined) {
+           // Create Report sheet if missing
+           const addSheetResp = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}:batchUpdate`, {
+             method: 'POST',
+             headers: { 'Authorization': `Bearer ${currentToken}`, 'Content-Type': 'application/json' },
+             body: JSON.stringify({ requests: [{ addSheet: { properties: { title: 'Report', index: 0 } } }] })
+           });
+           
+           if (!addSheetResp.ok) {
+             throw new Error("Failed to create Report sheet. " + await addSheetResp.text());
+           }
+           
+           const addSheetData = await addSheetResp.json();
+           reportSheetId = addSheetData.replies[0].addSheet.properties.sheetId;
+        }
+
+        // Calculate master summaries
+        const farSnap = await getDocs(query(collection(db, 'farmers'), where('userId', '==', tenantId)));
+        const cusSnap = await getDocs(query(collection(db, 'customers'), where('userId', '==', tenantId)));
+        const colSnap = await getDocs(query(collection(db, 'milk_collections'), where('userId', '==', tenantId)));
+        const delSnap = await getDocs(query(collection(db, 'milk_deliveries'), where('userId', '==', tenantId)));
+        const invSnap = await getDocs(query(collection(db, 'inventory'), where('userId', '==', tenantId)));
+        const expSnap = await getDocs(query(collection(db, 'expenses'), where('userId', '==', tenantId)));
+        const dairySnap = await getDocs(query(collection(db, 'dairy_sales'), where('userId', '==', tenantId)));
+        const transSnap = await getDocs(query(collection(db, 'transactions'), where('userId', '==', tenantId)));
+        
+        let totalMilkCollected = 0; colSnap.docs.forEach(d => totalMilkCollected += (d.data().quantity || 0));
+        let totalMilkDelivered = 0; delSnap.docs.forEach(d => totalMilkDelivered += (d.data().quantity || 0));
+        let inventoryValue = 0; invSnap.docs.forEach(d => inventoryValue += ((d.data().quantity || 0) * (d.data().rate || 0)));
+        let totalExpenses = 0; expSnap.docs.forEach(d => totalExpenses += (d.data().amount || 0));
+        let dairySalesValue = 0; dairySnap.docs.forEach(d => dairySalesValue += (d.data().amount || 0));
+        let transCredit = 0; let transDebit = 0;
+        transSnap.docs.forEach(d => {
+           if (d.data().type === 'credit') transCredit += (d.data().amount || 0);
+           else if (d.data().type === 'debit') transDebit += (d.data().amount || 0);
+        });
+
+        const summaryValues = [
+          ['MILK MASTER - BUSINESS MASTER REPORT', ''],
+          ['Generated At', new Date().toLocaleString()],
+          ['--------------------------', '--------------------------'],
+          ['Total Active Farmers', farSnap.size],
+          ['Total Active Customers', cusSnap.size],
+          ['Total Milk Collected (Liters)', totalMilkCollected.toFixed(2)],
+          ['Total Milk Sold (Liters)', totalMilkDelivered.toFixed(2)],
+          ['Total Dairy Sales (₹)', dairySalesValue.toFixed(2)],
+          ['Total Inventory Value (₹)', inventoryValue.toFixed(2)],
+          ['Total Expenses (₹)', totalExpenses.toFixed(2)],
+          ['Transactions Credit (₹)', transCredit.toFixed(2)],
+          ['Transactions Debit (₹)', transDebit.toFixed(2)],
+        ];
+
+        // Write Summary Data to Report Sheet (expanding to more rows)
+        await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/Report!A1:B15?valueInputOption=RAW`, {
+          method: 'PUT',
+          headers: { 'Authorization': `Bearer ${currentToken}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ values: summaryValues })
+        });
+
+        // Add Chart if not created
+        if (!config?.reportChartCreated && reportSheetId !== undefined && collectionsSheetId !== undefined) {
+           const chartRequest = {
+             requests: [
+               {
+                 addChart: {
+                   chart: {
+                     spec: {
+                       title: "Milk Collections (Liters)",
+                       basicChart: {
+                         chartType: "COLUMN",
+                         legendPosition: "BOTTOM_LEGEND",
+                         axis: [
+                           { position: "BOTTOM_AXIS", title: "Date" },
+                           { position: "LEFT_AXIS", title: "Quantity (L)" }
+                         ],
+                         domains: [
+                           { domain: { sourceRange: { sources: [{ sheetId: collectionsSheetId, startRowIndex: 0, endRowIndex: 1000, startColumnIndex: 2, endColumnIndex: 3 }] } } }
+                         ],
+                         series: [
+                           { series: { sourceRange: { sources: [{ sheetId: collectionsSheetId, startRowIndex: 0, endRowIndex: 1000, startColumnIndex: 8, endColumnIndex: 9 }] } }, targetAxis: "LEFT_AXIS" }
+                         ],
+                         headerCount: 1
+                       }
+                     },
+                     position: {
+                       overlayPosition: { anchorCell: { sheetId: reportSheetId, rowIndex: 1, columnIndex: 3 }, widthPixels: 600, heightPixels: 400 }
+                     }
+                   }
+                 }
+               }
+             ]
+           };
+           
+           const chartResp = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}:batchUpdate`, {
+             method: 'POST',
+             headers: { 'Authorization': `Bearer ${currentToken}`, 'Content-Type': 'application/json' },
+             body: JSON.stringify(chartRequest)
+           });
+
+           if (chartResp.ok) {
+             await setDoc(doc(db, 'admin_configs', user!.uid), { reportChartCreated: true }, { merge: true });
+           } else {
+             console.error("Chart Error:", await chartResp.text());
+           }
+        }
+      } catch (chartErr: any) {
+        console.error("Error with Report/Chart generation:", chartErr);
+        toast.error("Google API Error: " + (chartErr.message || chartErr));
       }
 
       await setDoc(doc(db, 'admin_configs', user!.uid), { lastSyncedAt: new Date().toISOString() }, { merge: true });
       loadConfig();
-      setStatus({ type: 'success', message: 'Data synced successfully to Google Sheets!' });
+      setStatus({ type: 'success', message: 'Data synced & Dashboard updated successfully!' });
     } catch (e: any) {
       console.error(e);
       setStatus({ type: 'error', message: e.message || 'Sync failed. Please try again.' });

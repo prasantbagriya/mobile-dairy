@@ -99,6 +99,7 @@ export interface AdminConfig {
   tenantId?: string;
   lastSyncedAt?: string;
   spreadsheetId?: string;
+  reportChartCreated?: boolean;
 }
 
 export interface InventoryItem extends BaseRecord {

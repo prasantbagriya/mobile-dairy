@@ -28,7 +28,8 @@ import {
   Download,
   Milk,
   Languages,
-  Plus
+  Plus,
+  LifeBuoy
 } from 'lucide-react';
 
 interface LayoutProps {
@@ -132,7 +133,17 @@ export default function Layout({ children, activeView, setActiveView }: LayoutPr
               </button>
             );
           })}
-        <div className="mt-8 pt-6 border-t border-slate-800 space-y-2">
+        </nav>
+        <div className="mt-auto pt-4 pb-2 border-t border-slate-800 space-y-2 shrink-0">
+          <button 
+            onClick={() => handleNavClick('help_support')}
+            className={`w-full flex items-center gap-4 px-4 py-3.5 text-white hover:bg-indigo-500/10 hover:text-indigo-400 text-[13px] ${isCollapsed ? 'justify-center' : ''}`}
+            title={isCollapsed ? "Help & Support" : ''}
+          >
+            <LifeBuoy className="w-5 h-5" />
+            {!isCollapsed && <span>Help & Support</span>}
+          </button>
+          
           <a
             href={import.meta.env.VITE_APK_DOWNLOAD_URL || "/milkmaster.apk"}
             download="milkmaster.apk"
@@ -177,7 +188,6 @@ export default function Layout({ children, activeView, setActiveView }: LayoutPr
             {!isCollapsed && <span>{t('logout')}</span>}
           </button>
         </div>
-        </nav>
       </aside>
 
       {/* Header - Mobile */}
@@ -238,6 +248,13 @@ export default function Layout({ children, activeView, setActiveView }: LayoutPr
                   <option value="mr" className="bg-slate-900">मराठी</option>
                 </select>
               </div>
+              <button 
+                onClick={() => handleNavClick('help_support')}
+                className="w-full flex items-center gap-4 px-4 py-3 rounded-none text-white hover:text-indigo-400 hover:bg-indigo-400/10 text-[13px]"
+              >
+                <LifeBuoy className="w-5 h-5" />
+                <span>Help & Support</span>
+              </button>
 
               <button 
                 onClick={logout}
