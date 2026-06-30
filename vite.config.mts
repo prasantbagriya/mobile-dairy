@@ -3,7 +3,6 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 import {defineConfig} from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
-import { visualizer } from 'rollup-plugin-visualizer';
 
 export default defineConfig(() => {
   return {
@@ -42,12 +41,6 @@ export default defineConfig(() => {
           ]
         },
         manifest: false
-      }),
-      visualizer({
-        filename: '.stats/stats.html',
-        gzipSize: true,
-        brotliSize: true,
-        open: true
       })
     ],
     resolve: {
@@ -61,16 +54,10 @@ export default defineConfig(() => {
       hmr: process.env.DISABLE_HMR !== 'true',
       watch: process.env.DISABLE_HMR === 'true' ? null : {},
     },
+    esbuild: {
+      drop: ['console', 'debugger'],
+    },
     build: {
-      minify: 'terser',
-      terserOptions: {
-        compress: {
-          drop_console: true,
-          drop_debugger: true,
-          pure_funcs: ['console.info', 'console.debug', 'console.warn'],
-          passes: 3
-        }
-      },
       rollupOptions: {
         output: {
           manualChunks(id) {

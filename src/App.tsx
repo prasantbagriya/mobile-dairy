@@ -5,6 +5,7 @@ import { useI18n } from './lib/i18n';
 import Layout from './components/Layout';
 import ReloadPrompt from './components/ReloadPrompt';
 import { Milk } from 'lucide-react';
+import { AutoUpdater } from './components/AutoUpdater';
 
 const Dashboard = lazy(() => import('./views/Dashboard'));
 const Farmers = lazy(() => import('./views/Farmers'));
@@ -95,6 +96,7 @@ export default function App() {
     <>
       <Toaster position="top-right" toastOptions={{ duration: 1000 }} />
       <ReloadPrompt />
+      <AutoUpdater />
       <Suspense fallback={<FullPageLoader />}>
         {renderContent()}
       </Suspense>
