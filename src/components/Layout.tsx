@@ -155,8 +155,8 @@ export default function Layout({ children, activeView, setActiveView }: LayoutPr
             </a>
 
             {!isCollapsed ? (
-              <div className="flex items-center gap-4 px-4 py-3 text-white bg-slate-800/30 border border-slate-800/50 rounded-xl group mx-2">
-                <Languages className="w-5 h-5 text-white group-hover:text-blue-400" />
+              <div className="w-full flex items-center gap-4 px-4 py-3 text-white bg-slate-800/30 border border-slate-800/50 rounded-xl group">
+                <Languages className="w-5 h-5 text-white group-hover:text-blue-400 shrink-0" />
                 <select 
                   value={lang} 
                   onChange={(e) => setLang(e.target.value as any)}
