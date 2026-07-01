@@ -158,7 +158,8 @@ export default function Reports() {
   async function runAIAnalysis() {
     setAnalyzing(true);
     try {
-      const resp = await fetch("/api/reports/analyze", {
+      const apiUrl = import.meta.env.VITE_API_URL || "";
+      const resp = await fetch(`${apiUrl}/api/reports/analyze`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
