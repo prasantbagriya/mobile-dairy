@@ -6,6 +6,7 @@ import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig(() => {
   return {
+    logLevel: 'warn',
     plugins: [
       react(), 
       tailwindcss(),
@@ -69,7 +70,6 @@ export default defineConfig(() => {
               if (id.includes('@firebase/app/') || id.includes('@firebase/auth') || id.includes('firebase/app/') || id.includes('firebase/auth')) return 'firebase-core';
               if (id.includes('dayjs')) return 'dayjs';
               if (id.includes('@tanstack/react-virtual')) return 'react-virtual';
-              if (id.includes('@capacitor')) return 'capacitor';
             }
           }
         }

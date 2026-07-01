@@ -340,7 +340,7 @@ export default function CustomerDashboard() {
                           
                           <p className="text-[10px] text-slate-500 uppercase tracking-widest mb-1">UPI ID</p>
                           <div className="flex items-center justify-between bg-white p-3 border border-slate-200">
-                            <p className="font-mono text-sm text-black font-bold">{paymentConfig.upiId}</p>
+                            <p className=" text-sm text-black font-bold">{paymentConfig.upiId}</p>
                             <button onClick={() => copyToClipboard(paymentConfig.upiId!, 'UPI ID')} className="p-2 bg-slate-50 border border-slate-200 text-black hover:text-orange-600">
                               <Copy className="w-4 h-4" />
                             </button>
@@ -372,7 +372,7 @@ export default function CustomerDashboard() {
                            </div>
                            <div className="text-right shrink-0">
                              <p className="text-orange-600 font-bold">{d.quantity} L</p>
-                             <p className="text-[9px] text-slate-500 uppercase tracking-widest font-bold font-mono">₹{d.totalAmount}</p>
+                             <p className="text-[9px] text-slate-500 uppercase tracking-widest font-bold ">₹{d.totalAmount}</p>
                            </div>
                         </div>
                       ))}
@@ -427,14 +427,14 @@ export default function CustomerDashboard() {
                       <option value="payment">Only Payments</option>
                     </select>
                     <div className="flex items-center gap-2 w-full md:w-auto">
-                      <input 
+                      <input id="auto-input-15" name="auto-input-15" 
                         type="date" 
                         value={startDate}
                         onChange={(e) => setStartDate(e.target.value)}
                         className="flex-1 bg-white border border-slate-300 px-3 py-2 text-xs text-black outline-none focus:border-orange-500"
                       />
                       <span className="text-black text-xs font-bold">to</span>
-                      <input 
+                      <input id="auto-input-16" name="auto-input-16" 
                         type="date" 
                         value={endDate}
                         onChange={(e) => setEndDate(e.target.value)}
@@ -636,7 +636,7 @@ export default function CustomerDashboard() {
                   <label className="text-[10px] text-slate-500 uppercase tracking-widest block mb-2 font-bold">Amount Paid</label>
                   <div className="relative">
                     <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-black" />
-                    <input 
+                    <input id="auto-input-17" name="auto-input-17" 
                       type="number" inputMode="decimal" pattern="[0-9]*" 
                       placeholder="0"
                       className="w-full bg-slate-50 border border-slate-300 py-3 pl-10 pr-4 text-xl text-black focus:outline-none focus:border-orange-500 font-bold"
@@ -667,7 +667,7 @@ export default function CustomerDashboard() {
                   <div className="bg-orange-50 p-3 border border-orange-200 text-left">
                     <p className="text-[9px] uppercase tracking-widest text-orange-600 mb-0.5 font-bold">Paying To</p>
                     <p className="text-orange-950 font-bold">{paymentConfig.payeeName || 'Dairy Admin'}</p>
-                    <p className="text-xs text-orange-700 font-mono mt-0.5">UPI/Mobile: {paymentConfig.payeeMobile || paymentConfig.upiId}</p>
+                    <p className="text-xs text-orange-700  mt-0.5">UPI/Mobile: {paymentConfig.payeeMobile || paymentConfig.upiId}</p>
                   </div>
                   <button 
                     onClick={handleUpiPayment}

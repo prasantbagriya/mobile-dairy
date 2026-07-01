@@ -132,11 +132,11 @@ export default function EditDeliveryModal({ isOpen, onClose, delivery, onSuccess
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-[10px] text-black tracking-tight block mb-1">Quantity (L)</label>
-              <input type="number" inputMode="decimal" pattern="[0-9]*" className="w-full bg-slate-50 border border-slate-200 rounded-none px-3 py-2 text-sm text-black" value={formData.quantity} onChange={e => setFormData({...formData, quantity: e.target.value})} />
+              <input id="auto-input-74" name="auto-input-74" type="number" inputMode="decimal" pattern="[0-9]*" className="w-full bg-slate-50 border border-slate-200 rounded-none px-3 py-2 text-sm text-black" value={formData.quantity} onChange={e => setFormData({...formData, quantity: e.target.value})} />
             </div>
             <div>
               <label className="text-[10px] text-black tracking-tight block mb-1">Rate (₹/L)</label>
-              <input type="number" inputMode="decimal" pattern="[0-9]*" className="w-full bg-slate-50 border border-slate-200 rounded-none px-3 py-2 text-sm text-black" value={formData.rate} onChange={e => setFormData({...formData, rate: e.target.value})} />
+              <input id="auto-input-75" name="auto-input-75" type="number" inputMode="decimal" pattern="[0-9]*" className="w-full bg-slate-50 border border-slate-200 rounded-none px-3 py-2 text-sm text-black" value={formData.rate} onChange={e => setFormData({...formData, rate: e.target.value})} />
             </div>
           </div>
 

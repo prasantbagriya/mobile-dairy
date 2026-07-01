@@ -181,7 +181,7 @@ export default function Reports() {
         {/* Header Section: Title and Buttons */}
         <div className="flex items-center justify-between gap-2 md:gap-4">
           <div className="flex items-center">
-            <h2 className="text-base md:text-xl text-slate-900 capitalize tracking-tight flex items-center gap-1 md:gap-2 m-0 leading-none whitespace-nowrap">
+            <h2 className="app-title">
               {t('reports')} 
               <span className="hidden md:inline"><InfoTooltip text="View, analyze, and export business data as PDF/Excel." /></span>
             </h2>
@@ -249,15 +249,15 @@ export default function Reports() {
                 <div className="w-full md:w-auto shrink-0">
                   <label className="text-[9px] text-black capitalize tracking-widest block mb-0.5">Date Range</label>
                   <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 px-2">
-                    <input type="date" className="p-1.5 bg-transparent text-xs font-bold outline-none" value={dateRange.start} onChange={e => setDateRange({...dateRange, start: e.target.value})} />
+                    <input id="auto-input-68" name="auto-input-68" type="date" className="p-1.5 bg-transparent text-xs font-bold outline-none" value={dateRange.start} onChange={e => setDateRange({...dateRange, start: e.target.value})} />
                     <span className="text-slate-400 text-xs">-</span>
-                    <input type="date" className="p-1.5 bg-transparent text-xs font-bold outline-none" value={dateRange.end} onChange={e => setDateRange({...dateRange, end: e.target.value})} />
+                    <input id="auto-input-69" name="auto-input-69" type="date" className="p-1.5 bg-transparent text-xs font-bold outline-none" value={dateRange.end} onChange={e => setDateRange({...dateRange, end: e.target.value})} />
                   </div>
                 </div>
               )}
               <div className="w-full md:w-auto flex-1">
                 <label className="text-[9px] text-black capitalize tracking-widest block mb-0.5">Individual Filter (Search)</label>
-                <input type="text" placeholder="Farmer/Customer/Item Name..." className="w-full p-2 bg-slate-50 border border-slate-200 rounded-none text-xs font-bold outline-none focus:border-blue-500" value={searchFilter} onChange={e => setSearchFilter(e.target.value)} />
+                <input id="auto-input-70" name="auto-input-70" type="text" placeholder="Farmer/Customer/Item Name..." className="w-full p-2 bg-slate-50 border border-slate-200 rounded-none text-xs font-bold outline-none focus:border-blue-500" value={searchFilter} onChange={e => setSearchFilter(e.target.value)} />
               </div>
             </div>
 
@@ -292,61 +292,61 @@ export default function Reports() {
         </div>
       )}
 
-      <div className="bg-white rounded-none border border-slate-200 overflow-hidden">
+      <div className="app-table-container">
         <div className="p-4 border-b border-slate-50 flex items-center justify-between">
-           <h3 className="text-[10px] capitalize  tracking-widest text-slate-900 leading-tight">Data Preview</h3>
-           <span className="bg-slate-100 px-2 py-0.5 rounded-none text-[9px]  capitalize text-black">{data.length} Records</span>
+           <h3 className="text-sm font-bold text-slate-900 leading-tight">Data Preview</h3>
+           <span className="app-subtitle">{data.length} Records</span>
         </div>
-        <div className="overflow-x-auto text-xs">
+        <div className="w-full">
           {loading ? (
              <div className="p-12 text-center text-black  text-xs capitalize tracking-widest">Loading...</div>
           ) : data.length === 0 ? (
             <div className="p-12 text-center text-black  text-xs capitalize tracking-widest">No records found</div>
           ) : (
-            <table className="w-full text-left">
-              <thead className="bg-slate-50 text-[9px]  capitalize text-black tracking-widest">
+            <table className="app-table">
+              <thead className="app-thead">
                 <tr>
                   {reportType === 'inventory' ? (
                     <>
-                      <th className="px-4 py-3">Item Name</th>
-                      <th className="px-4 py-3">Category</th>
-                      <th className="px-4 py-3">Quantity</th>
-                      <th className="px-4 py-3">Unit</th>
-                      <th className="px-4 py-3">Rate</th>
-                      <th className="px-4 py-3">Value</th>
+                      <th className="app-th">Item Name</th>
+                      <th className="app-th">Category</th>
+                      <th className="app-th">Quantity</th>
+                      <th className="app-th">Unit</th>
+                      <th className="app-th">Rate</th>
+                      <th className="app-th">Value</th>
                     </>
                   ) : (
                     <>
-                      <th className="px-4 py-3">Date</th>
-                      <th className="px-4 py-3">{reportType === 'collections' ? 'Farmer' : reportType === 'deliveries' ? 'Customer' : reportType === 'transactions' ? 'Person' : 'Dairy Name'}</th>
-                      <th className="px-4 py-3">{reportType === 'dairy_sales' ? 'Fat' : reportType === 'transactions' ? 'Method' : 'Session'}</th>
-                      <th className="px-4 py-3">{reportType === 'transactions' ? 'Role' : 'Quantity'}</th>
-                      <th className="px-4 py-3">{reportType === 'transactions' ? 'Type' : 'Rate'}</th>
-                      <th className="px-4 py-3">Amount</th>
+                      <th className="app-th">Date</th>
+                      <th className="app-th">{reportType === 'collections' ? 'Farmer' : reportType === 'deliveries' ? 'Customer' : reportType === 'transactions' ? 'Person' : 'Dairy Name'}</th>
+                      <th className="app-th">{reportType === 'dairy_sales' ? 'Fat' : reportType === 'transactions' ? 'Method' : 'Session'}</th>
+                      <th className="app-th">{reportType === 'transactions' ? 'Role' : 'Quantity'}</th>
+                      <th className="app-th">{reportType === 'transactions' ? 'Type' : 'Rate'}</th>
+                      <th className="app-th">Amount</th>
                     </>
                   )}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-50 text-black">
+              <tbody className="app-tbody">
                 {data.map(item => (
-                  <tr key={item.id}>
+                  <tr key={item.id} className="app-tr text-sm">
                     {reportType === 'inventory' ? (
                       <>
-                        <td className="px-4 py-3 font-medium">{item.itemName}</td>
-                        <td className="px-4 py-3 text-[10px] capitalize">{item.category}</td>
-                        <td className="px-4 py-3 font-bold">{item.quantity}</td>
-                        <td className="px-4 py-3 text-[10px] capitalize">{item.unit}</td>
-                        <td className="px-4 py-3">₹{item.rate || 0}</td>
-                        <td className="px-4 py-3 font-bold text-emerald-700">₹{((item.quantity || 0) * (item.rate || 0)).toFixed(2)}</td>
+                        <td className="app-td font-medium">{item.itemName}</td>
+                        <td className="app-td text-xs capitalize">{item.category}</td>
+                        <td className="app-td font-bold">{item.quantity}</td>
+                        <td className="app-td text-xs capitalize">{item.unit}</td>
+                        <td className="app-td">₹{item.rate || 0}</td>
+                        <td className="app-td font-bold text-emerald-700">₹{((item.quantity || 0) * (item.rate || 0)).toFixed(2)}</td>
                       </>
                     ) : (
                       <>
-                        <td className="px-4 py-3">{item.date}</td>
-                        <td className="px-4 py-3">{item.farmerName || item.customerName || item.dairyName || item.personName}</td>
-                        <td className="px-4 py-3 text-[10px] capitalize text-black">{reportType === 'dairy_sales' ? item.fat : reportType === 'transactions' ? item.method : item.session}</td>
-                        <td className="px-4 py-3">{reportType === 'transactions' ? <span className="capitalize text-[9px]">{item.personType}</span> : `${item.quantity} L`}</td>
-                        <td className="px-4 py-3 text-black">{reportType === 'transactions' ? <span className={item.type === 'debit' ? 'text-red-500 capitalize text-[9px]' : 'text-emerald-500 capitalize text-[9px]'}>{item.type}</span> : `₹ ${item.rate}`}</td>
-                        <td className="px-4 py-3">₹ {item.amount}</td>
+                        <td className="app-td">{item.date}</td>
+                        <td className="app-td">{item.farmerName || item.customerName || item.dairyName || item.personName}</td>
+                        <td className="app-td text-xs capitalize text-black">{reportType === 'dairy_sales' ? item.fat : reportType === 'transactions' ? item.method : item.session}</td>
+                        <td className="app-td">{reportType === 'transactions' ? <span className="capitalize text-xs">{item.personType}</span> : `${item.quantity} L`}</td>
+                        <td className="app-td text-black">{reportType === 'transactions' ? <span className={item.type === 'debit' ? 'text-red-500 capitalize text-xs' : 'text-emerald-500 capitalize text-xs'}>{item.type}</span> : `₹ ${item.rate}`}</td>
+                        <td className="app-td ">₹ {item.amount}</td>
                       </>
                     )}
                   </tr>

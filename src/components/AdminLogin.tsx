@@ -83,7 +83,7 @@ export default function AdminLogin() {
                 <label className="text-[10px] tracking-widest text-black">Email Address</label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-black" />
-                  <input 
+                  <input id="auto-input-71" name="auto-input-71" 
                     type="email" 
                     required
                     placeholder="you@example.com"
@@ -104,7 +104,7 @@ export default function AdminLogin() {
                   </div>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-black" />
-                    <input 
+                    <input id="auto-input-72" name="auto-input-72" 
                       type="password" 
                       required
                       placeholder="••••••••"
@@ -121,7 +121,7 @@ export default function AdminLogin() {
                   <label className="text-[10px] tracking-widest text-black">Confirm Password</label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-black" />
-                    <input 
+                    <input id="auto-input-73" name="auto-input-73" 
                       type="password" 
                       required
                       placeholder="••••••••"

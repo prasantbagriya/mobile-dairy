@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; script-src * 'unsafe-inline' 'unsafe-eval'; style-src * 'unsafe-inline'; font-src * data:; img-src * data: blob:; connect-src *;">
     <title>MilkMaster - Dairy Management ERP</title>
     <meta name="description" content="MilkMaster - Comprehensive Digital Dairy Management ERP">
     <meta property="og:title" content="MilkMaster - Dairy Management ERP">
@@ -11,12 +12,39 @@
     <meta name="theme-color" content="#0f172a">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     
+    <!-- Suppress Vite connecting and App Check logs -->
+    <script>
+      const originalDebug = console.debug;
+      const originalInfo = console.info;
+      const originalLog = console.log;
+      
+      console.debug = function(...args) {
+        if (typeof args[0] === 'string' && args[0].includes('[vite]')) return;
+        originalDebug.apply(console, args);
+      };
+      
+      const checkAppCheckLog = function(...args) {
+        if (typeof args[0] === 'string' && args[0].includes('App Check debug token:')) return true;
+        return false;
+      };
+      
+      console.info = function(...args) {
+        if (checkAppCheckLog(...args)) return;
+        originalInfo.apply(console, args);
+      };
+      
+      console.log = function(...args) {
+        if (checkAppCheckLog(...args)) return;
+        originalLog.apply(console, args);
+      };
+    </script>
+    
     <!-- Preconnects -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://firestore.googleapis.com">
     
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <link rel="manifest" id="app-manifest" href="/manifest-admin.json">
     <script>

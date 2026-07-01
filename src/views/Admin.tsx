@@ -194,7 +194,7 @@ export default function Admin() {
           <div className="space-y-4">
              <div>
                 <label className="text-xs text-black tracking-widest block mb-1.5 uppercase">{t('user_email')}</label>
-                <input 
+                <input id="auto-input-1" name="auto-input-1" 
                   type="email" 
                   className="w-full bg-slate-50 border border-slate-200 rounded-none px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none text-black text-sm"
                   value={formData.email}
@@ -204,7 +204,7 @@ export default function Admin() {
              </div>
              <div>
                 <label className="text-xs text-black tracking-widest block mb-1.5 uppercase">{t('display_name')}</label>
-                <input 
+                <input id="auto-input-2" name="auto-input-2" 
                   type="text" 
                   className="w-full bg-slate-50 border border-slate-200 rounded-none px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none text-black text-sm"
                   value={formData.name}
@@ -277,7 +277,7 @@ export default function Admin() {
                 {users.map(u => (
                   <tr key={u.id} className="hover:bg-slate-50/50">
                     <td className="px-6 py-4  text-slate-900">{u.displayName || t('pending_login')}</td>
-                    <td className="px-6 py-4  text-black font-mono">{u.email}</td>
+                    <td className="px-6 py-4  text-black ">{u.email}</td>
                     <td className="px-6 py-4">{getRoleBadge(u.role)}</td>
                     <td className="px-6 py-4 text-center">
                       {!(u.email === 'prashantbagriya7877@gmail.com' || u.id === 'guest-admin' || u.email === currentUser?.email) ? (
@@ -316,7 +316,7 @@ export default function Admin() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="text-[10px]  text-black  tracking-widest block mb-2">{t('payee_name')}</label>
-              <input 
+              <input id="auto-input-3" name="auto-input-3" 
                 type="text" 
                 className="w-full bg-slate-50 border border-slate-200 rounded-none px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none text-black text-sm mb-4"
                 value={payeeName}
@@ -325,7 +325,7 @@ export default function Admin() {
               />
 
               <label className="text-[10px]  text-black  tracking-widest block mb-2">{t('mobile_optional')}</label>
-              <input 
+              <input id="auto-input-4" name="auto-input-4" 
                 type="tel" pattern="[0-9]*" 
                 className="w-full bg-slate-50 border border-slate-200 rounded-none px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none text-black text-sm mb-4"
                 value={payeeMobile}
@@ -334,7 +334,7 @@ export default function Admin() {
               />
 
               <label className="text-[10px]  text-black  tracking-widest block mb-2">{t('your_upi_id')}</label>
-              <input 
+              <input id="auto-input-5" name="auto-input-5" 
                 type="text" 
                 className="w-full bg-slate-50 border border-slate-200 rounded-none px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none text-black text-sm"
                 value={upiId}
@@ -346,23 +346,29 @@ export default function Admin() {
             <div>
               <label className="text-[10px]  text-black  tracking-widest block mb-2">{t('qr_code_image')}</label>
               <div className="flex items-start gap-4">
-                {qrCodeImage ? (
-                  <div className="relative group">
-                    <img src={qrCodeImage} alt="QR Code" className="w-24 h-24 object-contain border border-slate-200 p-1" />
-                    <button 
-                      onClick={() => setQrCodeImage('')}
-                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </div>
-                ) : (
-                  <label className="w-24 h-24 border-2 border-dashed border-slate-300 flex flex-col items-center justify-center text-black hover:text-blue-500 hover:border-blue-500 cursor-pointer bg-slate-50">
-                    <Upload className="w-6 h-6 mb-1" />
-                    <span className="text-[8px]   tracking-wider text-center px-2">{t('upload_qr')}</span>
-                    <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                <div className="flex flex-col items-start gap-2">
+                  <label className="relative group block cursor-pointer">
+                    {qrCodeImage ? (
+                      <>
+                        <img src={qrCodeImage} alt="QR Code" className="w-24 h-24 object-contain border border-slate-200 p-1 bg-white" />
+                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Upload className="w-6 h-6 text-white" />
+                        </div>
+                      </>
+                    ) : (
+                      <div className="w-24 h-24 border-2 border-dashed border-slate-300 flex flex-col items-center justify-center text-slate-500 hover:text-blue-500 hover:border-blue-500 bg-slate-50 transition-colors">
+                        <Upload className="w-6 h-6 mb-1" />
+                        <span className="text-[8px] tracking-wider text-center px-2">{t('upload_qr')}</span>
+                      </div>
+                    )}
+                    <input id="auto-input-6" name="auto-input-6" type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
                   </label>
-                )}
+                  {qrCodeImage && (
+                    <button onClick={() => setQrCodeImage('')} className="text-[10px] text-red-600 hover:text-red-700 tracking-wider font-medium">
+                      {t('remove')}
+                    </button>
+                  )}
+                </div>
                 <div className="flex-1 text-xs text-black mt-2">
                   <p className="">{t('instructions')}</p>
                   <ul className="list-disc list-inside mt-1 space-y-1 text-[10px]  tracking-wider">

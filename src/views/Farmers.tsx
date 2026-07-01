@@ -371,7 +371,7 @@ export default function Farmers() {
                 </div>
               ) : (
                 <div className="flex gap-2">
-                  <input 
+                  <input id="auto-input-42" name="auto-input-42" 
                     type="text" 
                     placeholder="Search name or phone..." 
                     className="flex-1 bg-white border border-slate-200 px-2 py-1.5 text-xs focus:outline-none"
@@ -418,7 +418,7 @@ export default function Farmers() {
               <div className="md:col-span-2 flex gap-4">
                 <div style={{ flex: 3 }}>
                   <label className="text-[10px] text-black font-medium block mb-1.5">{t('farmer_name')}</label>
-                  <input 
+                  <input id="auto-input-43" name="auto-input-43" 
                     type="text" 
                     className="w-full bg-slate-50 border border-slate-200 rounded-none px-2 py-1.5 focus:ring-2 focus:ring-blue-500 outline-none transition-all text-black text-sm"
                     value={currentFarmer?.name || ''}
@@ -428,7 +428,7 @@ export default function Farmers() {
                 </div>
                 <div className="flex-1">
                   <label className="text-[10px] text-black font-medium block mb-1.5">Seq #</label>
-                  <input 
+                  <input id="auto-input-44" name="auto-input-44" 
                     type="number" inputMode="decimal" pattern="[0-9]*" 
                     className="w-full bg-slate-50 border border-slate-200 rounded-none px-2 py-1.5 focus:ring-2 focus:ring-blue-500 outline-none text-blue-600 text-sm text-center"
                     value={currentFarmer?.sequence || ''}
@@ -439,7 +439,7 @@ export default function Farmers() {
               
               <div>
                 <label className="text-[10px] text-black font-medium block mb-1.5">Fixed Quantity (L)</label>
-                <input 
+                <input id="auto-input-45" name="auto-input-45" 
                   type="number" inputMode="decimal" pattern="[0-9]*" 
                   className="w-full bg-blue-50 border border-blue-100 rounded-none px-2 py-1.5 focus:ring-2 focus:ring-blue-500 outline-none text-blue-800 text-sm"
                   value={currentFarmer?.fixedQty || ''}
@@ -448,7 +448,7 @@ export default function Farmers() {
               </div>
               <div>
                 <label className="text-[10px] text-black font-medium block mb-1.5">{t('mobile')}</label>
-                <input 
+                <input id="auto-input-46" name="auto-input-46" 
                   type="tel" pattern="[0-9]*" inputMode="decimal" maxLength={10}
                   className="w-full bg-slate-50 border border-slate-200 rounded-none px-2 py-1.5 focus:ring-2 focus:ring-blue-500 outline-none text-black text-sm"
                   value={currentFarmer?.mobile || ''}
@@ -461,7 +461,7 @@ export default function Farmers() {
 
               <div>
                 <label className="text-[10px] text-black font-medium block mb-1.5">{t('village')}</label>
-                <input 
+                <input id="auto-input-47" name="auto-input-47" 
                   type="text" 
                   className="w-full bg-slate-50 border border-slate-200 rounded-none px-2 py-1.5 focus:ring-2 focus:ring-blue-500 outline-none text-black text-sm"
                   value={currentFarmer?.village || ''}
@@ -470,7 +470,7 @@ export default function Farmers() {
               </div>
               <div>
                 <label className="text-[10px] text-amber-600 font-medium block mb-1.5">Initial Balance (Dr/Cr)</label>
-                <input 
+                <input id="auto-input-48" name="auto-input-48" 
                   type="number" inputMode="decimal" pattern="[0-9]*" 
                   className="w-full bg-amber-50 border border-amber-100 rounded-none px-2 py-1.5 focus:ring-2 focus:ring-amber-500 outline-none text-black text-sm"
                   value={currentFarmer?.balance || ''}
@@ -481,7 +481,7 @@ export default function Farmers() {
 
               <div>
                 <label className="text-[10px] text-black font-medium block mb-1.5">Fixed Fat (%)</label>
-                <input 
+                <input id="auto-input-49" name="auto-input-49" 
                   type="number" inputMode="decimal" pattern="[0-9]*" 
                   className="w-full bg-slate-50 border border-slate-200 rounded-none px-2 py-1.5 focus:ring-2 focus:ring-blue-500 outline-none text-black text-sm"
                   value={currentFarmer?.fixedFat || ''}
@@ -490,7 +490,7 @@ export default function Farmers() {
               </div>
               <div>
                 <label className="text-[10px] text-black font-medium block mb-1.5">Fixed SNF (%)</label>
-                <input 
+                <input id="auto-input-50" name="auto-input-50" 
                   type="number" inputMode="decimal" pattern="[0-9]*" 
                   className="w-full bg-slate-50 border border-slate-200 rounded-none px-2 py-1.5 focus:ring-2 focus:ring-blue-500 outline-none text-black text-sm"
                   value={currentFarmer?.fixedSnf || ''}
@@ -499,7 +499,7 @@ export default function Farmers() {
               </div>
               <div>
                 <label className="text-[10px] text-black font-medium block mb-1.5">Fixed Rate (₹/L)</label>
-                <input 
+                <input id="auto-input-51" name="auto-input-51" 
                   type="number" inputMode="decimal" pattern="[0-9]*" 
                   className="w-full bg-slate-50 border border-slate-200 rounded-none px-2 py-1.5 focus:ring-2 focus:ring-blue-500 outline-none text-black text-sm"
                   value={currentFarmer?.fixedRate || ''}
@@ -510,7 +510,7 @@ export default function Farmers() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:col-span-2">
                 <div className="md:col-span-2">
                   <label className="text-[10px] text-black font-medium block mb-1.5">Bank Name</label>
-                  <input 
+                  <input id="auto-input-52" name="auto-input-52" 
                     type="text" 
                     className="w-full bg-slate-50 border border-slate-200 rounded-none px-2 py-1.5 focus:ring-2 focus:ring-blue-500 outline-none text-black text-sm"
                     value={currentFarmer?.bankName || ''}
@@ -520,7 +520,7 @@ export default function Farmers() {
                 </div>
                 <div>
                   <label className="text-[10px] text-black font-medium block mb-1.5">Account Number</label>
-                  <input 
+                  <input id="auto-input-53" name="auto-input-53" 
                     type="text" inputMode="numeric"
                     className="w-full bg-slate-50 border border-slate-200 rounded-none px-2 py-1.5 focus:ring-2 focus:ring-blue-500 outline-none text-black text-sm"
                     value={currentFarmer?.accountNumber || ''}
@@ -530,7 +530,7 @@ export default function Farmers() {
                 </div>
                 <div>
                   <label className="text-[10px] text-black font-medium block mb-1.5">IFSC Code</label>
-                  <input 
+                  <input id="auto-input-54" name="auto-input-54" 
                     type="text" 
                     className="w-full bg-slate-50 border border-slate-200 rounded-none px-2 py-1.5 focus:ring-2 focus:ring-blue-500 outline-none text-black text-sm uppercase"
                     value={currentFarmer?.ifscCode || ''}
@@ -562,7 +562,7 @@ export default function Farmers() {
     <div className={`bg-white p-2 rounded-none border border-slate-100 items-center justify-between gap-2 px-4 ${className}`}>
       <div className="flex-1 flex items-center gap-2 min-w-[200px]">
         <Search className="w-4 h-4 text-black" />
-        <input 
+        <input id="auto-input-55" name="auto-input-55" 
           type="text" 
           placeholder={t('search_placeholder')} 
           className="flex-1 bg-transparent py-1.5 focus:outline-none text-black  placeholder:text-slate-300 text-sm"
@@ -593,8 +593,8 @@ export default function Farmers() {
     <div className="space-y-4 animate-in fade-in duration-500">
       <div className="flex items-center justify-between gap-2 md:gap-4">
         <div className="min-w-0">
-          <h2 className="text-xl md:text-2xl text-slate-900 tracking-tight flex items-center gap-1.5 md:gap-2 truncate">{t('farmers')} <InfoTooltip text="Manage milk suppliers (farmers) and their ledger accounts." /></h2>
-          <p className="text-black text-[9px] md:text-[10px] tracking-widest mt-0.5 truncate">{farmers.length} {t('farmer')}</p>
+          <h2 className="app-title">{t('farmers')} <InfoTooltip text="Manage milk suppliers (farmers) and their ledger accounts." /></h2>
+          <p className="app-subtitle">{farmers.length} {t('farmer')}</p>
         </div>
         {searchAndToggleUI("hidden md:flex flex-1 max-w-md mx-4")}
 
@@ -688,19 +688,19 @@ export default function Farmers() {
               )})}
             </div>
           ) : (
-            <div ref={tableContainerRef} className="bg-white border border-slate-100 overflow-auto no-scrollbar h-[calc(100vh-200px)] min-h-[400px]">
-              <table className="w-full text-left border-collapse border border-slate-200 min-w-[800px]">
-                <thead className="bg-slate-50 sticky top-0 text-black text-sm font-semibold border-b border-slate-200 z-10">
+            <div ref={tableContainerRef} className="app-table-container h-[calc(100vh-200px)]">
+              <table className="app-table">
+                <thead className="app-thead">
                   <tr className="bg-slate-50 border-b border-slate-100">
-                    <th className="px-4 py-3 border-b border-slate-200 text-black text-sm font-semibold whitespace-nowrap">{t("seq_no")}</th>
-                    <th className="px-4 py-3 border-b border-slate-200 text-black text-sm font-semibold whitespace-nowrap">{t('farmer')}</th>
-                    <th className="px-4 py-3 border-b border-slate-200 text-black text-sm font-semibold whitespace-nowrap">{t("contact")}</th>
-                    <th className="px-4 py-3 border-b border-slate-200 text-black text-sm font-semibold whitespace-nowrap">{t('village')}</th>
-                    <th className="px-4 py-3 border-b border-slate-200 text-black text-sm font-semibold whitespace-nowrap text-right">{t('balance')}</th>
-                    <th className="px-4 py-3 border-b border-slate-200 text-black text-sm font-semibold whitespace-nowrap text-center">{t("actions")}</th>
+                    <th className="app-th">{t("seq_no")}</th>
+                    <th className="app-th">{t('farmer')}</th>
+                    <th className="app-th">{t("contact")}</th>
+                    <th className="app-th">{t('village')}</th>
+                    <th className="app-th text-right">{t('balance')}</th>
+                    <th className="app-th text-center">{t("actions")}</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="app-tbody">
                   {(() => {
                     const virtualItems = rowVirtualizer.getVirtualItems();
                     const paddingTop = virtualItems.length > 0 ? virtualItems[0].start : 0;
@@ -717,12 +717,12 @@ export default function Farmers() {
                           const isDeactivated = farmer.isActive === false;
                           return (
                             <tr key={farmer.id} 
-                              className={`hover:bg-slate-50 transition-colors ${isDeactivated ? 'opacity-75 grayscale bg-slate-50/50' : ''}`}
+                              className={`app-tr ${isDeactivated ? 'opacity-75 grayscale bg-slate-50/50' : ''}`}
                             >
-                              <td className="px-2 md:px-6 py-2.5 md:py-4 whitespace-nowrap text-center">
-                                <span className="text-xs font-mono font-medium bg-slate-100 px-2 py-1">{farmer.sequence || virtualRow.index + 1}</span>
+                              <td className="app-td text-center">
+                                <span className="text-xs  font-medium bg-slate-100 px-2 py-1">{farmer.sequence || virtualRow.index + 1}</span>
                               </td>
-                              <td className="px-2 md:px-6 py-2.5 md:py-4 whitespace-nowrap">
+                              <td className="app-td">
                                 <div className="flex items-center gap-2 md:gap-3">
                                   <div className={`w-8 h-8 md:w-10 md:h-10 shrink-0 flex items-center justify-center text-sm font-medium ${isDeactivated ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600'}`}>
                                     {(farmer.name || "?").charAt(0)}
@@ -733,18 +733,18 @@ export default function Farmers() {
                                   </div>
                                 </div>
                               </td>
-                              <td className="px-2 md:px-6 py-2.5 md:py-4 whitespace-nowrap">
+                              <td className="app-td">
                                 <span className="text-xs text-black block flex items-center gap-1"><Phone className="w-3 h-3"/> {farmer.mobile}</span>
                               </td>
-                              <td className="px-2 md:px-6 py-2.5 md:py-4 whitespace-nowrap">
+                              <td className="app-td">
                                 <span className="text-xs text-black block flex items-center gap-1"><MapPin className="w-3 h-3"/> {farmer.village || 'N/A'}</span>
                               </td>
-                              <td className="px-2 md:px-6 py-2.5 md:py-4 whitespace-nowrap text-right">
+                              <td className="app-td text-right">
                                 <span className={`text-sm font-bold block ${farmer.balance >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
                                   ₹ {Math.abs(farmer.balance).toLocaleString()} {farmer.balance >= 0 ? ' (Dr)' : ' (Cr)'}
                                 </span>
                               </td>
-                              <td className="px-2 md:px-6 py-2.5 md:py-4 whitespace-nowrap text-center">
+                              <td className="app-td text-center">
                                 <div className="flex items-center justify-center gap-2">
                                   <button 
                                     onClick={() => setSelectedFarmer(farmer)}

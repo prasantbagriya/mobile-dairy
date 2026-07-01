@@ -107,13 +107,13 @@ export default function DairySales() {
 
         <div className="bg-white border border-slate-200 p-6">
           <div className="space-y-4">
-              <input placeholder={t('dairy_name')} className="w-full p-3 bg-slate-50 rounded-none border border-slate-100 text-sm focus:border-slate-300 focus:outline-none" value={formData.dairyName} onChange={e => setFormData({...formData, dairyName: e.target.value})} />
-              <input type="date" className="w-full p-3 bg-slate-50 rounded-none border border-slate-100 text-sm focus:border-slate-300 focus:outline-none" value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} />
+              <input id="auto-input-26" name="auto-input-26" placeholder={t('dairy_name')} className="w-full p-3 bg-slate-50 rounded-none border border-slate-100 text-sm focus:border-slate-300 focus:outline-none" value={formData.dairyName} onChange={e => setFormData({...formData, dairyName: e.target.value})} />
+              <input id="auto-input-27" name="auto-input-27" type="date" className="w-full p-3 bg-slate-50 rounded-none border border-slate-100 text-sm focus:border-slate-300 focus:outline-none" value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} />
               <div className="grid grid-cols-2 gap-3">
-                <input type="number" inputMode="decimal" pattern="[0-9]*" placeholder={t('qty')} className="w-full p-3 bg-slate-50 rounded-none border border-slate-100 text-sm focus:border-slate-300 focus:outline-none" value={formData.quantity} onChange={e => setFormData({...formData, quantity: e.target.value})} />
-                <input type="number" inputMode="decimal" pattern="[0-9]*" placeholder={t('fat')} className="w-full p-3 bg-slate-50 rounded-none border border-slate-100 text-sm focus:border-slate-300 focus:outline-none" value={formData.fat} onChange={e => setFormData({...formData, fat: e.target.value})} />
+                <input id="auto-input-28" name="auto-input-28" type="number" inputMode="decimal" pattern="[0-9]*" placeholder={t('qty')} className="w-full p-3 bg-slate-50 rounded-none border border-slate-100 text-sm focus:border-slate-300 focus:outline-none" value={formData.quantity} onChange={e => setFormData({...formData, quantity: e.target.value})} />
+                <input id="auto-input-29" name="auto-input-29" type="number" inputMode="decimal" pattern="[0-9]*" placeholder={t('fat')} className="w-full p-3 bg-slate-50 rounded-none border border-slate-100 text-sm focus:border-slate-300 focus:outline-none" value={formData.fat} onChange={e => setFormData({...formData, fat: e.target.value})} />
               </div>
-              <input type="number" inputMode="decimal" pattern="[0-9]*" placeholder={t('rate')} className="w-full p-3 bg-slate-50 rounded-none border border-slate-100 text-sm focus:border-slate-300 focus:outline-none" value={formData.rate} onChange={e => setFormData({...formData, rate: e.target.value})} />
+              <input id="auto-input-30" name="auto-input-30" type="number" inputMode="decimal" pattern="[0-9]*" placeholder={t('rate')} className="w-full p-3 bg-slate-50 rounded-none border border-slate-100 text-sm focus:border-slate-300 focus:outline-none" value={formData.rate} onChange={e => setFormData({...formData, rate: e.target.value})} />
               <div className="p-3 bg-blue-50 text-blue-700 rounded-none text-center text-sm font-medium">{t('amount')}: ₹ {formData.amount.toFixed(2)}</div>
           </div>
           
@@ -132,7 +132,7 @@ export default function DairySales() {
   return (
     <div className="space-y-4 animate-in fade-in duration-500">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">{t('dairy_sales')} <InfoTooltip text="Record bulk milk sales to large Dairies (based on FAT)." /></h2>
+        <h2 className="app-title">{t('dairy_sales')} <InfoTooltip text="Record bulk milk sales to large Dairies (based on FAT)." /></h2>
         <button onClick={() => {
           setEditingId(null);
           setFormData({
@@ -144,33 +144,32 @@ export default function DairySales() {
             amount: 0
           });
           setShowForm(true);
-        }} className="bg-slate-900 text-white px-3 py-2 text-[10px] uppercase tracking-widest flex items-center gap-1 shrink-0 shadow-sm">
+        }} className="bg-slate-900 text-white px-3 py-2 text-[10px] tracking-widest flex items-center gap-1 shrink-0 shadow-sm">
           <Plus className="w-3.5 h-3.5" /> {t('record_sale')}
         </button>
       </div>
 
-      <div className="bg-white rounded-none border border-slate-200 overflow-hidden">
-        <div className="overflow-x-auto">
-        <table className="w-full text-left min-w-[600px]">
-          <thead className="bg-slate-50/50 text-black text-[9px] capitalize tracking-widest sticky top-0 z-10 backdrop-blur-sm">
+      <div className="app-table-container">
+        <table className="app-table">
+          <thead className="app-thead">
             <tr>
-              <th className="px-4 py-3">{t('date')}</th>
-              <th className="px-4 py-3">{t('dairy')}</th>
-              <th className="px-4 py-3">{t('qty')}</th>
-              <th className="px-4 py-3">{t('fat')}</th>
-              <th className="px-4 py-3">{t('amount')}</th>
-              <th className="px-4 py-3 text-right">{t('actions')}</th>
+              <th className="app-th">{t('date')}</th>
+              <th className="app-th">{t('dairy')}</th>
+              <th className="app-th">{t('qty')}</th>
+              <th className="app-th">{t('fat')}</th>
+              <th className="app-th">{t('amount')}</th>
+              <th className="app-th text-right">{t('actions')}</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-50">
+          <tbody className="app-tbody">
             {sales.map(s => (
-              <tr key={s.id} className="hover:bg-slate-50/50 transition-colors group text-sm">
-                <td className="px-4 py-3 whitespace-nowrap text-xs text-black">{s.date}</td>
-                <td className="px-4 py-3 whitespace-nowrap font-medium">{s.dairyName}</td>
-                <td className="px-4 py-3 whitespace-nowrap">{s.quantity} L</td>
-                <td className="px-4 py-3 whitespace-nowrap">{s.fat}</td>
-                <td className="px-4 py-3 whitespace-nowrap font-mono text-emerald-600">₹ {s.amount}</td>
-                <td className="px-4 py-3 text-right whitespace-nowrap">
+              <tr key={s.id} className="app-tr text-sm group">
+                <td className="app-td text-xs text-black">{s.date}</td>
+                <td className="app-td font-medium">{s.dairyName}</td>
+                <td className="app-td">{s.quantity} L</td>
+                <td className="app-td">{s.fat}</td>
+                <td className="app-td  text-emerald-600">₹ {s.amount}</td>
+                <td className="app-td text-right">
                   {(() => {
                     const daysOld = dayjs().diff(dayjs(s.date), 'day');
                     if (daysOld > 10) return <span className="text-[10px] text-slate-400">Locked</span>;
@@ -190,11 +189,10 @@ export default function DairySales() {
             ))}
           </tbody>
         </table>
-        </div>
-        {sales.length === 0 && (
-          <div className="p-8 text-center text-slate-500 text-sm">{t('no_dairy_sales_recorded')}</div>
-        )}
       </div>
+      {sales.length === 0 && (
+        <div className="p-8 text-center text-slate-500 text-sm">{t('no_dairy_sales_recorded')}</div>
+      )}
     </div>
   );
 }

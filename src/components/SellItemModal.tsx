@@ -152,7 +152,7 @@ const SellItemModal = memo(({ isOpen, onClose, item, onSuccess }: SellItemModalP
           <div className="space-y-4">
             <div>
               <label className="text-[10px] uppercase tracking-widest text-black block mb-1">Date</label>
-              <input 
+              <input id="auto-input-83" name="auto-input-83" 
                 type="date" 
                 className="w-full bg-slate-50 border border-slate-200 rounded-none px-3 py-2.5 text-sm"
                 value={date} 
@@ -177,7 +177,7 @@ const SellItemModal = memo(({ isOpen, onClose, item, onSuccess }: SellItemModalP
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="text-[10px] uppercase tracking-widest text-black block mb-1">Quantity ({item.unit})</label>
-                <input 
+                <input id="auto-input-84" name="auto-input-84" 
                   type="number" 
                   step="0.01"
                   max={item.quantity}
@@ -192,7 +192,7 @@ const SellItemModal = memo(({ isOpen, onClose, item, onSuccess }: SellItemModalP
               </div>
               <div>
                 <label className="text-[10px] uppercase tracking-widest text-black block mb-1">Rate (₹)</label>
-                <input 
+                <input id="auto-input-85" name="auto-input-85" 
                   type="number" 
                   step="0.01"
                   className="w-full bg-slate-50 border border-slate-200 rounded-none px-3 py-2.5 text-sm"

@@ -95,7 +95,7 @@ export default function PinLock({ user, onSuccess, onLogout }: PinLockProps) {
             <Unlock className="w-7 h-7" />
           </div>
           <h2 className="text-2xl text-slate-900 tracking-tight">Create Device PIN</h2>
-          <p className="text-xs text-black tracking-widest font-mono">Step 1 of 2: Set 4-digit PIN</p>
+          <p className="text-xs text-black tracking-widest ">Step 1 of 2: Set 4-digit PIN</p>
         </div>
       );
     } else {
@@ -105,7 +105,7 @@ export default function PinLock({ user, onSuccess, onLogout }: PinLockProps) {
             <Unlock className="w-7 h-7" />
           </div>
           <h2 className="text-2xl text-slate-900 tracking-tight">Confirm PIN</h2>
-          <p className="text-xs text-black tracking-widest font-mono">Step 2 of 2: Re-enter PIN to confirm</p>
+          <p className="text-xs text-black tracking-widest ">Step 2 of 2: Re-enter PIN to confirm</p>
         </div>
       );
     }
@@ -145,7 +145,7 @@ export default function PinLock({ user, onSuccess, onLogout }: PinLockProps) {
             ))}
           </div>
           
-          <input 
+          <input id="auto-input-80" name="auto-input-80" 
             type="tel"
             inputMode="numeric"
             pattern="[0-9]*"

@@ -160,12 +160,12 @@ export default function ProfitLoss() {
           <div className="flex items-center gap-2 w-full md:w-auto">
             <div className="flex-1">
               <label className="text-[9px] text-black uppercase tracking-widest block mb-0.5">{t('start')}</label>
-              <input type="date" className="w-full p-2 bg-slate-50 border border-slate-200 rounded-none text-xs" value={dateRange.start} onChange={e => setDateRange({...dateRange, start: e.target.value})} />
+              <input id="auto-input-66" name="auto-input-66" type="date" className="w-full p-2 bg-slate-50 border border-slate-200 rounded-none text-xs" value={dateRange.start} onChange={e => setDateRange({...dateRange, start: e.target.value})} />
             </div>
             <span className="text-slate-400 self-end mb-2 shrink-0">-</span>
             <div className="flex-1">
               <label className="text-[9px] text-black uppercase tracking-widest block mb-0.5">{t('end')}</label>
-              <input type="date" className="w-full p-2 bg-slate-50 border border-slate-200 rounded-none text-xs" value={dateRange.end} onChange={e => setDateRange({...dateRange, end: e.target.value})} />
+              <input id="auto-input-67" name="auto-input-67" type="date" className="w-full p-2 bg-slate-50 border border-slate-200 rounded-none text-xs" value={dateRange.end} onChange={e => setDateRange({...dateRange, end: e.target.value})} />
             </div>
           </div>
           <div className="flex items-center gap-2 border-slate-200 md:border-l md:pl-2 w-full md:w-auto justify-between md:justify-start">

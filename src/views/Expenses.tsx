@@ -71,7 +71,7 @@ export default function Expenses() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
+          <h2 className="app-title">
             {t('expenses')} <InfoTooltip text="Track daily business expenses like fuel, feed, and salaries." />
           </h2>
 
@@ -117,7 +117,7 @@ export default function Expenses() {
 
               <div>
                 <label className="text-[10px] text-black tracking-tight block mb-1">{t('amount_rs')}</label>
-                <input
+                <input id="auto-input-37" name="auto-input-37"
                   type="number" inputMode="decimal" pattern="[0-9]*"
                   placeholder="0.00"
                   className="w-full bg-slate-50 border border-slate-100 rounded-none px-3 py-2.5 text-lg text-black outline-none focus:ring-2 focus:ring-red-500"
@@ -129,7 +129,7 @@ export default function Expenses() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-[10px] text-black tracking-tight block mb-1">{t('date')}</label>
-                  <input
+                  <input id="auto-input-38" name="auto-input-38"
                     type="date"
                     className="w-full bg-slate-50 border border-slate-100 rounded-none px-3 py-2.5 text-black text-sm outline-none focus:ring-2 focus:ring-red-500"
                     value={formData.date}
@@ -182,9 +182,9 @@ export default function Expenses() {
         {/* Expense History List */}
         <div className={`xl:col-span-8 ${showForm ? 'hidden xl:block' : 'block'}`}>
           <div className="bg-white border border-slate-200 divide-y divide-slate-100 max-h-[calc(100vh-220px)] md:max-h-[600px] overflow-y-auto custom-scrollbar">
-            <div className="px-4 py-2.5 bg-slate-50 flex items-center justify-between sticky top-0 z-10">
-              <span className="text-[10px] capitalize tracking-widest text-slate-500 font-bold">{t('expense_history')}</span>
-              <span className="text-[10px] text-slate-400">{expenses.length} {t('records')}</span>
+            <div className="px-4 py-3 border-b border-slate-50 flex items-center justify-between sticky top-0 z-10 bg-white">
+              <h3 className="app-title !text-sm">{t('expense_history')}</h3>
+              <span className="app-subtitle">{expenses.length} {t('records')}</span>
             </div>
             {loading ? (
               <div className="py-10 text-center text-xs text-slate-400 capitalize tracking-widest">Loading...</div>

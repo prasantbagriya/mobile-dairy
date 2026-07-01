@@ -304,7 +304,7 @@ export default function Deliveries() {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div className="flex items-center justify-between w-full md:w-auto">
           <div>
-            <h2 className="text-xl text-slate-900 tracking-tight flex items-center gap-2">{t('deliveries')} <InfoTooltip text="Record milk sold/delivered to customers or walk-in sales." /></h2>
+            <h2 className="app-title">{t('deliveries')} <InfoTooltip text="Record milk sold/delivered to customers or walk-in sales." /></h2>
 
           </div>
           {(viewMode === 'form' || viewMode === 'cash') && (
@@ -393,7 +393,7 @@ export default function Deliveries() {
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="text-[10px]  text-black tracking-tight block mb-1">{t('date')}</label>
-                    <input type="date" className="w-full bg-slate-50 border border-slate-200 rounded-none px-3 py-2.5  text-black text-xs" value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} />
+                    <input id="auto-input-31" name="auto-input-31" type="date" className="w-full bg-slate-50 border border-slate-200 rounded-none px-3 py-2.5  text-black text-xs" value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} />
                   </div>
                   <div>
                     <label className="text-[10px]  text-black tracking-tight block mb-1">{t('session')}</label>
@@ -417,11 +417,11 @@ export default function Deliveries() {
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="text-[10px]  text-black tracking-tight block mb-1">{t('quantity_l')}</label>
-                    <input type="number" inputMode="decimal" pattern="[0-9]*" placeholder="0.0" className="w-full bg-slate-50 border border-slate-200 rounded-none px-3 py-3 text-base  text-black" value={formData.quantity} onChange={e => setFormData({...formData, quantity: e.target.value})} />
+                    <input id="auto-input-32" name="auto-input-32" type="number" inputMode="decimal" pattern="[0-9]*" placeholder="0.0" className="w-full bg-slate-50 border border-slate-200 rounded-none px-3 py-3 text-base  text-black" value={formData.quantity} onChange={e => setFormData({...formData, quantity: e.target.value})} />
                   </div>
                   <div>
                     <label className="text-[10px]  text-black tracking-tight block mb-1">{t('rate_l')}</label>
-                    <input type="number" inputMode="decimal" pattern="[0-9]*" placeholder="0.00" className="w-full bg-slate-100 border border-slate-200 rounded-none px-3 py-3 text-base  text-emerald-600" value={formData.rate} onChange={e => setFormData({...formData, rate: e.target.value})} />
+                    <input id="auto-input-33" name="auto-input-33" type="number" inputMode="decimal" pattern="[0-9]*" placeholder="0.00" className="w-full bg-slate-100 border border-slate-200 rounded-none px-3 py-3 text-base  text-emerald-600" value={formData.rate} onChange={e => setFormData({...formData, rate: e.target.value})} />
                   </div>
                 </div>
               </div>
@@ -460,7 +460,7 @@ export default function Deliveries() {
               <div className="flex gap-2">
                 <div className="relative">
                   <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-black" />
-                  <input 
+                  <input id="auto-input-34" name="auto-input-34" 
                     placeholder={t("search_placeholder")} 
                     className="pl-9 pr-3 py-1.5 bg-slate-50 rounded-none text-[10px] border border-slate-100 outline-none focus:ring-1 focus:ring-emerald-100 w-40" 
                     value={deliverySearch}
@@ -469,24 +469,24 @@ export default function Deliveries() {
                 </div>
               </div>
             </div>
-            <div className="max-h-[calc(100vh-220px)] md:max-h-[600px] overflow-y-auto overflow-x-auto custom-scrollbar">
-              <table className="w-full text-left border-collapse min-w-[500px]">
-                <thead className="bg-slate-50/50 text-black text-[9px] tracking-widest  sticky top-0 z-10 backdrop-blur-sm">
+            <div className="app-table-container max-h-[calc(100vh-220px)] md:max-h-[600px]">
+              <table className="app-table">
+                <thead className="app-thead">
                   <tr>
-                    <th className="px-6 py-4 whitespace-nowrap">{t('date')}</th>
-                    <th className="px-6 py-4 whitespace-nowrap">{t('customer')}</th>
-                    <th className="px-6 py-4 text-center whitespace-nowrap">{t('session_qty')}</th>
-                    <th className="px-6 py-4 text-right whitespace-nowrap">{t('amount')}</th>
-                    <th className="px-6 py-4 text-center whitespace-nowrap">{t('action')}</th>
+                    <th className="app-th">{t('date')}</th>
+                    <th className="app-th">{t('customer')}</th>
+                    <th className="app-th text-center">{t('session_qty')}</th>
+                    <th className="app-th text-right">{t('amount')}</th>
+                    <th className="app-th text-center">{t('action')}</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-50 text-black">
+                <tbody className="app-tbody text-black">
                   {recentDeliveries.filter(del => (del.customerName || '').toLowerCase().includes(deliverySearch.toLowerCase()) || del.date.includes(deliverySearch)).map(del => (
-                    <tr key={del.id} className={del.customerId === 'CASH_SALE' ? 'bg-amber-50/30' : ''}>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                    <tr key={del.id} className={`app-tr ${del.customerId === 'CASH_SALE' ? 'bg-amber-50/30' : ''}`}>
+                      <td className="app-td">
                         <span className="">{del.date}</span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="app-td">
                         <span className=" text-slate-900 flex items-center gap-2">
                           {del.customerName}
                           {del.customerId === 'CASH_SALE' && (
@@ -494,19 +494,19 @@ export default function Deliveries() {
                           )}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-center whitespace-nowrap">
+                      <td className="app-td text-center">
                         <div className="flex flex-col items-center">
                           <span className={`text-[9px]  mb-0.5 ${del.session === 'morning' ? 'text-amber-500' : 'text-indigo-500'}`}>{del.session === 'morning' ? t('morning') : t('evening')}</span>
                           <span className=" text-slate-900">{del.quantity} L</span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-right whitespace-nowrap">
-                        <div className="flex flex-col">
-                          <span className=" text-slate-900 font-mono">₹{del.amount}</span>
+                      <td className="app-td text-right">
+                        <div className="flex flex-col items-end">
+                          <span className=" text-slate-900 ">₹{del.amount}</span>
                           <span className="text-[9px]  text-black tracking-wider">@ ₹{del.rate}/L</span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-center whitespace-nowrap">
+                      <td className="app-td text-center">
                         {(() => {
                            const c = customers.find(cus => cus.id === del.customerId);
                            const isSettled = c?.lastSettledDate && del.date <= c.lastSettledDate;
@@ -570,7 +570,7 @@ export default function Deliveries() {
           <div className="xl:col-span-12 bg-white border border-slate-100 overflow-hidden animate-in fade-in zoom-in-95 duration-300">
             <div className="p-3 md:p-4 bg-slate-50 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
                <div className="flex items-center justify-between w-full md:w-auto gap-2">
-                  <h3 className="text-sm md:text-base font-bold tracking-tight flex items-center gap-1.5 md:gap-2 text-slate-900 truncate">
+                  <h3 className="app-title !text-sm md:!text-base">
                     <span className="truncate">{t('daily_dispatch_sheet', 'Daily Dispatch Route Sheet')}</span> <InfoTooltip text={t('dispatch_tooltip', 'Confirm deliveries based on customer fixed quantities')} />
                   </h3>
                   <button onClick={() => setShowSheetFilters(!showSheetFilters)} className="md:hidden flex items-center justify-center gap-1.5 bg-slate-100 text-slate-700 py-1.5 px-3 text-[10px] font-medium border border-slate-200 ml-2 shrink-0">
@@ -580,7 +580,7 @@ export default function Deliveries() {
                 <div className={`flex flex-col md:flex-row items-stretch md:items-center gap-4 bg-white p-3 border border-slate-200 w-full md:w-auto ${showSheetFilters ? 'flex' : 'hidden md:flex'}`}>
                   <div className="flex-1 md:flex-none">
                     <label className="text-[10px]  text-black block mb-1">{t('dispatch_date', 'Dispatch Date')}</label>
-                    <input type="date" className="w-full md:w-auto bg-slate-50 border border-slate-200 text-black text-xs px-3 py-1.5 focus:outline-none " value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} />
+                    <input id="auto-input-35" name="auto-input-35" type="date" className="w-full md:w-auto bg-slate-50 border border-slate-200 text-black text-xs px-3 py-1.5 focus:outline-none " value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} />
                   </div>
                   <div className="flex-1 md:flex-none">
                     <label className="text-[10px]  text-black block mb-1">{t('session')}</label>
@@ -593,7 +593,7 @@ export default function Deliveries() {
                     <label className="text-[10px] text-black block mb-1">{t('search_customer', 'Search Customer')}</label>
                     <div className="relative">
                       <Search className="w-3 h-3 absolute left-3 top-1/2 -translate-y-1/2 text-black" />
-                      <input 
+                      <input id="auto-input-36" name="auto-input-36" 
                         type="text" 
                         placeholder="Search..." 
                         className="w-full md:w-auto bg-slate-50 border border-slate-200 text-xs pl-8 pr-3 py-1.5 focus:outline-none  text-black placeholder:text-black"
@@ -607,19 +607,19 @@ export default function Deliveries() {
             
             {(() => {
               return (
-                <div ref={tableContainerRef} className="overflow-x-auto overflow-y-auto no-scrollbar h-[calc(100vh-250px)] min-h-[400px]">
-                  <table className="w-full text-left relative min-w-[600px]">
-                    <thead className="sticky top-0 z-10 bg-slate-100 text-black text-[10px] md:text-[11px] border-b border-slate-200 shadow-sm">
+                <div ref={tableContainerRef} className="app-table-container overflow-y-auto h-[calc(100vh-250px)] min-h-[400px]">
+                  <table className="app-table relative">
+                    <thead className="app-thead shadow-sm">
                       <tr>
-                        <th className="px-3 md:px-6 py-4 md:py-5 whitespace-nowrap">{t('seq_no', '#Seq')}</th>
-                        <th className="px-3 md:px-6 py-4 md:py-5 whitespace-nowrap">{t('customer_name', 'Customer Name')}</th>
-                        <th className="px-3 md:px-6 py-4 md:py-5 whitespace-nowrap">{t('delivery_qty', 'Delivery Qty (L)')}</th>
-                        <th className="px-3 md:px-6 py-4 md:py-5 whitespace-nowrap">{t('current_rate', 'Current Rate (₹/L)')}</th>
-                        <th className="px-3 md:px-6 py-4 md:py-5 whitespace-nowrap">{t('total_amount')}</th>
-                        <th className="px-3 md:px-6 py-4 md:py-5 whitespace-nowrap text-center">{t('status_confirm', 'Status / Confirm')}</th>
+                        <th className="app-th">{t('seq_no', '#Seq')}</th>
+                        <th className="app-th">{t('customer_name', 'Customer Name')}</th>
+                        <th className="app-th">{t('delivery_qty', 'Delivery Qty (L)')}</th>
+                        <th className="app-th">{t('current_rate', 'Current Rate (₹/L)')}</th>
+                        <th className="app-th">{t('total_amount')}</th>
+                        <th className="app-th text-center">{t('status_confirm', 'Status / Confirm')}</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100">
+                    <tbody className="app-tbody">
                       {(() => {
                         const virtualItems = rowVirtualizer.getVirtualItems();
                         const paddingTop = virtualItems.length > 0 ? virtualItems[0].start : 0;
@@ -640,18 +640,18 @@ export default function Deliveries() {
 
                               return (
                                 <tr key={c.id} 
-                                  className={`${isSaved ? 'bg-emerald-50/30' : 'hover:bg-slate-50/80'}`}
+                                  className={`app-tr ${isSaved ? 'bg-emerald-50/30' : ''}`}
                                 >
-                                  <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
+                                  <td className="app-td">
                                       <span className={`w-6 h-6 flex items-center justify-center rounded-none text-[10px] ${isSaved ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-black'}`}>
                                         {c.sequence || virtualRow.index + 1}
                                       </span>
                                   </td>
-                                  <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
+                                  <td className="app-td">
                                     <p className={`tracking-tight text-sm ${isSaved ? 'text-emerald-700' : 'text-slate-900'}`}>{c.name}</p>
                                     <p className="text-[10px] text-black tracking-widest">{c.mobile}</p>
                                   </td>
-                                  <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
+                                  <td className="app-td">
                                     <input 
                                       type="number" inputMode="decimal" pattern="[0-9]*" 
                                       disabled={isSaved}
@@ -674,7 +674,7 @@ export default function Deliveries() {
                                       onChange={(e) => setSheetData({...sheetData, [c.id!]: {...rowData, quantity: e.target.value}})}
                                     />
                                   </td>
-                                  <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
+                                  <td className="app-td">
                                     <input 
                                       type="number" inputMode="decimal" pattern="[0-9]*" 
                                       disabled={isSaved}
@@ -694,10 +694,10 @@ export default function Deliveries() {
                                       onChange={(e) => setSheetData({...sheetData, [c.id!]: {...rowData, rate: e.target.value}})}
                                     />
                                   </td>
-                                  <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
-                                     <span className="text-sm md:text-base text-slate-900 font-mono">₹ {amount.toFixed(2)}</span>
+                                  <td className="app-td">
+                                     <span className="text-sm md:text-base text-slate-900 ">₹ {amount.toFixed(2)}</span>
                                   </td>
-                                  <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap text-center">
+                                  <td className="app-td text-center">
                                     <button 
                                       disabled={isSaved || !rowData.quantity}
                                       onClick={() => handleSaveSheetRow(c.id!)}

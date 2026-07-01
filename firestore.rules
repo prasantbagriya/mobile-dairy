@@ -194,10 +194,16 @@ service cloud.firestore {
     }
 
     match /settings/{document} {
-      allow get, delete: if isOwner();
+      allow get: if isAuthenticated();
+      allow delete: if isOwner();
       allow list: if isAuthenticated();
       allow create: if isAssigningOwnId() && isValidSetting(request.resource.data);
       allow update: if isOwner() && isAssigningOwnId() && isValidSetting(request.resource.data);
+    }
+
+    match /support_messages/{document} {
+      allow create: if isAuthenticated();
+      allow read: if isAdmin();
     }
 
     // Role-based authorization helpers

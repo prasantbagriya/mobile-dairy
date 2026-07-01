@@ -174,7 +174,7 @@ export default function Inventory() {
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <label className="text-[10px] text-black font-medium block mb-1">{t('item_name')}</label>
-                  <input 
+                  <input id="auto-input-58" name="auto-input-58" 
                     type="text" 
                     className="w-full bg-slate-50 border border-slate-200 rounded-none px-2 py-1.5 focus:ring-2 focus:ring-blue-500 outline-none text-black text-sm"
                     value={formData.itemName}
@@ -200,7 +200,7 @@ export default function Inventory() {
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <label className="text-[10px] text-black font-medium block mb-1">{t('quantity')}</label>
-                  <input 
+                  <input id="auto-input-59" name="auto-input-59" 
                     type="number" inputMode="decimal" pattern="[0-9]*" 
                     className="w-full bg-slate-50 border border-slate-200 rounded-none px-2 py-1.5 focus:ring-2 focus:ring-blue-500 outline-none text-black text-sm"
                     value={formData.quantity}
@@ -226,7 +226,7 @@ export default function Inventory() {
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <label className="text-[10px] text-black font-medium block mb-1">{t('rate_per_unit')}</label>
-                  <input 
+                  <input id="auto-input-60" name="auto-input-60" 
                     type="number" inputMode="decimal" pattern="[0-9]*" 
                     className="w-full bg-slate-50 border border-slate-200 rounded-none px-2 py-1.5 focus:ring-2 focus:ring-blue-500 outline-none text-black text-sm"
                     value={formData.rate}
@@ -236,7 +236,7 @@ export default function Inventory() {
                 </div>
                 <div>
                   <label className="text-[10px] text-black font-medium block mb-1">{t('min_stock_alert')}</label>
-                  <input 
+                  <input id="auto-input-61" name="auto-input-61" 
                     type="number" inputMode="decimal" pattern="[0-9]*" 
                     className="w-full bg-slate-50 border border-slate-200 rounded-none px-2 py-1.5 focus:ring-2 focus:ring-blue-500 outline-none text-black text-sm"
                     value={formData.minStock}
@@ -253,7 +253,7 @@ export default function Inventory() {
                   <div className="grid grid-cols-2 gap-2">
                     <div>
                       <label className="text-[10px] text-black font-medium block mb-1">{t('purchase_date')}</label>
-                      <input 
+                      <input id="auto-input-62" name="auto-input-62" 
                         type="date" 
                         className="w-full bg-white border border-slate-200 px-2 py-1.5 text-sm text-black focus:ring-2 focus:ring-blue-500 outline-none"
                         value={formData.purchaseDate}
@@ -306,8 +306,8 @@ export default function Inventory() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center justify-between w-full md:w-auto">
           <div>
-            <h2 className="text-xl md:text-2xl text-slate-900 tracking-tight flex items-center gap-2">{t('inventory')} <InfoTooltip text="Manage your items, stock, and product inventory." /></h2>
-            <p className="text-black text-[10px] tracking-widest mt-0.5 hidden md:block">{t('inventory_desc')}</p>
+            <h2 className="app-title">{t('inventory')} <InfoTooltip text="Manage your items, stock, and product inventory." /></h2>
+            <p className="app-subtitle hidden md:block">{t('inventory_desc')}</p>
           </div>
           <button 
             onClick={() => {
@@ -399,7 +399,7 @@ export default function Inventory() {
                  {item.rate > 0 && (
                    <div className="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between text-[10px] text-black">
                      <span className="flex items-center gap-1 truncate"><TrendingUp className="w-3 h-3 shrink-0" /> ₹{item.rate}</span>
-                     <span className="font-mono text-slate-800 shrink-0">₹{value}</span>
+                     <span className=" text-slate-800 shrink-0">₹{value}</span>
                    </div>
                  )}
                  <div className="flex gap-1 mt-3 pt-2 border-t border-slate-100 justify-end">
@@ -418,18 +418,18 @@ export default function Inventory() {
           })}
         </div>
       ) : (
-        <div className="bg-white border border-slate-200 overflow-x-auto no-scrollbar">
-          <table className="w-full text-left border-collapse min-w-[600px]">
-            <thead className="bg-slate-50 text-black text-[9px] tracking-widest">
+        <div className="app-table-container">
+          <table className="app-table">
+            <thead className="app-thead">
               <tr>
-                <th className="px-2 py-1.5">{t('item_name')}</th>
-                <th className="px-2 py-1.5">{t('category')}</th>
-                <th className="px-2 py-1.5">{t('stock')}</th>
-                <th className="px-2 py-1.5">{t('value')}</th>
-                <th className="px-2 py-1.5 text-right">{t('actions')}</th>
+                <th className="app-th">{t('item_name')}</th>
+                <th className="app-th">{t('category')}</th>
+                <th className="app-th">{t('stock')}</th>
+                <th className="app-th">{t('value')}</th>
+                <th className="app-th text-right">{t('actions')}</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="app-tbody">
               {items.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="py-8 text-center text-xs tracking-widest text-slate-500">{t('no_records')}</td>
@@ -438,24 +438,24 @@ export default function Inventory() {
                 const isLowStock = item.minStock > 0 && item.quantity <= item.minStock;
                 const value = (item.quantity * (item.rate || 0)).toFixed(2);
                 return (
-                  <tr key={item.id} className="hover:bg-slate-50/50">
-                    <td className="px-2 py-1.5">
-                      <div className="font-medium text-sm text-slate-900">{item.itemName}</div>
+                  <tr key={item.id} className="app-tr text-sm">
+                    <td className="app-td">
+                      <div className="font-medium text-slate-900">{item.itemName}</div>
                       {isLowStock && <span className="text-[9px] text-red-600 tracking-widest font-bold">{t('low_stock')}</span>}
                     </td>
-                    <td className="px-2 py-1.5 text-xs">{t(item.category?.toLowerCase() || 'general')}</td>
-                    <td className="px-2 py-1.5">
-                      <span className={`text-sm ${isLowStock ? 'text-red-600 font-bold' : ''}`}>{item.quantity} {t(item.unit?.toLowerCase() || 'units')}</span>
+                    <td className="app-td text-xs">{t(item.category?.toLowerCase() || 'general')}</td>
+                    <td className="app-td">
+                      <span className={`${isLowStock ? 'text-red-600 font-bold' : ''}`}>{item.quantity} {t(item.unit?.toLowerCase() || 'units')}</span>
                     </td>
-                    <td className="px-2 py-1.5 text-xs text-slate-600">
+                    <td className="app-td text-xs text-slate-600">
                       {item.rate > 0 ? (
                         <div>
-                          <div className="font-mono text-slate-900 font-medium">₹{value}</div>
+                          <div className=" text-slate-900 font-medium">₹{value}</div>
                           <div className="text-[9px] tracking-widest">₹{item.rate}/{item.unit}</div>
                         </div>
                       ) : '-'}
                     </td>
-                    <td className="px-2 py-1.5">
+                    <td className="app-td">
                       <div className="flex gap-1 justify-end">
                         <button onClick={() => setSellItem(item)} disabled={item.quantity <= 0} className="p-1.5 bg-slate-50 border border-slate-200 text-emerald-600 hover:bg-emerald-100 disabled:opacity-50" title={t('sell_item')}>
                           <ShoppingCart className="w-3.5 h-3.5" />

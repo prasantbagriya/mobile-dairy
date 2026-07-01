@@ -224,11 +224,11 @@ export default function Payments() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-[10px]  text-black tracking-tight block mb-1">{t('amount')}</label>
-                  <input type="number" inputMode="decimal" pattern="[0-9]*" placeholder="0.00" className="w-full bg-slate-50 border border-slate-100 rounded-none px-3 py-3 text-lg  text-black" value={formData.amount} onChange={e => setFormData({ ...formData, amount: e.target.value })} />
+                  <input id="auto-input-63" name="auto-input-63" type="number" inputMode="decimal" pattern="[0-9]*" placeholder="0.00" className="w-full bg-slate-50 border border-slate-100 rounded-none px-3 py-3 text-lg  text-black" value={formData.amount} onChange={e => setFormData({ ...formData, amount: e.target.value })} />
                 </div>
                 <div>
                   <label className="text-[10px]  text-black tracking-tight block mb-1">{t('date')}</label>
-                  <input type="date" className="w-full bg-slate-50 border border-slate-100 rounded-none px-3 py-2.5  text-black text-sm" value={formData.date} onChange={e => setFormData({ ...formData, date: e.target.value })} />
+                  <input id="auto-input-64" name="auto-input-64" type="date" className="w-full bg-slate-50 border border-slate-100 rounded-none px-3 py-2.5  text-black text-sm" value={formData.date} onChange={e => setFormData({ ...formData, date: e.target.value })} />
                 </div>
               </div>
 
@@ -272,8 +272,8 @@ export default function Payments() {
     <div className="space-y-4 md:space-y-6 -m-2 md:-m-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">{t('payments')} <InfoTooltip text="Manage incoming money from customers and outgoing to farmers." /></h2>
-          <p className="text-black text-xs md:text-sm mt-1">{t('settle_dues_desc')}</p>
+          <h2 className="app-title">{t('payments')} <InfoTooltip text="Manage incoming money from customers and outgoing to farmers." /></h2>
+          <p className="app-subtitle">{t('settle_dues_desc')}</p>
         </div>
         {!showForm && (
           <button 
@@ -346,7 +346,7 @@ export default function Payments() {
               </h3>
               <div className="relative w-full md:w-64">
                 <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                <input
+                <input id="auto-input-65" name="auto-input-65"
                   type="text"
                   placeholder={t('search_by_name', 'Search by name...')}
                   className="w-full bg-slate-50 border border-slate-200 rounded-none pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 text-black"
@@ -357,18 +357,18 @@ export default function Payments() {
             </div>
             <div className="max-h-[600px] overflow-y-auto overflow-x-auto bg-slate-50 md:bg-white border-t border-slate-100 no-scrollbar">
               {/* Desktop View */}
-              <table className="w-full text-left border-collapse whitespace-nowrap hidden md:table">
-                <thead className="bg-slate-50/50 text-black capitalize text-[9px] tracking-widest sticky top-0 z-10 backdrop-blur-sm">
+              <table className="app-table hidden md:table">
+                <thead className="app-thead">
                   <tr>
-                    <th className="px-4 py-3">{t('date_person')}</th>
-                    <th className="px-4 py-3">{t('type_method')}</th>
-                    <th className="px-4 py-3 text-right">{t('amount')}</th>
+                    <th className="app-th">{t('date_person')}</th>
+                    <th className="app-th">{t('type_method')}</th>
+                    <th className="app-th text-right">{t('amount')}</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-50">
+                <tbody className="app-tbody">
                   {filteredTransactions.map(tr => (
-                    <tr key={tr.id} className="hover:bg-slate-50/50 transition-colors group">
-                      <td className="px-4 py-3">
+                    <tr key={tr.id} className="app-tr group">
+                      <td className="app-td">
                         <div className="flex flex-col">
                           <span className="text-xs  text-black">{tr.date}</span>
                           <span className="text-[9px]  text-black mt-0.5">
@@ -377,7 +377,7 @@ export default function Payments() {
                           </span>
                         </div>
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="app-td">
                         <div className="flex items-center gap-2">
                           {tr.type === 'debit' ? (
                             <div className="p-1.5 bg-red-50 text-red-500 rounded-none"><ArrowDownCircle className="w-3.5 h-3.5" /></div>
@@ -390,8 +390,8 @@ export default function Payments() {
                           </div>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-right">
-                        <span className={`text-xs  font-mono ${tr.type === 'debit' ? 'text-red-600' : 'text-emerald-600'}`}>₹ {tr.amount.toLocaleString()}</span>
+                      <td className="app-td text-right">
+                        <span className={`text-xs   ${tr.type === 'debit' ? 'text-red-600' : 'text-emerald-600'}`}>₹ {tr.amount.toLocaleString()}</span>
                       </td>
                     </tr>
                   ))}
@@ -416,7 +416,7 @@ export default function Payments() {
                         </div>
                       </div>
                       <div className="text-right flex flex-col items-end">
-                        <span className={`text-sm font-mono ${tr.type === 'debit' ? 'text-red-600' : 'text-emerald-600'}`}>
+                        <span className={`text-sm  ${tr.type === 'debit' ? 'text-red-600' : 'text-emerald-600'}`}>
                           ₹ {tr.amount.toLocaleString()}
                         </span>
                         <span className={`text-[9px] mt-0.5 ${tr.type === 'debit' ? 'text-red-500' : 'text-emerald-500'}`}>

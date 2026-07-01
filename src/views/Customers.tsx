@@ -303,7 +303,7 @@ export default function Customers() {
                 </div>
               ) : (
                 <div className="flex gap-2">
-                  <input 
+                  <input id="auto-input-18" name="auto-input-18" 
                     type="text" 
                     placeholder="Search name or phone..." 
                     className="flex-1 bg-white border border-slate-200 px-2 py-1.5 text-xs focus:outline-none"
@@ -349,7 +349,7 @@ export default function Customers() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
               <div className="md:col-span-2">
                 <label className="text-[10px] text-black font-medium block mb-1">Customer Name</label>
-                <input 
+                <input id="auto-input-19" name="auto-input-19" 
                   type="text" 
                   className="w-full bg-slate-50 border border-slate-200 rounded-none px-2 py-1.5 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-black text-sm"
                   value={currentCustomer?.name || ''}
@@ -360,7 +360,7 @@ export default function Customers() {
               
               <div>
                 <label className="text-[10px] text-black font-medium block mb-1">{t('mobile')}</label>
-                <input 
+                <input id="auto-input-20" name="auto-input-20" 
                   type="tel" pattern="[0-9]*" inputMode="decimal" maxLength={10}
                   className="w-full bg-slate-50 border border-slate-200 rounded-none px-2 py-1.5 focus:ring-2 focus:ring-emerald-500 outline-none text-black text-sm"
                   value={currentCustomer?.mobile || ''}
@@ -372,7 +372,7 @@ export default function Customers() {
               </div>
               <div>
                 <label className="text-[10px] text-black font-medium block mb-1">Route Sequence</label>
-                <input 
+                <input id="auto-input-21" name="auto-input-21" 
                   type="number" inputMode="decimal" pattern="[0-9]*" 
                   className="w-full bg-slate-50 border border-slate-200 rounded-none px-2 py-1.5 focus:ring-2 focus:ring-emerald-500 outline-none text-black text-sm"
                   value={currentCustomer?.sequence || ''}
@@ -382,7 +382,7 @@ export default function Customers() {
 
               <div>
                 <label className="text-[10px] text-black font-medium block mb-1">Fixed Qty (Liters)</label>
-                <input 
+                <input id="auto-input-22" name="auto-input-22" 
                   type="number" inputMode="decimal" pattern="[0-9]*" 
                   className="w-full bg-emerald-50 border border-emerald-100 rounded-none px-2 py-1.5 focus:ring-2 focus:ring-emerald-500 outline-none text-emerald-800 text-sm"
                   value={currentCustomer?.fixedQty || ''}
@@ -391,7 +391,7 @@ export default function Customers() {
               </div>
               <div>
                 <label className="text-[10px] text-black font-medium block mb-1">Fixed Rate (₹/L)</label>
-                <input 
+                <input id="auto-input-23" name="auto-input-23" 
                   type="number" inputMode="decimal" pattern="[0-9]*" 
                   className="w-full bg-slate-100 border border-slate-200 rounded-none px-2 py-1.5 focus:ring-2 focus:ring-emerald-500 outline-none text-black text-sm"
                   value={currentCustomer?.defaultRate || ''}
@@ -401,7 +401,7 @@ export default function Customers() {
 
               <div className="md:col-span-2">
                 <label className="text-[10px] text-amber-600 font-medium block mb-1">Initial Dues (Opening Balance)</label>
-                <input 
+                <input id="auto-input-24" name="auto-input-24" 
                   type="number" inputMode="decimal" pattern="[0-9]*" 
                   className="w-full bg-amber-50 border border-amber-100 rounded-none px-2 py-1.5 focus:ring-2 focus:ring-amber-500 outline-none text-black text-sm"
                   value={currentCustomer?.balance || ''}
@@ -442,7 +442,7 @@ export default function Customers() {
     <div className={`bg-white p-2 rounded-none border border-slate-100 items-center justify-between gap-2 px-4 ${className}`}>
       <div className="flex-1 flex items-center gap-2 min-w-[200px]">
         <Search className="w-4 h-4 text-black" />
-        <input 
+        <input id="auto-input-25" name="auto-input-25" 
           type="text" 
           placeholder="Search..." 
           className="flex-1 bg-transparent py-1.5 focus:outline-none text-black  placeholder:text-slate-300 text-sm"
@@ -473,8 +473,8 @@ export default function Customers() {
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-2 md:gap-4">
         <div className="min-w-0">
-          <h2 className="text-xl md:text-2xl text-slate-900 tracking-tight flex items-center gap-1.5 md:gap-2 truncate">{t('customers')} <InfoTooltip text="Manage your regular milk buyers and their accounts." /></h2>
-          <p className="text-black text-[9px] md:text-[10px] tracking-widest mt-0.5 truncate">{customers.length} retail customers</p>
+          <h2 className="app-title truncate">{t('customers')} <InfoTooltip text="Manage your regular milk buyers and their accounts." /></h2>
+          <p className="app-subtitle truncate">{customers.length} retail customers</p>
         </div>
         {searchAndToggleUI("hidden md:flex flex-1 max-w-md mx-4")}
 
@@ -574,19 +574,19 @@ export default function Customers() {
             }
 
             return (
-            <div ref={tableContainerRef} className="bg-white border border-slate-100 overflow-auto no-scrollbar h-[calc(100vh-200px)] min-h-[400px]">
-              <table className="w-full text-left border-collapse border border-slate-200 min-w-[800px]">
-                <thead className="bg-slate-50 sticky top-0 text-black text-sm font-semibold border-b border-slate-200 z-10">
-                  <tr className="bg-slate-50 border-b border-slate-100">
-                    <th className="px-4 py-3 border-b border-slate-200 text-black text-sm font-semibold whitespace-nowrap">{t('seq_no')}</th>
-                    <th className="px-4 py-3 border-b border-slate-200 text-black text-sm font-semibold whitespace-nowrap">{t('customer')}</th>
-                    <th className="px-4 py-3 border-b border-slate-200 text-black text-sm font-semibold whitespace-nowrap">{t("contact")}</th>
-                    <th className="px-4 py-3 border-b border-slate-200 text-black text-sm font-semibold whitespace-nowrap">{t('fixed_rate')}</th>
-                    <th className="px-4 py-3 border-b border-slate-200 text-black text-sm font-semibold whitespace-nowrap text-right">{t('balance')}</th>
-                    <th className="px-4 py-3 border-b border-slate-200 text-black text-sm font-semibold whitespace-nowrap text-center">{t("actions")}</th>
+            <div ref={tableContainerRef} className="app-table-container overflow-y-auto h-[calc(100vh-200px)] min-h-[400px]">
+              <table className="app-table relative min-w-[800px]">
+                <thead className="app-thead">
+                  <tr>
+                    <th className="app-th">{t('seq_no')}</th>
+                    <th className="app-th">{t('customer')}</th>
+                    <th className="app-th">{t("contact")}</th>
+                    <th className="app-th">{t('fixed_rate')}</th>
+                    <th className="app-th text-right">{t('balance')}</th>
+                    <th className="app-th text-center">{t("actions")}</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="app-tbody">
                   {(() => {
                     const virtualItems = rowVirtualizer.getVirtualItems();
                     const paddingTop = virtualItems.length > 0 ? virtualItems[0].start : 0;
@@ -602,12 +602,12 @@ export default function Customers() {
                           const isDeactivated = customer.isActive === false;
                           return (
                             <tr key={customer.id} 
-                              className={`hover:bg-slate-50 transition-colors ${isDeactivated ? 'opacity-75 grayscale bg-slate-50/50' : ''}`}
+                              className={`app-tr ${isDeactivated ? 'opacity-75 grayscale bg-slate-50/50' : ''}`}
                             >
-                              <td className="px-2 md:px-6 py-2.5 md:py-4 whitespace-nowrap">
+                              <td className="app-td">
                                 <span className="text-xs text-black">#{customer.sequence || '?'}</span>
                               </td>
-                              <td className="px-2 md:px-6 py-2.5 md:py-4 whitespace-nowrap">
+                              <td className="app-td">
                                 <div className="flex items-center gap-2 md:gap-3">
                                   <div className={`w-8 h-8 md:w-10 md:h-10 flex items-center justify-center text-sm font-medium ${isDeactivated ? 'bg-red-50 text-red-600' : 'bg-slate-100 text-slate-700'}`}>
                                     {(customer.name || "?").charAt(0)}
@@ -618,21 +618,21 @@ export default function Customers() {
                                   </div>
                                 </div>
                               </td>
-                              <td className="px-2 md:px-6 py-2.5 md:py-4 whitespace-nowrap">
+                              <td className="app-td">
                                 <div className="flex flex-col gap-1">
                                   <span className="text-xs text-slate-700 flex items-center gap-1"><Phone className="w-3 h-3"/> {customer.mobile}</span>
                                   <span className="text-[10px] text-slate-500 flex items-center gap-1"><MapPin className="w-3 h-3"/> {customer.address || 'N/A'}</span>
                                 </div>
                               </td>
-                              <td className="px-2 md:px-6 py-2.5 md:py-4 whitespace-nowrap">
+                              <td className="app-td">
                                 <span className="text-xs font-medium text-slate-700">₹ {customer.defaultRate || 'NAV'}/L</span>
                               </td>
-                              <td className="px-2 md:px-6 py-2.5 md:py-4 whitespace-nowrap text-right">
+                              <td className="app-td text-right">
                                 <span className={`text-sm font-bold ${customer.balance > 0 ? 'text-red-600' : 'text-emerald-600'}`}>
                                   ₹ {customer.balance}
                                 </span>
                               </td>
-                              <td className="px-2 md:px-6 py-2.5 md:py-4 whitespace-nowrap text-center">
+                              <td className="app-td text-center">
                                 <div className="flex items-center justify-center gap-2">
                                   <button 
                                     onClick={() => setSelectedCustomer(customer)}

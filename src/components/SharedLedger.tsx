@@ -432,10 +432,10 @@ const SharedLedger = memo(({ person, type, allPersons = [], onClose, onRefresh, 
                         </div>
                       ) : <span className="text-slate-300">-</span>}
                     </td>
-                    <td className={`px-4 py-3 border-b border-slate-200 text-right font-mono text-sm font-bold whitespace-nowrap ${isFarmer ? 'text-emerald-600' : 'text-red-500'}`}>
+                    <td className={`px-4 py-3 border-b border-slate-200 text-right  text-sm font-bold whitespace-nowrap ${isFarmer ? 'text-emerald-600' : 'text-red-500'}`}>
                       {item.entryType === 'milk' ? `+ ₹${item.amount || 0}` : ((item as Transaction).type === (isFarmer ? 'credit' : 'debit') ? `+ ₹${item.amount || 0}` : <span className="text-slate-300">-</span>)}
                     </td>
-                    <td className={`px-4 py-3 border-b border-slate-200 text-right font-mono text-sm font-bold whitespace-nowrap ${isFarmer ? 'text-red-600' : 'text-emerald-600'}`}>
+                    <td className={`px-4 py-3 border-b border-slate-200 text-right  text-sm font-bold whitespace-nowrap ${isFarmer ? 'text-red-600' : 'text-emerald-600'}`}>
                       {item.entryType === 'transaction' && (item as Transaction).type === (isFarmer ? 'debit' : 'credit') ? `- ₹${item.amount || 0}` : <span className="text-slate-300">-</span>}
                     </td>
                     <td className="px-4 py-3 border-b border-slate-200 text-center whitespace-nowrap">
@@ -567,7 +567,7 @@ const SharedLedger = memo(({ person, type, allPersons = [], onClose, onRefresh, 
               <div className="flex-1 flex flex-col gap-3 mt-1">
                 <div className="space-y-1">
                   <label className="text-sm text-black block">Amount (₹)</label>
-                  <input 
+                  <input id="auto-input-86" name="auto-input-86" 
                     type="number" inputMode="decimal" pattern="[0-9]*" 
                     className="w-full text-xl text-blue-600 border-2 border-slate-300 px-3 py-2 outline-none focus:border-blue-500 bg-white" 
                     value={paymentData.amount}
@@ -587,13 +587,13 @@ const SharedLedger = memo(({ person, type, allPersons = [], onClose, onRefresh, 
                   </div>
                   <div className="space-y-1">
                     <label className="text-sm text-black block">Date</label>
-                    <input type="date" className="w-full border-2 border-slate-300 px-3 py-2 outline-none focus:border-blue-500 text-base bg-white" value={paymentData.date} onChange={e => setPaymentData({...paymentData, date: e.target.value})} />
+                    <input id="auto-input-87" name="auto-input-87" type="date" className="w-full border-2 border-slate-300 px-3 py-2 outline-none focus:border-blue-500 text-base bg-white" value={paymentData.date} onChange={e => setPaymentData({...paymentData, date: e.target.value})} />
                   </div>
                 </div>
 
                 <div className="space-y-1">
                   <label className="text-sm text-black block">Description / Note</label>
-                  <input type="text" className="w-full border-2 border-slate-300 px-3 py-2 outline-none focus:border-blue-500 text-base bg-white" value={paymentData.description} onChange={e => setPaymentData({...paymentData, description: e.target.value})} placeholder="Optional" />
+                  <input id="auto-input-88" name="auto-input-88" type="text" className="w-full border-2 border-slate-300 px-3 py-2 outline-none focus:border-blue-500 text-base bg-white" value={paymentData.description} onChange={e => setPaymentData({...paymentData, description: e.target.value})} placeholder="Optional" />
                 </div>
               </div>
 
@@ -631,11 +631,11 @@ const SharedLedger = memo(({ person, type, allPersons = [], onClose, onRefresh, 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
                   <label className="text-sm font-medium text-black">Start Date</label>
-                  <input type="date" className="w-full border border-slate-300 p-2 text-sm bg-white" value={shareStartDate} onChange={e => setShareStartDate(e.target.value)} />
+                  <input id="auto-input-89" name="auto-input-89" type="date" className="w-full border border-slate-300 p-2 text-sm bg-white" value={shareStartDate} onChange={e => setShareStartDate(e.target.value)} />
                 </div>
                 <div className="space-y-1">
                   <label className="text-sm font-medium text-black">End Date</label>
-                  <input type="date" className="w-full border border-slate-300 p-2 text-sm bg-white" value={shareEndDate} onChange={e => setShareEndDate(e.target.value)} />
+                  <input id="auto-input-90" name="auto-input-90" type="date" className="w-full border border-slate-300 p-2 text-sm bg-white" value={shareEndDate} onChange={e => setShareEndDate(e.target.value)} />
                 </div>
               </div>
 

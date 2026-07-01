@@ -159,21 +159,21 @@ export default function EditMilkModal({ isOpen, onClose, collection, onSuccess }
           <div className="grid grid-cols-3 gap-3">
             <div>
               <label className="text-[10px]  text-black tracking-tight block mb-1">Quantity (L)</label>
-              <input type="number" inputMode="decimal" pattern="[0-9]*" className="w-full bg-slate-50 border border-slate-200 rounded-none px-3 py-2 text-sm  text-black" value={formData.quantity} onChange={e => setFormData({...formData, quantity: e.target.value})} />
+              <input id="auto-input-76" name="auto-input-76" type="number" inputMode="decimal" pattern="[0-9]*" className="w-full bg-slate-50 border border-slate-200 rounded-none px-3 py-2 text-sm  text-black" value={formData.quantity} onChange={e => setFormData({...formData, quantity: e.target.value})} />
             </div>
             <div>
               <label className="text-[10px]  text-black tracking-tight block mb-1">Fat (%)</label>
-              <input type="number" inputMode="decimal" pattern="[0-9]*" className="w-full bg-slate-50 border border-slate-200 rounded-none px-3 py-2 text-sm  text-black" value={formData.fat} onChange={e => setFormData({...formData, fat: e.target.value})} />
+              <input id="auto-input-77" name="auto-input-77" type="number" inputMode="decimal" pattern="[0-9]*" className="w-full bg-slate-50 border border-slate-200 rounded-none px-3 py-2 text-sm  text-black" value={formData.fat} onChange={e => setFormData({...formData, fat: e.target.value})} />
             </div>
             <div>
               <label className="text-[10px]  text-black tracking-tight block mb-1">SNF (%)</label>
-              <input type="number" inputMode="decimal" pattern="[0-9]*" className="w-full bg-slate-50 border border-slate-200 rounded-none px-3 py-2 text-sm  text-black" value={formData.snf} onChange={e => setFormData({...formData, snf: e.target.value})} />
+              <input id="auto-input-78" name="auto-input-78" type="number" inputMode="decimal" pattern="[0-9]*" className="w-full bg-slate-50 border border-slate-200 rounded-none px-3 py-2 text-sm  text-black" value={formData.snf} onChange={e => setFormData({...formData, snf: e.target.value})} />
             </div>
           </div>
 
           <div>
             <label className="text-[10px]  text-black tracking-tight block mb-1">Calculated Rate (₹)</label>
-            <input type="number" inputMode="decimal" pattern="[0-9]*" className="w-full bg-slate-100 border border-slate-200 rounded-none px-4 py-3 text-xl  text-blue-600" value={formData.rate} onChange={e => setFormData({...formData, rate: e.target.value})} />
+            <input id="auto-input-79" name="auto-input-79" type="number" inputMode="decimal" pattern="[0-9]*" className="w-full bg-slate-100 border border-slate-200 rounded-none px-4 py-3 text-xl  text-blue-600" value={formData.rate} onChange={e => setFormData({...formData, rate: e.target.value})} />
           </div>
 
           <div className="flex items-center justify-between bg-slate-900 p-4 text-white mt-4">

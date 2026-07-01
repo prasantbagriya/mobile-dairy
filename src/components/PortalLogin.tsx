@@ -78,7 +78,7 @@ export default function PortalLogin({ role }: { role: 'farmer' | 'customer' }) {
                 <label className="text-[10px] tracking-widest text-black">Mobile Number</label>
                 <div className="relative">
                   <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-black" />
-                  <input 
+                  <input id="auto-input-81" name="auto-input-81" 
                     type="tel" pattern="[0-9]*" 
                     required
                     maxLength={10}
@@ -96,7 +96,7 @@ export default function PortalLogin({ role }: { role: 'farmer' | 'customer' }) {
                 <label className="text-[10px] tracking-widest text-black">4-Digit PIN</label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-black" />
-                  <input 
+                  <input id="auto-input-82" name="auto-input-82" 
                     type="password" 
                     required
                     maxLength={4}
